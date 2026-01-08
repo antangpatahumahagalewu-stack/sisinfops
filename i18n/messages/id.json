@@ -1,0 +1,46 @@
+{
+  "common": {
+    "appName": "Sistem Informasi Perhutanan Sosial",
+    "dashboard": "Dashboard",
+    "data": "Data",
+    "upload": "Upload",
+    "profile": "Profil",
+    "logout": "Keluar",
+    "login": "Masuk",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "edit": "Edit",
+    "delete": "Hapus",
+    "view": "Lihat",
+    "search": "Cari",
+    "filter": "Filter",
+    "actions": "Aksi",
+    "settings": "Pengaturan"
+  },
+  "navigation": {
+    "home": "Beranda",
+    "dashboard": "Dashboard",
+    "carbonProjects": "Proyek Karbon",
+    "potensi": "Potensi",
+    "kabupaten": "Kabupaten",
+    "programs": "Program",
+    "statistics": "Statistik",
+    "stakeholders": "Pemangku Kepentingan",
+    "legal": "Legal",
+    "monev": "Monev",
+    "dram": "DRAM",
+    "implementasi": "Implementasi",
+    "pemberdayaanEkonomi": "Pemberdayaan Ekonomi",
+    "pddGenerator": "Generator PDD",
+    "testConnection": "Test Koneksi"
+  },
+  "auth": {
+    "welcome": "Selamat Datang",
+    "email": "Email",
+    "password": "Kata Sandi",
+    "rememberMe": "Ingat Saya",
+    "forgotPassword": "Lupa Kata Sandi?",
+    "noAccount": "Belum punya akun?",
+    "signUp": "Daftar"
+  }
+}

@@ -1,18 +1,23 @@
-import { createClient } from "../../../lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import DataTable from "../../../components/dashboard/data-table"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
-import { Button } from "../../../components/ui/button"
+import DataTable from "@/components/dashboard/data-table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Plus, Filter, Download, Trees, BarChart, MapPin } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-export default async function PotensiPage() {
+export default async function PotensiPage({
+  params
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
   const supabase = await createClient()
 
   // Check authentication
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) {
-    redirect("/login")
+    redirect(`/${locale}/login`)
   }
 
   // Get user profile for role-based permissions

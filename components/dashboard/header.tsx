@@ -15,6 +15,8 @@ import {
 import { LogOut, User as UserIcon, Settings } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import { useTranslations, useLocale } from 'next-intl'
+import { LanguageSwitcher } from "@/components/ui/language-switcher"
 
 interface DashboardHeaderProps {
   user: User
@@ -24,10 +26,12 @@ interface DashboardHeaderProps {
 export default function DashboardHeader({ user, profile }: DashboardHeaderProps) {
   const supabase = createClient()
   const router = useRouter()
+  const t = useTranslations('common')
+  const locale = useLocale()
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
-    router.push("/login")
+    router.push(`/${locale}/login`)
     router.refresh()
   }
 
@@ -35,7 +39,7 @@ export default function DashboardHeader({ user, profile }: DashboardHeaderProps)
     if (profile?.full_name) {
       return profile.full_name
         .split(" ")
-        .map((n) => n[0])
+        .map((n: string) => n[0])
         .join("")
         .toUpperCase()
         .slice(0, 2)
@@ -67,6 +71,8 @@ export default function DashboardHeader({ user, profile }: DashboardHeaderProps)
       </div>
 
       <div className="flex items-center gap-4">
+        <LanguageSwitcher />
+        
         <div className="text-right hidden md:block">
           <p className="text-sm font-medium text-gray-900">
             {profile?.full_name || user.email}
@@ -96,18 +102,18 @@ export default function DashboardHeader({ user, profile }: DashboardHeaderProps)
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push(`/${locale}/dashboard/profile`)}>
               <UserIcon className="mr-2 h-4 w-4" />
-              <span>Profil</span>
+              <span>{t('profile')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Settings className="mr-2 h-4 w-4" />
-              <span>Pengaturan</span>
+              <span>{t('settings')}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Keluar</span>
+              <span>{t('logout')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

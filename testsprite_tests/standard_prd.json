@@ -1,0 +1,185 @@
+{
+  "project_name": "Sistem Informasi Perhutanan Sosial & PKS",
+  "version": "1.0",
+  "description": "Platform internal untuk Yayasan Antangpatahu Mahaga Lewu untuk mengelola, memantau, dan mengevaluasi program Perhutanan Sosial (PS) di 4 kabupaten secara terpusat, real-time, dan terstruktur",
+  "objectives": [
+    "Digitalisasi manajemen data PS",
+    "Mendukung siklus perencanaan → implementasi → monitoring → evaluasi → pelaporan",
+    "Role-based access control dengan 6 user roles",
+    "Generasi dokumen otomatis (DRAM, PDD)",
+    "Audit trail dan compliance"
+  ],
+  "target_users": [
+    {
+      "role": "admin",
+      "description": "Administrator dengan akses penuh ke semua fitur"
+    },
+    {
+      "role": "monev",
+      "description": "Monitoring & Evaluasi - dapat mengedit dan memantau data"
+    },
+    {
+      "role": "viewer",
+      "description": "Viewer - hanya dapat melihat data (read-only)"
+    },
+    {
+      "role": "program_planner",
+      "description": "Program Planner - perencana program dan DRAM"
+    },
+    {
+      "role": "program_implementer",
+      "description": "Program Implementer - pelaksana program di lapangan"
+    },
+    {
+      "role": "carbon_specialist",
+      "description": "Carbon Specialist - spesialis proyek karbon dan PDD"
+    }
+  ],
+  "features": [
+    {
+      "id": "F001",
+      "name": "Authentication System",
+      "description": "User authentication dengan email/password menggunakan Supabase Auth, termasuk login page dengan multi-language support",
+      "priority": "high"
+    },
+    {
+      "id": "F002",
+      "name": "Role-Based Access Control",
+      "description": "Sistem RBAC dengan 6 user roles dan permission checking di application dan database level",
+      "priority": "high"
+    },
+    {
+      "id": "F003",
+      "name": "Dashboard Nasional",
+      "description": "Dashboard utama menampilkan statistik agregat PS termasuk total PS, total luas, RKPS status, dan peta status",
+      "priority": "high"
+    },
+    {
+      "id": "F004",
+      "name": "Data PS Management",
+      "description": "Manajemen dan viewing data Perhutanan Sosial dengan filtering, searching, dan halaman profil detail PS",
+      "priority": "high"
+    },
+    {
+      "id": "F005",
+      "name": "PS Profile Detail",
+      "description": "Halaman profil detail PS dengan multiple tabs: Ringkasan, Kelembagaan, Dokumen, Peta, Galeri, Kegiatan, Catatan",
+      "priority": "high"
+    },
+    {
+      "id": "F006",
+      "name": "Excel Import",
+      "description": "Upload dan import file Excel ke database dengan validasi dan error handling",
+      "priority": "medium"
+    },
+    {
+      "id": "F007",
+      "name": "Kabupaten Management",
+      "description": "View dan manage data berdasarkan kabupaten dengan statistik detail",
+      "priority": "medium"
+    },
+    {
+      "id": "F008",
+      "name": "Data Potensi",
+      "description": "View dan manage data potensi hutan",
+      "priority": "medium"
+    },
+    {
+      "id": "F009",
+      "name": "Statistics Dashboard",
+      "description": "Dashboard statistik dan analytics dengan charts dan visualisasi",
+      "priority": "medium"
+    },
+    {
+      "id": "F010",
+      "name": "User Profile Management",
+      "description": "Manajemen profil user dengan edit functionality",
+      "priority": "low"
+    },
+    {
+      "id": "F011",
+      "name": "Internationalization",
+      "description": "Multi-language support untuk Bahasa Indonesia dan Chinese Traditional menggunakan next-intl",
+      "priority": "medium"
+    }
+  ],
+  "technical_stack": {
+    "frontend": {
+      "framework": "Next.js 16.1.1",
+      "language": "TypeScript",
+      "ui_library": "React 19.2.3",
+      "styling": "Tailwind CSS 4",
+      "components": "Radix UI, shadcn/ui",
+      "form_management": "React Hook Form + Zod",
+      "i18n": "next-intl"
+    },
+    "backend": {
+      "database": "Supabase (PostgreSQL)",
+      "authentication": "Supabase Auth",
+      "storage": "Supabase Storage",
+      "api": "Next.js API Routes"
+    }
+  },
+  "user_flows": [
+    {
+      "id": "UF001",
+      "name": "Login Flow",
+      "steps": [
+        "User mengakses aplikasi",
+        "Redirect ke /login jika belum authenticated",
+        "Input email dan password",
+        "Submit → Supabase Auth",
+        "Redirect ke /dashboard setelah berhasil"
+      ]
+    },
+    {
+      "id": "UF002",
+      "name": "Dashboard View Flow",
+      "steps": [
+        "User login",
+        "Redirect ke /dashboard",
+        "View statistics cards",
+        "View kabupaten statistics table",
+        "Navigate ke fitur lain via sidebar"
+      ]
+    },
+    {
+      "id": "UF003",
+      "name": "Data PS View Flow",
+      "steps": [
+        "Navigate ke /dashboard/data",
+        "View PS data table",
+        "Filter/search PS data",
+        "Click on PS record",
+        "View PS detail page"
+      ]
+    },
+    {
+      "id": "UF004",
+      "name": "Excel Upload Flow",
+      "steps": [
+        "Admin/Monev login",
+        "Navigate ke /dashboard/upload",
+        "Pilih file Excel",
+        "Preview data",
+        "Confirm import",
+        "System process dan save ke database"
+      ]
+    }
+  ],
+  "non_functional_requirements": {
+    "performance": {
+      "page_load": "< 2 seconds",
+      "api_response": "< 1 second"
+    },
+    "security": {
+      "authentication": "Supabase Auth dengan JWT",
+      "authorization": "RBAC + Row-Level Security",
+      "data_encryption": "Encryption at rest dan in transit"
+    },
+    "scalability": {
+      "concurrent_users": "50+",
+      "data_volume": "10,000+ PS records"
+    }
+  }
+}

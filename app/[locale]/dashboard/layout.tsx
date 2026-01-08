@@ -5,9 +5,12 @@ import DashboardHeader from "@/components/dashboard/header"
 
 export default async function DashboardLayout({
   children,
+  params,
 }: {
   children: React.ReactNode
+  params: Promise<{ locale: string }>
 }) {
+  const { locale } = await params
   const supabase = await createClient()
 
   const {
@@ -15,7 +18,7 @@ export default async function DashboardLayout({
   } = await supabase.auth.getSession()
 
   if (!session) {
-    redirect("/login")
+    redirect(`/${locale}/login`)
   }
 
   const { data: profile } = await supabase

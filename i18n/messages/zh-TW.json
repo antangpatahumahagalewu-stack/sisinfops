@@ -1,0 +1,46 @@
+{
+  "common": {
+    "appName": "社會林業資訊系統",
+    "dashboard": "儀表板",
+    "data": "數據",
+    "upload": "上傳",
+    "profile": "個人資料",
+    "logout": "登出",
+    "login": "登入",
+    "save": "儲存",
+    "cancel": "取消",
+    "edit": "編輯",
+    "delete": "刪除",
+    "view": "查看",
+    "search": "搜尋",
+    "filter": "篩選",
+    "actions": "操作",
+    "settings": "設置"
+  },
+  "navigation": {
+    "home": "首頁",
+    "dashboard": "儀表板",
+    "carbonProjects": "碳專案",
+    "potensi": "潛力",
+    "kabupaten": "縣",
+    "programs": "計劃",
+    "statistics": "統計",
+    "stakeholders": "利益相關者",
+    "legal": "法律",
+    "monev": "監測與評估",
+    "dram": "DRAM",
+    "implementasi": "實施",
+    "pemberdayaanEkonomi": "經濟賦權",
+    "pddGenerator": "PDD 生成器",
+    "testConnection": "測試連接"
+  },
+  "auth": {
+    "welcome": "歡迎",
+    "email": "電子郵件",
+    "password": "密碼",
+    "rememberMe": "記住我",
+    "forgotPassword": "忘記密碼？",
+    "noAccount": "還沒有帳號？",
+    "signUp": "註冊"
+  }
+}
