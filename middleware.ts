@@ -10,6 +10,15 @@ const intlMiddleware = createMiddleware({
 });
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  
+  // Bypass middleware for static files
+  const staticExtensions = ['.ico', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.css', '.js', '.woff', '.woff2', '.ttf', '.eot', '.json'];
+  const isStaticFile = staticExtensions.some(ext => pathname.endsWith(ext));
+  if (isStaticFile) {
+    return NextResponse.next();
+  }
+  
   // First handle i18n routing - this will handle locale detection and redirects
   const intlResponse = intlMiddleware(request);
   
@@ -18,9 +27,6 @@ export async function middleware(request: NextRequest) {
   if (intlResponse && intlResponse.status === 307) {
     return intlResponse;
   }
-  
-  // Get the pathname (after intl processing, it will have locale prefix)
-  const pathname = request.nextUrl.pathname;
   
   // Handle authentication
   // Create a response object for Supabase to work with
@@ -83,6 +89,7 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      * - api (API routes)
+     * - static files (handled in code)
      */
     '/((?!_next/static|_next/image|favicon.ico|public/|api/).*)',
   ],
