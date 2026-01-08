@@ -44,36 +44,6 @@ export default function LoginPage() {
     }
   }
 
-  const handleDemoLogin = async (role: 'admin' | 'monev' | 'viewer') => {
-    setLoading(true)
-    setError(null)
-
-    // Demo credentials based on role
-    const demoCredentials = {
-      admin: { email: "admin@yayasan.com", password: "admin123" },
-      monev: { email: "monev@yayasan.com", password: "monev123" },
-      viewer: { email: "viewer@yayasan.com", password: "viewer123" },
-    }
-
-    setEmail(demoCredentials[role].email)
-    setPassword(demoCredentials[role].password)
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword(demoCredentials[role])
-
-      if (error) {
-        setError(error.message)
-        return
-      }
-
-      router.push("/dashboard")
-      router.refresh()
-    } catch (err) {
-      setError("Terjadi kesalahan. Silakan coba lagi.")
-    } finally {
-      setLoading(false)
-    }
-  }
 
   return (
     <div className="w-full max-w-md">
@@ -92,7 +62,7 @@ export default function LoginPage() {
             Sistem Informasi Perhutanan Sosial
           </CardTitle>
           <CardDescription className="text-center">
-            Aplikasi internal yayasan - Masuk dengan akun Anda
+            Aplikasi internal Yayasan Antangpatahu Mahaga Lewu  Masuk dengan akun Anda
           </CardDescription>
         </CardHeader>
         
@@ -142,47 +112,6 @@ export default function LoginPage() {
                 </>
               )}
             </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Atau coba demo
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleDemoLogin('admin')}
-                disabled={loading}
-                className="text-xs"
-              >
-                Admin
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleDemoLogin('monev')}
-                disabled={loading}
-                className="text-xs"
-              >
-                Monev
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleDemoLogin('viewer')}
-                disabled={loading}
-                className="text-xs"
-              >
-                Viewer
-              </Button>
-            </div>
           </CardContent>
         </form>
 
@@ -192,16 +121,13 @@ export default function LoginPage() {
             <br />
             Hubungi administrator untuk mendapatkan akses.
           </p>
-          <div className="text-xs text-center text-muted-foreground">
-            <strong>Note:</strong> Demo users tidak memiliki akses ke data real.
-          </div>
         </CardFooter>
       </Card>
 
       <div className="mt-8 text-center">
         <div className="text-sm text-gray-600">
           <p className="font-semibold">YAYASAN ANTANGPATAHU MAHAGA LEWU</p>
-          <p className="mt-1">Sistem Informasi Perhutanan Sosial & PKS 4 Kabupaten</p>
+          <p className="mt-1">Sistem Informasi Perhutanan Sosial & PKS di Kalimantan Tengah</p>
         </div>
       </div>
     </div>
