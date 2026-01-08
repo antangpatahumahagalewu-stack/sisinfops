@@ -6,6 +6,7 @@
 - ✅ `netlify.toml` - Netlify configuration
 - ✅ `.nvmrc` - Node.js version (20)
 - ✅ `@netlify/plugin-nextjs` - Installed as dev dependency
+- ✅ `next.config.ts` - Optimized with security headers
 
 ### 2. Environment Variables Required in Netlify Dashboard
 
@@ -24,6 +25,8 @@ The Netlify plugin automatically handles:
 - Build command: `npm run build`
 - Publish directory: `.next` (handled by plugin)
 - Function configuration: Automatic
+
+**Note:** The Next.js config includes security headers (X-Frame-Options, X-Content-Type-Options, etc.) that will be applied to all routes.
 
 ### 4. API Route Considerations
 
