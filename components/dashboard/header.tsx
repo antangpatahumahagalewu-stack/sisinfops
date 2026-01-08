@@ -48,6 +48,9 @@ export default function DashboardHeader({ user, profile }: DashboardHeaderProps)
       case "admin": return "Administrator"
       case "monev": return "Monitoring & Evaluasi"
       case "viewer": return "Viewer"
+      case "program_planner": return "Program Planner"
+      case "program_implementer": return "Program Implementer"
+      case "carbon_specialist": return "Carbon Specialist"
       default: return "User"
     }
   }
