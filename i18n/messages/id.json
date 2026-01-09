@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "Sistem Informasi Perhutanan Sosial",
+    "foundationName": "YAYASAN ANTANGPATAHU MAHAGA LEWU",
     "dashboard": "Dashboard",
     "data": "Data",
     "upload": "Upload",
@@ -15,7 +16,11 @@
     "search": "Cari",
     "filter": "Filter",
     "actions": "Aksi",
-    "settings": "Pengaturan"
+    "settings": "Pengaturan",
+    "hide": "Sembunyikan",
+    "sipsPlus": "SIPS+",
+    "carbonProjectOS": "Carbon Project OS",
+    "loading": "Memproses..."
   },
   "navigation": {
     "home": "Beranda",
@@ -32,7 +37,12 @@
     "implementasi": "Implementasi",
     "pemberdayaanEkonomi": "Pemberdayaan Ekonomi",
     "pddGenerator": "Generator PDD",
-    "testConnection": "Test Koneksi"
+    "testConnection": "Test Koneksi",
+    "dataPS": "Data PS",
+    "dashboardProgram": "Dashboard Program",
+    "uploadExcel": "Upload Excel",
+    "users": "Pengguna",
+    "settings": "Pengaturan"
   },
   "auth": {
     "welcome": "Selamat Datang",
@@ -41,6 +51,11 @@
     "rememberMe": "Ingat Saya",
     "forgotPassword": "Lupa Kata Sandi?",
     "noAccount": "Belum punya akun?",
-    "signUp": "Daftar"
+    "signUp": "Daftar",
+    "foundationName": "YAYASAN ANTANGPATAHU MAHAGA LEWU",
+    "systemDescription": "Sistem Informasi Perhutanan Sosial & PKS di Kalimantan Tengah",
+    "divisionName": "Divisi Perencana Program, Implementasi, dan Monev",
+    "copyright": "Copyright © 2026 Yayasan Antangpatahu Mahaga Lewu",
+    "internalAppNotice": "Aplikasi ini hanya untuk penggunaan internal yayasan. Hubungi administrator untuk mendapatkan akses."
   }
 }

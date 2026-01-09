@@ -63,10 +63,10 @@ export default function DashboardHeader({ user, profile }: DashboardHeaderProps)
     <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white px-6">
       <div>
         <h1 className="text-lg font-semibold text-gray-900">
-          Sistem Informasi Perhutanan Sosial
+          {t('appName')}
         </h1>
         <p className="text-sm text-gray-500">
-          Yayasan ANTANGPATAHU MAHAGA LEWU
+          {t('foundationName')}
         </p>
       </div>
 

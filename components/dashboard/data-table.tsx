@@ -5,6 +5,7 @@ import { Search, MoreVertical, Eye, Edit, Trash2, CheckCircle, XCircle, FileText
 import { Kabupaten } from "@/lib/types/pks"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useLocale } from 'next-intl'
 
 interface DataTableProps {
   data: any[]
@@ -20,6 +21,7 @@ export default function DataTable({ data, kabupatenOptions, userRole }: DataTabl
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const dropdownRefs = useRef<Record<string, HTMLDivElement>>({})
   const router = useRouter()
+  const locale = useLocale()
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -124,7 +126,7 @@ export default function DataTable({ data, kabupatenOptions, userRole }: DataTabl
 
   // Handle actions
   const handleView = (id: string) => {
-    router.push(`/ps/${id}`)
+    router.push(`/${locale}/ps/${id}`)
   }
 
   const handleEdit = (id: string) => {
@@ -242,7 +244,7 @@ export default function DataTable({ data, kabupatenOptions, userRole }: DataTabl
                     </td>
                     <td className="py-3 px-4">
                       <div>
-                        <Link href={`/ps/${item.id}`} className="font-semibold hover:text-blue-600 hover:underline">
+                        <Link href={`/${locale}/ps/${item.id}`} className="font-semibold hover:text-blue-600 hover:underline">
                           {item.pemegang_izin}
                         </Link>
                         <p className="text-xs text-muted-foreground">

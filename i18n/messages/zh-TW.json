@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "社會林業資訊系統",
+    "foundationName": "ANTANGPATAHU MAHAGA LEWU 基金會",
     "dashboard": "儀表板",
     "data": "數據",
     "upload": "上傳",
@@ -15,7 +16,11 @@
     "search": "搜尋",
     "filter": "篩選",
     "actions": "操作",
-    "settings": "設置"
+    "settings": "設置",
+    "hide": "隱藏",
+    "sipsPlus": "SIPS+",
+    "carbonProjectOS": "碳專案操作系統",
+    "loading": "處理中..."
   },
   "navigation": {
     "home": "首頁",
@@ -28,11 +33,16 @@
     "stakeholders": "利益相關者",
     "legal": "法律",
     "monev": "監測與評估",
-    "dram": "DRAM",
+    "dram": "減緩行動計劃",
     "implementasi": "實施",
     "pemberdayaanEkonomi": "經濟賦權",
-    "pddGenerator": "PDD 生成器",
-    "testConnection": "測試連接"
+    "pddGenerator": "專案設計文件生成器",
+    "testConnection": "測試連接",
+    "dataPS": "社區林業",
+    "dashboardProgram": "計劃儀表板",
+    "uploadExcel": "上傳Excel",
+    "users": "用戶",
+    "settings": "設置"
   },
   "auth": {
     "welcome": "歡迎",
@@ -41,6 +51,11 @@
     "rememberMe": "記住我",
     "forgotPassword": "忘記密碼？",
     "noAccount": "還沒有帳號？",
-    "signUp": "註冊"
+    "signUp": "註冊",
+    "foundationName": "ANTANGPATAHU MAHAGA LEWU 基金會",
+    "systemDescription": "中加里曼丹社會林業與合作夥伴關係資訊系統",
+    "divisionName": "計劃規劃、實施與監測評估部門",
+    "copyright": "版權所有 © 2026 Antangpatahu Mahaga Lewu 基金會",
+    "internalAppNotice": "此應用程式僅供基金會內部使用。請聯繫管理員取得存取權限。"
   }
 }

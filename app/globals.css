@@ -115,6 +115,11 @@
   --sidebar-ring: oklch(0.40 0.12 157);
 }
 
+/* Add Chinese font support for zh-TW locale */
+:lang(zh-TW) {
+  --font-sans: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", "Helvetica Neue", Arial, sans-serif;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
