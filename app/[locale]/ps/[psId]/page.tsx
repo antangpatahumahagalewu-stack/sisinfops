@@ -6,6 +6,7 @@ import Link from "next/link"
 
 import PsProfileContent from "./components/ps-profile-content"
 import { PsProfile, PsStatus } from "./types"
+import DashboardLayout from "../../dashboard/layout"
 
 // ---- Fetch data from Supabase ----
 async function getPsProfile(psId: string): Promise<PsProfile | null> {
@@ -115,25 +116,31 @@ export default async function PsProfilePage({ params }: PageProps) {
 
   if (!ps) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Data Tidak Ditemukan</h1>
-          <p className="text-gray-600 mt-2">
-            Data Perhutanan Sosial tidak ditemukan.
-          </p>
-          <p className="text-gray-500 text-sm mt-4">
-            Mungkin data belum diimport.
-          </p>
+      <DashboardLayout params={Promise.resolve({ locale: "id" })}>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900">Data Tidak Ditemukan</h1>
+            <p className="text-gray-600 mt-2">
+              Data Perhutanan Sosial tidak ditemukan.
+            </p>
+            <p className="text-gray-500 text-sm mt-4">
+              Mungkin data belum diimport.
+            </p>
+          </div>
+          <Button asChild>
+            <Link href="/dashboard/data">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Kembali ke Data
+            </Link>
+          </Button>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/data">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Kembali ke Data
-          </Link>
-        </Button>
-      </div>
+      </DashboardLayout>
     )
   }
 
-  return <PsProfileContent ps={ps} psId={psId} />
+  return (
+    <DashboardLayout params={Promise.resolve({ locale: "id" })}>
+      <PsProfileContent ps={ps} psId={psId} />
+    </DashboardLayout>
+  )
 }

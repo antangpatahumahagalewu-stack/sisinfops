@@ -8,6 +8,7 @@ import { TabKegiatan } from "./tab-kegiatan"
 import { TabGaleri } from "./tab-galeri"
 import { TabPeta } from "./tab-peta"
 import { TabCatatan } from "./tab-catatan"
+import { TabStatistik } from "./tab-statistik"
 
 export function PsTabs({ psId }: { psId: string }) {
   return (
@@ -20,6 +21,7 @@ export function PsTabs({ psId }: { psId: string }) {
         <TabsTrigger value="galeri">Galeri</TabsTrigger>
         <TabsTrigger value="peta">Peta</TabsTrigger>
         <TabsTrigger value="catatan">Catatan</TabsTrigger>
+        <TabsTrigger value="statistik">Statistik</TabsTrigger>
       </TabsList>
 
       <TabsContent value="ringkasan">
@@ -42,6 +44,9 @@ export function PsTabs({ psId }: { psId: string }) {
       </TabsContent>
       <TabsContent value="catatan">
         <TabCatatan psId={psId} />
+      </TabsContent>
+      <TabsContent value="statistik">
+        <TabStatistik psId={psId} />
       </TabsContent>
     </Tabs>
   )

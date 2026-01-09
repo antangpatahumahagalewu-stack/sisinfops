@@ -4,15 +4,5 @@
   "scope": "codebase",
   "localEndpoint": "http://localhost:3000/id",
   "loginUser": "boby#yayasan.com",
-  "loginPassword": "admin123",
-  "executionArgs": {
-    "projectName": "app-db",
-    "projectPath": "/home/genesis/Documents/app-db",
-    "testIds": [],
-    "additionalInstruction": "Focus on testing authentication, dashboard, data management, and CRUD operations for PS data. Test with different user roles if possible.",
-    "envs": {
-      "API_KEY": "sk-user-HSR1PDbhid18l3crGscsoS_PFoUicwuldUw1EdlQA6mu1APs9FCm-D4COgt1N2HkD--dg9zJS-zFTgUJfPdXkVdMYFmSdmlJEceaUSwyJu0D6kOD7BIfpHP4vFPlZ7s-xIM"
-    }
-  },
-  "proxy": "http://201b5e7f-2f74-447d-b535-fc27ad86a703:bxpFMMSSRp0HSfPg85IWD8gm8KHw1BzG@tun.testsprite.com:8080"
+  "loginPassword": "admin123"
 }
