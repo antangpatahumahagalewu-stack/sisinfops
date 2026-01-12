@@ -9,29 +9,58 @@ export default async function ProgramsPage() {
   const supabase = await createClient()
   const canManage = await canManagePrograms()
 
-  // Fetch programs with related data
-  const { data: programs, error } = await supabase
-    .from("programs")
-    .select(`
-      *,
-      carbon_projects!inner(nama_project, kode_project),
-      perhutanan_sosial!inner(pemegang_izin, desa)
-    `)
-    .order("created_at", { ascending: false })
-
-  if (error) {
-    console.error("Error fetching programs:", error)
+  // Fetch programs with basic data first to avoid join errors
+  let programs: any[] = []
+  let fetchError = null
+  
+  try {
+    const { data, error } = await supabase
+      .from("programs")
+      .select("*")
+      .order("created_at", { ascending: false })
+    
+    if (error) {
+      // Only log if error object is not empty
+      if (error && Object.keys(error).length > 0) {
+        console.error("Error fetching programs:", error)
+      }
+      fetchError = error
+    } else {
+      programs = data || []
+    }
+  } catch (err) {
+    // Only log if error object is not empty
+    if (err && Object.keys(err).length > 0) {
+      console.error("Exception fetching programs:", err)
+    }
+    fetchError = err
   }
 
-  // Fetch carbon projects for stats
+  // Fetch carbon projects for stats and mapping
   const { data: carbonProjects } = await supabase
     .from("carbon_projects")
-    .select("id, nama_project")
+    .select("id, nama_project, kode_project")
 
-  // Fetch PS for stats
+  // Fetch PS for stats and mapping  
   const { data: perhutananSosial } = await supabase
     .from("perhutanan_sosial")
-    .select("id")
+    .select("id, pemegang_izin, desa")
+
+  // Create lookup maps for related data
+  const carbonProjectMap = new Map()
+  const psMap = new Map()
+  
+  if (carbonProjects) {
+    carbonProjects.forEach(project => {
+      carbonProjectMap.set(project.id, project)
+    })
+  }
+  
+  if (perhutananSosial) {
+    perhutananSosial.forEach(ps => {
+      psMap.set(ps.id, ps)
+    })
+  }
 
   // Status badge component
   const StatusBadge = ({ status }: { status: string }) => {

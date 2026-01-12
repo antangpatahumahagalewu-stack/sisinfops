@@ -1,4 +1,4 @@
-export type Role = 'admin' | 'monev' | 'viewer' | 'program_planner' | 'program_implementer' | 'carbon_specialist'
+export type Role = 'admin' | 'monev' | 'viewer' | 'program_planner' | 'program_implementer' | 'carbon_specialist' | 'monev_officer'
 
 export type Skema = 'HKM' | 'LPHD' | 'HA' | 'HTR' | 'IUPHHK' | 'IUPHKm' | 'POTENSI'
 
