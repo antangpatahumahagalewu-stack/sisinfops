@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
-const XLSX = require('sheetjs');
+const XLSX = require('xlsx');
 
 // Load environment variables from .env.local
 const envPath = path.join(__dirname, '..', '.env.local');

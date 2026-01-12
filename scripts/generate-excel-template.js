@@ -9,7 +9,7 @@
  * - Panduan
  */
 
-const XLSX = require('sheetjs');
+const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 
