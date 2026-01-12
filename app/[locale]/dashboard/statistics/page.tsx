@@ -13,8 +13,18 @@ import {
   Calendar,
   Layers
 } from "lucide-react"
+import { locales } from "@/i18n/locales"
 
-export default async function StatisticsPage() {
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
+
+export default async function StatisticsPage({
+  params
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params;
   const supabase = await createClient()
 
   // Get all PS data with related information

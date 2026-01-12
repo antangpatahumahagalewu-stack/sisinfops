@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslations, useLocale } from 'next-intl'
@@ -30,9 +30,18 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Role } from "@/lib/types/pks"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet"
 
 interface SidebarProps {
   role: Role
+  mobileOpen?: boolean
+  onMobileOpenChange?: (open: boolean) => void
 }
 
 const menuItems = [
@@ -164,12 +173,23 @@ const menuItems = [
   },
 ]
 
-export default function DashboardSidebar({ role }: SidebarProps) {
+export default function DashboardSidebar({ role, mobileOpen, onMobileOpenChange }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const pathname = usePathname()
   const t = useTranslations('navigation')
   const tCommon = useTranslations('common')
   const locale = useLocale()
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Pisahkan menu menjadi dua kelompok
   const mainMenuItems = menuItems.slice(0, 5) // Dashboard sampai Statistik
@@ -202,11 +222,9 @@ export default function DashboardSidebar({ role }: SidebarProps) {
     })
   }
 
-  return (
-    <aside className={cn(
-      "flex flex-col border-r bg-white transition-all duration-300",
-      collapsed ? "w-16" : "w-64"
-    )}>
+  // Sidebar content component (used by both desktop and mobile)
+  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+    <>
       <div className="flex h-16 items-center border-b px-4">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 flex-shrink-0">
@@ -216,7 +234,7 @@ export default function DashboardSidebar({ role }: SidebarProps) {
               className="h-full w-full object-contain"
             />
           </div>
-          {!collapsed && (
+          {(!collapsed || isMobile) && (
             <div>
               <h1 className="font-bold text-sm">{tCommon('sipsPlus')}</h1>
               <p className="text-xs text-muted-foreground">{tCommon('carbonProjectOS')}</p>
@@ -238,21 +256,62 @@ export default function DashboardSidebar({ role }: SidebarProps) {
         </nav>
       </div>
 
-      <div className="border-t p-4">
+      {!isMobile && (
+        <div className="border-t p-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-full"
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
+            {!collapsed && <span className="ml-2 text-xs">{tCommon('hide')}</span>}
+          </Button>
+        </div>
+      )}
+    </>
+  )
+
+  // Desktop sidebar
+  const DesktopSidebar = () => (
+    <aside className={cn(
+      "hidden md:flex flex-col border-r bg-white transition-all duration-300",
+      collapsed ? "w-16" : "w-64"
+    )}>
+      <SidebarContent />
+    </aside>
+  )
+
+  // Mobile sidebar
+  const MobileSidebar = () => (
+    <Sheet open={mobileOpen} onOpenChange={onMobileOpenChange}>
+      <SheetTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
-          className="w-full"
-          onClick={() => setCollapsed(!collapsed)}
+          className="md:hidden fixed top-4 left-4 z-50"
         >
-          {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-          {!collapsed && <span className="ml-2 text-xs">{tCommon('hide')}</span>}
+          <ChevronRight className="h-5 w-5" />
         </Button>
-      </div>
-    </aside>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-64 p-0">
+        <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+        <SheetDescription className="sr-only">
+          Menu navigasi utama aplikasi SIPS+ untuk mengakses dashboard dan fitur lainnya
+        </SheetDescription>
+        <SidebarContent isMobile={true} />
+      </SheetContent>
+    </Sheet>
+  )
+
+  return (
+    <>
+      <DesktopSidebar />
+      {isMobile && <MobileSidebar />}
+    </>
   )
 }

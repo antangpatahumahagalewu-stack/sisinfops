@@ -2,7 +2,17 @@
   "status": "commited",
   "type": "frontend",
   "scope": "codebase",
-  "localEndpoint": "http://localhost:3000/id",
+  "localEndpoint": "http://localhost:3000",
   "loginUser": "boby#yayasan.com",
-  "loginPassword": "admin123"
+  "loginPassword": "admin123",
+  "executionArgs": {
+    "projectName": "app-db",
+    "projectPath": "/home/genesis/Documents/Yayasan/app-db",
+    "testIds": [],
+    "additionalInstruction": "Use login credentials: email boby@yayasan.com and password admin123",
+    "envs": {
+      "API_KEY": "sk-user-HSR1PDbhid18l3crGscsoS_PFoUicwuldUw1EdlQA6mu1APs9FCm-D4COgt1N2HkD--dg9zJS-zFTgUJfPdXkVdMYFmSdmlJEceaUSwyJu0D6kOD7BIfpHP4vFPlZ7s-xIM"
+    }
+  },
+  "proxy": "http://f20b1e71-dd51-40a2-a1f0-e36c821875bc:cblSdDw7eDHMVy8jh411OdkUR52qqISu@tun.testsprite.com:8080"
 }

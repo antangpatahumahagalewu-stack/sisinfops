@@ -24,10 +24,15 @@ export default async function ProfilePage({
     redirect(`/${locale}/login`)
   }
 
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    redirect(`/${locale}/login`)
+  }
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("*")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .single()
 
   const getInitials = () => {
@@ -167,6 +172,13 @@ export default async function ProfilePage({
                       </div>
                     </div>
                   </div>
+
+                  {profile?.bio && (
+                    <div className="border-t pt-4">
+                      <h3 className="font-semibold mb-3">Tentang Saya</h3>
+                      <p className="text-muted-foreground whitespace-pre-line">{profile.bio}</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -259,14 +271,14 @@ export default async function ProfilePage({
                 <Phone className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Telepon</p>
-                  <p className="font-medium">-</p>
+                  <p className="font-medium">{profile?.phone || "-"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Lokasi</p>
-                  <p className="font-medium">-</p>
+                  <p className="font-medium">{profile?.location || "-"}</p>
                 </div>
               </div>
             </CardContent>

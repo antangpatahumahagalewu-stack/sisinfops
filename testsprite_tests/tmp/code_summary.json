@@ -3,18 +3,18 @@
     "TypeScript",
     "Next.js 16.1.1",
     "React 19.2.3",
-    "Tailwind CSS 4",
-    "Supabase (PostgreSQL)",
+    "Supabase",
+    "PostgreSQL",
+    "Tailwind CSS",
     "next-intl",
     "React Hook Form",
     "Zod",
-    "Radix UI",
-    "Lucide React"
+    "XLSX"
   ],
   "features": [
     {
-      "name": "Authentication",
-      "description": "User authentication system with email/password using Supabase Auth, including login page with multi-language support",
+      "name": "Authentication System",
+      "description": "User authentication using Supabase Auth with email/password login, session management, and JWT tokens",
       "files": [
         "app/[locale]/(auth)/login/page.tsx",
         "lib/supabase/client.ts",
@@ -24,162 +24,147 @@
     },
     {
       "name": "Role-Based Access Control (RBAC)",
-      "description": "Role-based access control system with 6 user roles (admin, monev, viewer, program_planner, program_implementer, carbon_specialist) and permission checking",
+      "description": "Comprehensive RBAC system with 6 user roles (admin, monev, viewer, program_planner, program_implementer, carbon_specialist) and permission checking functions",
       "files": [
-        "lib/auth/rbac.ts",
-        "components/dashboard/sidebar.tsx"
+        "lib/auth/rbac.ts"
       ]
     },
     {
       "name": "Dashboard Nasional",
-      "description": "Main dashboard displaying aggregated statistics of Perhutanan Sosial data including total PS, total area, RKPS status, and map status",
+      "description": "Main dashboard displaying aggregate statistics including total PS count, total area, RKPS status, map status, and kabupaten-level statistics",
       "files": [
-        "app/[locale]/dashboard/page.tsx",
-        "components/dashboard/header.tsx"
+        "app/[locale]/dashboard/page.tsx"
       ]
     },
     {
       "name": "Data PS Management",
-      "description": "Management and viewing of Perhutanan Sosial data with filtering, searching, and detailed PS profile pages",
+      "description": "Data table for managing Perhutanan Sosial records with filtering, searching, and pagination capabilities",
       "files": [
         "app/[locale]/dashboard/data/page.tsx",
-        "app/[locale]/ps/[psId]/page.tsx",
-        "app/[locale]/ps/[psId]/components/ps-tabs.tsx",
-        "app/[locale]/ps/[psId]/components/ps-profile-content.tsx",
-        "app/[locale]/ps/[psId]/components/ps-header.tsx",
         "components/dashboard/data-table.tsx"
       ]
     },
     {
-      "name": "PS Profile Tabs",
-      "description": "Detailed PS profile with multiple tabs: Ringkasan, Kelembagaan, Dokumen, Peta, Galeri, Kegiatan, Catatan",
+      "name": "PS Profile Detail",
+      "description": "Detailed profile page for individual PS records with multiple tabs: Ringkasan, Kelembagaan, Dokumen, Peta, Galeri, Kegiatan, Catatan",
       "files": [
-        "app/[locale]/ps/[psId]/components/tab-ringkasan.tsx",
-        "app/[locale]/ps/[psId]/components/tab-kelembagaan.tsx",
-        "app/[locale]/ps/[psId]/components/tab-dokumen.tsx",
-        "app/[locale]/ps/[psId]/components/tab-peta.tsx",
-        "app/[locale]/ps/[psId]/components/tab-galeri.tsx",
-        "app/[locale]/ps/[psId]/components/tab-kegiatan.tsx",
-        "app/[locale]/ps/[psId]/components/tab-catatan.tsx"
+        "app/[locale]/ps/[psId]/page.tsx",
+        "app/[locale]/ps/[psId]/types.ts",
+        "app/[locale]/ps/[psId]/components"
       ]
     },
     {
-      "name": "PS Form Management",
-      "description": "Forms for adding and editing PS data, documents, gallery, activities, maps, and notes",
+      "name": "Excel Import System",
+      "description": "Excel file upload, parsing, and import functionality for bulk data import with validation and error handling",
       "files": [
-        "app/[locale]/ps/[psId]/components/edit-ps-form.tsx",
-        "app/[locale]/ps/[psId]/components/edit-lembaga-form.tsx",
-        "app/[locale]/ps/[psId]/components/add-edit-dokumen-form.tsx",
-        "app/[locale]/ps/[psId]/components/add-edit-galeri-form.tsx",
-        "app/[locale]/ps/[psId]/components/add-edit-kegiatan-form.tsx",
-        "app/[locale]/ps/[psId]/components/add-edit-peta-form.tsx",
-        "app/[locale]/ps/[psId]/components/add-edit-catatan-form.tsx"
-      ]
-    },
-    {
-      "name": "Excel Import",
-      "description": "Upload and import Excel files to database with validation and error handling",
-      "files": [
-        "app/[locale]/dashboard/upload/page.tsx",
         "app/api/excel/import/route.ts",
-        "lib/excel/parser.ts"
+        "lib/excel/parser.ts",
+        "app/[locale]/dashboard/upload/page.tsx"
       ]
     },
     {
       "name": "Kabupaten Management",
-      "description": "View and manage data by kabupaten (district) with detailed statistics",
+      "description": "Kabupaten-level data management with detailed statistics, filtering, and navigation to individual kabupaten pages",
       "files": [
         "app/[locale]/dashboard/kabupaten/page.tsx",
         "app/[locale]/dashboard/kabupaten/[id]/page.tsx"
       ]
     },
     {
-      "name": "Data Potensi",
-      "description": "View and manage potential forest data",
+      "name": "Internationalization (i18n)",
+      "description": "Multi-language support for Bahasa Indonesia and Chinese Traditional using next-intl with language switching",
       "files": [
-        "app/[locale]/dashboard/potensi/page.tsx"
+        "i18n.ts",
+        "i18n/locales.ts",
+        "i18n/messages/id.json",
+        "i18n/messages/zh-TW.json",
+        "components/ui/language-switcher.tsx",
+        "middleware.ts"
       ]
     },
     {
       "name": "Statistics Dashboard",
-      "description": "Statistics and analytics dashboard with charts and visualizations",
+      "description": "Statistics and analytics dashboard with charts and visualizations for data analysis",
       "files": [
         "app/[locale]/dashboard/statistics/page.tsx"
       ]
     },
     {
-      "name": "Carbon Projects",
-      "description": "Carbon project management module for managing carbon credit projects",
-      "files": [
-        "app/[locale]/dashboard/carbon-projects/page.tsx"
-      ]
-    },
-    {
-      "name": "Program Management",
-      "description": "Program management module for planning and managing programs",
-      "files": [
-        "app/[locale]/dashboard/programs/page.tsx"
-      ]
-    },
-    {
-      "name": "User Profile",
-      "description": "User profile management with edit functionality",
+      "name": "User Profile Management",
+      "description": "User profile viewing and editing functionality with validation",
       "files": [
         "app/[locale]/dashboard/profile/page.tsx",
         "app/[locale]/dashboard/profile/edit/page.tsx"
       ]
     },
     {
-      "name": "Internationalization",
-      "description": "Multi-language support for Indonesian and Chinese Traditional using next-intl",
+      "name": "Carbon Projects Management",
+      "description": "Carbon project management module for carbon specialists and admins",
       "files": [
-        "i18n.ts",
-        "i18n/locales.ts",
-        "i18n/messages/id.json",
-        "i18n/messages/zh-TW.json",
-        "components/ui/language-switcher.tsx"
+        "app/[locale]/dashboard/carbon-projects/page.tsx"
       ]
     },
     {
-      "name": "UI Components",
-      "description": "Reusable UI components built with Radix UI and Tailwind CSS",
+      "name": "Programs Management",
+      "description": "Program management functionality for program planners",
+      "files": [
+        "app/[locale]/dashboard/programs/page.tsx"
+      ]
+    },
+    {
+      "name": "Potensi Data Management",
+      "description": "Potential data management for tracking potential forest areas",
+      "files": [
+        "app/[locale]/dashboard/potensi/page.tsx"
+      ]
+    },
+    {
+      "name": "UI Components Library",
+      "description": "Reusable UI components built with Radix UI and Tailwind CSS including buttons, cards, tables, inputs, dropdowns, tabs, and more",
       "files": [
         "components/ui/button.tsx",
         "components/ui/card.tsx",
-        "components/ui/input.tsx",
-        "components/ui/label.tsx",
         "components/ui/table.tsx",
-        "components/ui/tabs.tsx",
+        "components/ui/input.tsx",
         "components/ui/select.tsx",
+        "components/ui/tabs.tsx",
         "components/ui/dropdown-menu.tsx",
-        "components/ui/avatar.tsx",
+        "components/ui/alert.tsx",
         "components/ui/badge.tsx",
-        "components/ui/alert.tsx"
+        "components/ui/avatar.tsx",
+        "components/ui/label.tsx"
       ]
     },
     {
-      "name": "Dashboard Layout",
-      "description": "Dashboard layout with sidebar navigation and header",
+      "name": "Dashboard Layout Components",
+      "description": "Dashboard layout components including header, sidebar navigation, and data table",
       "files": [
-        "app/[locale]/dashboard/layout.tsx",
+        "components/dashboard/header.tsx",
         "components/dashboard/sidebar.tsx",
-        "components/dashboard/header.tsx"
+        "components/dashboard/data-table.tsx",
+        "app/[locale]/dashboard/layout.tsx"
       ]
     },
     {
-      "name": "Supabase Integration",
-      "description": "Supabase client and server utilities for database operations and authentication",
+      "name": "Supabase Client Integration",
+      "description": "Supabase client setup for both browser and server-side operations with authentication and database queries",
       "files": [
         "lib/supabase/client.ts",
         "lib/supabase/server.ts"
       ]
     },
     {
-      "name": "Utilities",
-      "description": "Utility functions and type definitions",
+      "name": "Type Definitions",
+      "description": "TypeScript type definitions for PS data structures and enums",
       "files": [
-        "lib/utils.ts",
         "lib/types/pks.ts"
+      ]
+    },
+    {
+      "name": "API Routes",
+      "description": "Next.js API routes for server-side operations including Excel import",
+      "files": [
+        "app/api/excel/import/route.ts"
       ]
     }
   ]

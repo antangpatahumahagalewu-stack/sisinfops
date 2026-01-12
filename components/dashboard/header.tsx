@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, User as UserIcon, Settings } from "lucide-react"
+import { LogOut, User as UserIcon, Settings, Menu } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useTranslations, useLocale } from 'next-intl'
@@ -21,9 +21,10 @@ import { LanguageSwitcher } from "@/components/ui/language-switcher"
 interface DashboardHeaderProps {
   user: User
   profile: Profile | null
+  onMenuToggle?: () => void
 }
 
-export default function DashboardHeader({ user, profile }: DashboardHeaderProps) {
+export default function DashboardHeader({ user, profile, onMenuToggle }: DashboardHeaderProps) {
   const supabase = createClient()
   const router = useRouter()
   const t = useTranslations('common')
@@ -60,20 +61,30 @@ export default function DashboardHeader({ user, profile }: DashboardHeaderProps)
   }
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white px-6">
-      <div>
-        <h1 className="text-lg font-semibold text-gray-900">
-          {t('appName')}
-        </h1>
-        <p className="text-sm text-gray-500">
-          {t('foundationName')}
-        </p>
+    <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white px-4 md:px-6">
+      <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={onMenuToggle}
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">
+            {t('appName')}
+          </h1>
+          <p className="text-sm text-gray-500 hidden sm:block">
+            {t('foundationName')}
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
         <LanguageSwitcher />
         
-        <div className="text-right hidden md:block">
+        <div className="text-right hidden sm:block">
           <p className="text-sm font-medium text-gray-900">
             {profile?.full_name || user.email}
           </p>

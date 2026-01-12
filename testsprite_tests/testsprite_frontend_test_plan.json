@@ -1,415 +1,561 @@
 [
   {
     "id": "TC001",
-    "title": "Login success with valid credentials",
-    "description": "Verify that users can log in successfully with correct email and password using Supabase Auth",
+    "title": "User Login with Valid Credentials",
+    "description": "Verify user can successfully login with correct email and password via Supabase Auth.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the login page"
+        "description": "Navigate to the login page."
       },
       {
         "type": "action",
-        "description": "Input a valid registered email"
+        "description": "Input valid email and password."
       },
       {
         "type": "action",
-        "description": "Input the correct password"
-      },
-      {
-        "type": "action",
-        "description": "Submit the login form"
+        "description": "Click the login button."
       },
       {
         "type": "assertion",
-        "description": "Check the user is redirected to the /dashboard page"
+        "description": "Verify login is successful and user is redirected to dashboard matching their role."
       },
       {
         "type": "assertion",
-        "description": "Verify JWT token is received from Supabase Auth"
+        "description": "Verify valid session and JWT token are created."
       }
     ]
   },
   {
     "id": "TC002",
-    "title": "Login failure with invalid credentials",
-    "description": "Verify that login fails with incorrect email or password and an error message is shown",
+    "title": "User Login with Invalid Credentials",
+    "description": "Verify the system prevents login with incorrect email or password and shows relevant error messages.",
     "category": "error handling",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the login page"
+        "description": "Navigate to the login page."
       },
       {
         "type": "action",
-        "description": "Input an unregistered or invalid email"
+        "description": "Input invalid email and/or password."
       },
       {
         "type": "action",
-        "description": "Input an incorrect password"
-      },
-      {
-        "type": "action",
-        "description": "Submit the login form"
+        "description": "Click the login button."
       },
       {
         "type": "assertion",
-        "description": "Verify error message is displayed indicating login failure"
+        "description": "Verify login fails and error message is displayed for invalid credentials."
       },
       {
         "type": "assertion",
-        "description": "Ensure user remains on login page"
+        "description": "Verify no session or JWT token is created."
       }
     ]
   },
   {
     "id": "TC003",
-    "title": "Role-based access control enforcement",
-    "description": "Verify that users get access only to features allowed by their RBAC roles at UI and API levels",
+    "title": "Role-Based Access Control Enforcement",
+    "description": "Verify each user role (admin, monev, viewer, program_planner, program_implementer, carbon_specialist) accesses only permitted features and data.",
     "category": "security",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Log in as each user role: admin, monev, viewer, program_planner, program_implementer, carbon_specialist"
+        "description": "Login as admin user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access to all modules and management features."
       },
       {
         "type": "action",
-        "description": "Attempt to access restricted pages and functionality as each role"
+        "description": "Logout and login as viewer user."
       },
       {
         "type": "assertion",
-        "description": "Verify access is granted or denied according to documented permissions"
+        "description": "Verify read-only access only to allowed data views; no edit or upload permissions."
+      },
+      {
+        "type": "action",
+        "description": "Test role-based restrictions for all other defined roles similarly."
       },
       {
         "type": "assertion",
-        "description": "Check backend API calls fail with authorization error when accessed without permission"
+        "description": "Verify server-side and database-level access restrictions are enforced reliably."
       }
     ]
   },
   {
     "id": "TC004",
-    "title": "Dashboard Nasional displays correct aggregate statistics",
-    "description": "Verify the main national dashboard displays total PS count, total area, RKPS status, and map status accurately",
+    "title": "Dashboard Data Accuracy and Refresh",
+    "description": "Verify the national dashboard displays correct aggregate statistics and refreshes real-time data accurately per role.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Log in as an authorized user"
+        "description": "Login as admin and navigate to national dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify total PS count, total area, RKPS status, map status, and per kabupaten data are accurate and reflect database content."
       },
       {
         "type": "action",
-        "description": "Navigate to the /dashboard page"
+        "description": "Trigger data update in database."
       },
       {
         "type": "assertion",
-        "description": "Verify that total PS count is shown and matches database records"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify total area and RKPS status statistics are displayed"
-      },
-      {
-        "type": "assertion",
-        "description": "Check the map status renders and shows locations correctly"
+        "description": "Verify dashboard data updates accordingly without stale or incorrect values."
       }
     ]
   },
   {
     "id": "TC005",
-    "title": "Filter and search functionality in Data PS Management",
-    "description": "Verify filtering and searching PS data works correctly and updates results dynamically",
+    "title": "Perhutanan Sosial Data Management - Search, Filter and Pagination",
+    "description": "Verify data table for Perhutanan Sosial supports searching, filtering, and pagination correctly.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Log in and navigate to /dashboard/data"
+        "description": "Navigate to PS data management page."
       },
       {
         "type": "action",
-        "description": "Use filter controls with various valid and boundary inputs (e.g., PS status, kabupaten)"
+        "description": "Enter search terms and apply various filters."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify results match search/filter criteria."
       },
       {
         "type": "action",
-        "description": "Use the search box with keywords including exact match, partial, and case variants"
+        "description": "Navigate through pagination controls."
       },
       {
         "type": "assertion",
-        "description": "Verify the data table updates correctly according to filters and searches"
+        "description": "Verify correct data is displayed per page and total count is accurate."
+      },
+      {
+        "type": "action",
+        "description": "Test edge cases such as no matching results, very large number of results."
       },
       {
         "type": "assertion",
-        "description": "Verify no irrelevant records appear in results"
+        "description": "Verify system behaves gracefully and UI remains responsive."
       }
     ]
   },
   {
     "id": "TC006",
-    "title": "PS Profile Detail tabs functionality",
-    "description": "Verify that each tab in PS Profile Detail (Ringkasan, Kelembagaan, Dokumen, Peta, Galeri, Kegiatan, Catatan) loads and displays correct data",
+    "title": "PS Profile Detail Tabs Functionality",
+    "description": "Verify each tab (Ringkasan, Kelembagaan, Dokumen, Peta, Galeri, Kegiatan, Catatan) in PS profile displays correct data and allows allowed interactions.",
     "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to a valid PS record detail page"
+        "description": "Open detailed profile of any PS unit."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify Ringkasan tab displays summary data correctly."
       },
       {
         "type": "action",
-        "description": "Click on each tab one by one"
+        "description": "Switch to Kelembagaan tab and verify organizational data is accurate."
       },
       {
-        "type": "assertion",
-        "description": "Verify content loads for each tab without errors"
+        "type": "action",
+        "description": "Switch to Dokumen tab, verify document list and viewing/downloading functionality."
       },
       {
-        "type": "assertion",
-        "description": "Verify displayed data matches expected values from database"
+        "type": "action",
+        "description": "Check Peta tab for proper map visualization and markers."
+      },
+      {
+        "type": "action",
+        "description": "Verify Galeri tab shows images and supports image viewing."
+      },
+      {
+        "type": "action",
+        "description": "Check Kegiatan tab lists activities correctly."
+      },
+      {
+        "type": "action",
+        "description": "Validate Catatan tab for notes display and addition if permitted."
       }
     ]
   },
   {
     "id": "TC007",
-    "title": "Excel Import successful flow and error handling",
-    "description": "Verify Excel file upload, preview and import completes successfully for valid data, and errors are handled properly for invalid data",
+    "title": "Excel Import Workflow with Validation and Error Handling",
+    "description": "Verify the system imports bulk data from Excel files correctly, validating format, previewing data, handling errors, and preventing invalid imports.",
     "category": "functional",
-    "priority": "Medium",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Log in as admin or monev"
+        "description": "Login as Admin or Monev user."
       },
       {
         "type": "action",
-        "description": "Navigate to /dashboard/upload"
+        "description": "Navigate to Excel import upload page."
       },
       {
         "type": "action",
-        "description": "Upload a valid Excel file containing correct PS data"
+        "description": "Upload a valid Excel file with correct formatting and data."
       },
       {
         "type": "assertion",
-        "description": "Verify preview displays accurate parsed data"
+        "description": "Verify data is parsed and previewed accurately before import."
       },
       {
         "type": "action",
-        "description": "Confirm import"
+        "description": "Confirm and start import process."
       },
       {
         "type": "assertion",
-        "description": "Verify records are saved in database and reflected in UI"
+        "description": "Verify import completes successfully and data is stored in system."
       },
       {
         "type": "action",
-        "description": "Upload an Excel file with invalid or missing mandatory fields"
+        "description": "Upload an Excel file with invalid format or corrupt data."
       },
       {
         "type": "assertion",
-        "description": "Verify validation errors are displayed clearly and import is blocked"
+        "description": "Verify error messages indicate issues and import is rejected."
+      },
+      {
+        "type": "action",
+        "description": "Attempt import with partial invalid data."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify system highlights errors and does not import invalid rows; valid rows import if applicable."
       }
     ]
   },
   {
     "id": "TC008",
-    "title": "Kabupaten Management data rendering and filtering",
-    "description": "Verify detailed statistics and data views per kabupaten render correctly and support filtering",
+    "title": "Carbon Project Creation and Status Tracking",
+    "description": "Validate that carbon specialists can create carbon projects, track project status, and outputs comply with standards.",
     "category": "functional",
-    "priority": "Medium",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to kabupaten management section"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify statistics for each kabupaten are accurate and complete"
+        "description": "Login as carbon_specialist user."
       },
       {
         "type": "action",
-        "description": "Apply filters (e.g., kabupaten name, status)"
+        "description": "Navigate to Carbon Projects management module."
+      },
+      {
+        "type": "action",
+        "description": "Create a new carbon project with valid inputs."
       },
       {
         "type": "assertion",
-        "description": "Verify filtered data displays correctly without errors"
+        "description": "Verify project is saved, listed, and status tracking is available."
+      },
+      {
+        "type": "action",
+        "description": "Update project status through allowed stages."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify status updates reflect correctly and are visible."
+      },
+      {
+        "type": "assertion",
+        "description": "Check output documents and exports meet defined standards."
       }
     ]
   },
   {
     "id": "TC009",
-    "title": "Internationalization support for Bahasa Indonesia and Chinese Traditional",
-    "description": "Verify the UI language switches correctly between Bahasa Indonesia and Chinese Traditional using next-intl without layout breaking",
+    "title": "Program Management and DRAM Lifecycle",
+    "description": "Verify program planners and admins can create, edit, and monitor programs and associated DRAM documents throughout their lifecycle.",
     "category": "functional",
-    "priority": "Medium",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to any page"
+        "description": "Login as program_planner or admin."
       },
       {
         "type": "action",
-        "description": "Switch language setting to Bahasa Indonesia"
+        "description": "Create new program and associated DRAM document."
       },
       {
         "type": "assertion",
-        "description": "Verify all textual UI elements translate to Bahasa Indonesia correctly"
+        "description": "Verify program and DRAM save correctly and appear in lists."
       },
       {
         "type": "action",
-        "description": "Switch language setting to Chinese Traditional"
+        "description": "Edit existing program and DRAM details."
       },
       {
         "type": "assertion",
-        "description": "Verify all textual UI elements translate to Chinese Traditional correctly"
+        "description": "Verify changes are saved and reflected immediately."
+      },
+      {
+        "type": "action",
+        "description": "Monitor program progress and update mitigation actions."
       },
       {
         "type": "assertion",
-        "description": "Verify UI styling and layout remain consistent on language switch"
+        "description": "Verify status updates and actionable items are tracked."
       }
     ]
   },
   {
     "id": "TC010",
-    "title": "Performance test: page load under 2 seconds",
-    "description": "Verify that all main pages including login, dashboard, data PS, and profile detail load within 2 seconds under normal load",
-    "category": "performance",
+    "title": "Implementation Progress Update and Evidence Upload",
+    "description": "Verify program implementers can update implementation progress and upload proof documents which are stored and displayed correctly.",
+    "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to login page and measure load time"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm login page load time is less than 2 seconds"
+        "description": "Login as program_implementer user."
       },
       {
         "type": "action",
-        "description": "Log in and navigate to /dashboard, measure load time"
-      },
-      {
-        "type": "assertion",
-        "description": "Confirm dashboard page load time is less than 2 seconds"
+        "description": "Navigate to assigned programs and open progress update form."
       },
       {
         "type": "action",
-        "description": "Navigate to /dashboard/data and measure table load time"
+        "description": "Enter progress details and upload supporting evidence files."
       },
       {
         "type": "assertion",
-        "description": "Confirm data PS page load time is less than 2 seconds"
-      },
-      {
-        "type": "action",
-        "description": "Open a PS profile detail page and measure load time"
+        "description": "Verify progress updates save successfully."
       },
       {
         "type": "assertion",
-        "description": "Confirm profile detail page load time is less than 2 seconds"
+        "description": "Verify uploaded evidence files are stored and accessible."
       }
     ]
   },
   {
     "id": "TC011",
-    "title": "Security test: data encryption at rest and in transit",
-    "description": "Verify that all sensitive data is encrypted in storage and during communication between client and server",
-    "category": "security",
+    "title": "Monitoring and Evaluation (Monev) Reporting and Indicator Tracking",
+    "description": "Verify Monev users can record target vs actual indicator data accurately and generate verifiable Monev reports.",
+    "category": "functional",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Capture network traffic during login and data fetch"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify all communication uses HTTPS with AES or better encryption"
+        "description": "Login as monev user."
       },
       {
         "type": "action",
-        "description": "Verify database storage for sensitive data fields is encrypted according to standards"
+        "description": "Access monitoring and evaluation module."
+      },
+      {
+        "type": "action",
+        "description": "Input indicator target data and record actual realization data."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify data is saved and indicators are properly tracked."
+      },
+      {
+        "type": "action",
+        "description": "Generate Monev report."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify report contents are accurate, complete, and consistent with recorded data."
       }
     ]
   },
   {
     "id": "TC012",
-    "title": "User Profile Management editing and saving",
-    "description": "Verify users can update and save their profile information correctly with validation",
+    "title": "PDD Generator Document Creation and Data Integrity",
+    "description": "Verify Carbon Specialists can generate Project Design Documents (PDD) automatically from stored project data without artificial data creation.",
     "category": "functional",
-    "priority": "Low",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Login and navigate to user profile page"
+        "description": "Login as carbon_specialist user."
       },
       {
         "type": "action",
-        "description": "Edit profile fields such as name, contact, and language preferences"
+        "description": "Navigate to PDD Generator module."
       },
       {
         "type": "action",
-        "description": "Save changes"
+        "description": "Select an existing carbon project and generate PDD document."
       },
       {
         "type": "assertion",
-        "description": "Verify changes are saved and reflected immediately"
-      },
-      {
-        "type": "action",
-        "description": "Attempt to input invalid data (e.g., invalid email format)"
+        "description": "Verify the generated PDD document reflects only stored project data precisely."
       },
       {
         "type": "assertion",
-        "description": "Verify validation errors prevent saving invalid input"
+        "description": "Verify no artificial or fabricated data appears in the document."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify document is downloadable in defined format."
       }
     ]
   },
   {
     "id": "TC013",
-    "title": "Dashboard statistics and analytics charts rendering",
-    "description": "Verify that statistics dashboard visualizations render correctly with accurate data",
+    "title": "Multi-language Support and Language Switching",
+    "description": "Verify the application supports Bahasa Indonesia and Chinese Traditional languages fully and UI language switches dynamically without errors.",
     "category": "functional",
-    "priority": "Medium",
+    "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Navigate to the statistics dashboard"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify all charts render without errors"
-      },
-      {
-        "type": "assertion",
-        "description": "Verify chart data matches underlying dataset"
+        "description": "Login to the application."
       },
       {
         "type": "action",
-        "description": "Apply date range or other filter changes and verify charts update accordingly"
+        "description": "Locate and use the UI language switcher."
+      },
+      {
+        "type": "action",
+        "description": "Switch language to Chinese Traditional."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all UI text, labels, buttons, menus, and messages appear correctly in Chinese Traditional."
+      },
+      {
+        "type": "action",
+        "description": "Switch back to Bahasa Indonesia."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all UI text returns to Bahasa Indonesia correctly."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no broken text or layout issues occur during language switching."
       }
     ]
   },
   {
     "id": "TC014",
-    "title": "Unauthorized API access blocked",
-    "description": "Verify that all API endpoints enforce row-level and role-based security, blocking unauthorized access",
+    "title": "User Profile View and Edit with Validation",
+    "description": "Verify users can view and edit their profile information with proper validation and data persistence.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login and navigate to user profile page."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify profile displays current user information."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to profile edit page."
+      },
+      {
+        "type": "action",
+        "description": "Modify user information with valid and invalid inputs."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify form validation prevents invalid inputs and shows appropriate error messages."
+      },
+      {
+        "type": "action",
+        "description": "Save valid changes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify changes are saved and reflected in profile."
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Security - Authentication and Authorization Controls",
+    "description": "Verify security mechanisms protect the application against common web vulnerabilities and enforce authentication and authorization robustly.",
     "category": "security",
     "priority": "High",
     "steps": [
       {
         "type": "action",
-        "description": "Using an authenticated user with limited role, attempt to access API endpoints outside allowed permissions"
+        "description": "Attempt CSRF attack by submitting malicious form requests."
       },
       {
         "type": "assertion",
-        "description": "Verify API returns HTTP 403 Forbidden or equivalent"
+        "description": "Verify CSRF protection prevents unauthorized form submissions."
       },
       {
         "type": "action",
-        "description": "Attempt direct database access to disallowed rows via API and verify security enforcement"
+        "description": "Attempt XSS attack by injecting script in inputs."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify inputs are sanitized and scripts do not execute."
+      },
+      {
+        "type": "action",
+        "description": "Test SQL Injection attempts in input fields and API endpoints."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no injection is successful and input is safely handled."
+      },
+      {
+        "type": "action",
+        "description": "Verify RBAC restricts access at server and database level using RLS (Row Level Security)."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm users cannot access data or perform actions beyond their permissions."
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Performance - Page Load, API Response, and File Upload",
+    "description": "Verify application meets performance standards on page loads, API responses, and Excel file uploads under normal and peak conditions.",
+    "category": "performance",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Measure homepage and dashboard page load time under normal conditions."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify load times meet defined performance criteria."
+      },
+      {
+        "type": "action",
+        "description": "Test API response times for common data fetch and update operations."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify API response times are within acceptable limits."
+      },
+      {
+        "type": "action",
+        "description": "Upload large Excel files for import."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify upload and processing completes within expected timeframe without failures or timeouts."
       }
     ]
   }

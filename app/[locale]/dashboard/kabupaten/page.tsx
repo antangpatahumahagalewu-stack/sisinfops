@@ -3,8 +3,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { ArrowUpRight, Database, Map, CheckCircle, BarChart3, Users } from "lucide-react"
 import Link from "next/link"
+import { redirect } from "next/navigation"
+import { locales } from "@/i18n/locales"
 
-export default async function KabupatenListPage() {
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
+
+export default async function KabupatenListPage({
+  params
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params;
   const supabase = await createClient()
 
   // Get dashboard statistics for all kabupaten

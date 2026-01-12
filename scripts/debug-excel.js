@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const XLSX = require('xlsx');
+const XLSX = require('sheetjs');
 
 const rootPath = path.join(__dirname, '..', '..', '..', '..');
 const filePath = path.join(
