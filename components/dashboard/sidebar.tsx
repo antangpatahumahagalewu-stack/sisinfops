@@ -26,7 +26,10 @@ import {
   FileCode,
   CircleDollarSign,
   Users2,
-  Gavel
+  Gavel,
+  FileCheck,
+  ShieldCheck,
+  Coins
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Role } from "@/lib/types/pks"
@@ -51,7 +54,7 @@ const menuItems = [
     href: "/dashboard",
     translationKey: "dashboard",
     icon: LayoutDashboard,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[],
     group: "foundation"
   },
   {
@@ -59,7 +62,7 @@ const menuItems = [
     href: "/dashboard/data",
     translationKey: "dataPS",
     icon: Database,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[],
     group: "foundation"
   },
   {
@@ -67,7 +70,7 @@ const menuItems = [
     href: "/dashboard/potensi",
     translationKey: "potensi",
     icon: Trees,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[],
     group: "foundation"
   },
   {
@@ -75,7 +78,7 @@ const menuItems = [
     href: "/dashboard/kabupaten",
     translationKey: "kabupaten",
     icon: Map,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[],
     group: "foundation"
   },
   {
@@ -83,16 +86,24 @@ const menuItems = [
     href: "/dashboard/statistics",
     translationKey: "statistics",
     icon: BarChart3,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[],
     group: "foundation"
   },
-  // B. PROYEK KARBON
+// B. PROYEK KARBON
   {
     title: "Carbon Projects",
     href: "/dashboard/carbon-projects",
     translationKey: "carbonProjects",
     icon: FolderTree,
     roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
+    group: "development"
+  },
+  {
+    title: "Verra Registration",
+    href: "/dashboard/verra-registration",
+    translationKey: "verraRegistration",
+    icon: FileCheck,
+    roles: ["admin", "carbon_specialist"] as Role[],
     group: "development"
   },
   {
@@ -116,6 +127,22 @@ const menuItems = [
     href: "/dashboard/pdd-generator",
     translationKey: "pddGenerator",
     icon: FileCode,
+    roles: ["admin", "carbon_specialist"] as Role[],
+    group: "development"
+  },
+  {
+    title: "VVB Management",
+    href: "/dashboard/vvb-management",
+    translationKey: "vvbManagement",
+    icon: ShieldCheck,
+    roles: ["admin", "carbon_specialist"] as Role[],
+    group: "development"
+  },
+  {
+    title: "Carbon Credits",
+    href: "/dashboard/carbon-credits",
+    translationKey: "carbonCredits",
+    icon: Coins,
     roles: ["admin", "carbon_specialist"] as Role[],
     group: "development"
   },

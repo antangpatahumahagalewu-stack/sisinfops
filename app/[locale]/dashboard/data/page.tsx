@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import DataTable from "@/components/dashboard/data-table"
+import { AddPSForm } from "@/components/dashboard/add-ps-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, Filter, Download } from "lucide-react"
@@ -54,6 +55,13 @@ export default async function DataPage({
     `)
     .order("created_at", { ascending: false })
 
+  // Refresh function for after form submission
+  const refreshData = async () => {
+    // This function will be passed to AddPSForm to trigger data refresh
+    // In a real implementation, you might want to use revalidatePath or revalidateTag
+    // For now, we'll rely on router.refresh() in the client component
+  }
+
   // Transform data for table
   const tableData = psData?.map(item => ({
     id: item.id,
@@ -105,10 +113,11 @@ export default async function DataPage({
             Export
           </Button>
           {(profile?.role === 'admin' || profile?.role === 'monev') && (
-            <Button size="sm">
-              <Plus className="mr-2 h-4 w-4" />
-              Tambah Data
-            </Button>
+            <AddPSForm 
+              kabupatenOptions={kabupatenData || []}
+              userRole={profile?.role}
+              onSuccess={refreshData}
+            />
           )}
         </div>
       </div>

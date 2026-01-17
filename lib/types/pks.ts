@@ -8,6 +8,33 @@ export type StatusKawasan = 'HL' | 'HPT' | 'HPK' | 'HP' | 'HA' | '------'
 
 export type StatusAdaBelum = 'ada' | 'belum'
 
+// Financial Module Types
+export type JenisDonor = 'NGO_INTERN' | 'NGO_LOKAL' | 'PEMERINTAH_ASING' | 'PEMERINTAH_LOKAL' | 'SWASTA' | 'INDIVIDU' | 'LAINNYA'
+export type JenisGrant = 'OPERASIONAL' | 'INVESTASI' | 'BANTUAN_TEKNIS' | 'RISET' | 'KAPASITAS' | 'LAINNYA'
+export type JenisAnggaran = 'OPERASIONAL' | 'INVESTASI' | 'BAGI_HASIL' | 'ADMINISTRASI' | 'MONITORING' | 'KAPASITAS' | 'LAINNYA'
+export type JenisTransaksi = 'PENERIMAAN' | 'PENGELUARAN'
+export type JenisDistribusi = 'TUNAI' | 'BARANG' | 'JASA' | 'BIBIT' | 'ALAT' | 'LAINNYA'
+
+// Verra Compliance Types
+export type VerraProjectType = 'AR' | 'IFM' | 'REDD' | 'A/RR' | 'ENERGY' | 'OTHER'
+export type VerraRegistrationStatus = 
+  | 'draft' | 'internal_review' | 'vvb_appointed' | 'under_validation'
+  | 'validated' | 'submitted_to_verra' | 'registered' | 'under_monitoring'
+  | 'under_verification' | 'verified' | 'issued' | 'suspended' | 'terminated'
+
+export type VVBAccreditationStatus = 'active' | 'suspended' | 'withdrawn' | 'expired'
+export type VVBEngagementType = 'validation' | 'verification' | 'both'
+export type CARType = 'major' | 'minor' | 'observation'
+export type CarbonCreditStatus = 'issued' | 'retired' | 'cancelled' | 'transferred' | 'pending'
+export type IssuanceBatchStatus = 
+  | 'draft' | 'monitoring_completed' | 'verification_requested'
+  | 'under_verification' | 'verification_completed' | 'issuance_requested'
+  | 'under_review' | 'issued' | 'rejected'
+
+export type VerraDocumentType = 
+  | 'PDD' | 'MONITORING_REPORT' | 'VALIDATION_REPORT' | 'VERIFICATION_REPORT'
+  | 'ISSUANCE_REQUEST' | 'CAR_RESPONSE' | 'REGISTRY_SUBMISSION' | 'OTHER'
+
 export interface Kabupaten {
   id: string
   nama: string
