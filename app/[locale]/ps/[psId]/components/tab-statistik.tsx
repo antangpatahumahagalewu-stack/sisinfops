@@ -83,7 +83,7 @@ export function TabStatistik({ psId }: { psId: string }) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Memuat statistik...</p>
         </div>
       </div>
@@ -207,7 +207,7 @@ export function TabStatistik({ psId }: { psId: string }) {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {data.statusKegiatan.map((item) => (
                   <div key={item.status} className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{item.jumlah}</div>
+                    <div className="text-2xl font-bold text-green-600">{item.jumlah}</div>
                     <div className="text-sm text-gray-600 mt-1">{item.status}</div>
                   </div>
                 ))}

@@ -29,7 +29,9 @@ import {
   Gavel,
   FileCheck,
   ShieldCheck,
-  Coins
+  Coins,
+  TrendingUp,
+  Shield
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Role } from "@/lib/types/pks"
@@ -95,6 +97,22 @@ const menuItems = [
     href: "/dashboard/carbon-projects",
     translationKey: "carbonProjects",
     icon: FolderTree,
+    roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
+    group: "development"
+  },
+  {
+    title: "Investor Dashboard",
+    href: "/dashboard/investor",
+    translationKey: "investorDashboard",
+    icon: TrendingUp,
+    roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
+    group: "development"
+  },
+  {
+    title: "Due Diligence Toolkit",
+    href: "/dashboard/due-diligence",
+    translationKey: "dueDiligenceToolkit",
+    icon: Shield,
     roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
     group: "development"
   },

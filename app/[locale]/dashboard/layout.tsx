@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import DashboardSidebar from "@/components/dashboard/sidebar"
 import DashboardHeader from "@/components/dashboard/header"
+import { ChatWidget } from "@/components/chat/chat-widget"
 
 export default function DashboardLayout({
   children,
@@ -89,6 +90,7 @@ export default function DashboardLayout({
         />
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
+      <ChatWidget />
     </div>
   )
 }

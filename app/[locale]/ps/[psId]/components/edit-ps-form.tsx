@@ -26,7 +26,7 @@ function getLembagaInfo(skema: string | null) {
       nama: "LPHD (Lembaga Pengelola Hutan Desa)",
       singkatan: "LPHD",
       icon: Building2,
-      warna: "blue" as const
+      warna: "green" as const
     }
   } else if (skemaLower.includes("kemasyarakatan")) {
     return {

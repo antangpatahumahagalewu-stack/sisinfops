@@ -20,27 +20,27 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
 
   return (
     <div className="bg-gradient-to-b from-gray-50 to-white">
-      <div className="container mx-auto px-4 py-1">
+      <div className="container mx-auto px-3 sm:px-4 py-1">
         {/* Navigation and Page Title */}
         <div className="mb-1">
           <Button variant="ghost" size="sm" asChild className="mb-0">
             <Link href="/dashboard/data">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Kembali Ke Data PS
+              <span className="text-sm">Kembali Ke Data PS</span>
             </Link>
           </Button>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Profil Perhutanan Sosial</h1>
-              <p className="text-gray-600 mt-0 text-sm">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Profil Perhutanan Sosial</h1>
+              <p className="text-gray-600 mt-0 text-xs sm:text-sm">
                 Detail lengkap dan manajemen data untuk {ps.namaPs}
               </p>
             </div>
-            <div className="flex gap-1">
-              <Button variant="outline" size="sm">
+            <div className="flex gap-1 self-start sm:self-center">
+              <Button variant="outline" size="sm" className="text-xs sm:text-sm">
                 Cetak Laporan
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="text-xs sm:text-sm">
                 Bagikan
               </Button>
             </div>
@@ -48,9 +48,9 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Left Column - Header and Tabs */}
-          <div className="lg:col-span-3 space-y-2">
+          <div className="lg:col-span-3 space-y-3 sm:space-y-4">
             {showEditForm ? (
               <EditPsForm 
                 ps={ps} 
@@ -65,19 +65,19 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
                 {/* Tabs Section */}
                 <div className="bg-white rounded-lg shadow border overflow-hidden">
                   <div className="border-b">
-                    <div className="px-4 py-2">
-                      <h2 className="text-lg font-bold text-gray-900">Detail Informasi</h2>
-                      <p className="text-gray-600 text-xs">
+                    <div className="px-3 sm:px-4 py-2">
+                      <h2 className="text-base sm:text-lg font-bold text-gray-900">Detail Informasi</h2>
+                      <p className="text-gray-600 text-xs sm:text-sm">
                         Kelola dan lihat informasi lengkap PS dalam tab berikut
                       </p>
                     </div>
                   </div>
-                  <div className="p-4">
+                  <div className="p-3 sm:p-4">
                     <Suspense 
                       fallback={
                         <div className="flex items-center justify-center h-32">
                           <div className="text-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
                             <p className="mt-2 text-sm text-gray-600">Memuat data PS...</p>
                           </div>
                         </div>
@@ -92,28 +92,28 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
           </div>
 
           {/* Right Column - Sidebar Info */}
-          <div className="space-y-2">
+          <div className="space-y-3 sm:space-y-4">
             {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow border p-4">
-              <h3 className="font-bold text-lg text-gray-900 mb-2">Aksi Cepat</h3>
+            <div className="bg-white rounded-lg shadow border p-3 sm:p-4">
+              <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2">Aksi Cepat</h3>
               <div className="space-y-2">
                 <Button 
-                  className="w-full justify-start py-2" 
+                  className="w-full justify-start py-2 text-sm" 
                   variant="outline"
                   onClick={() => setShowEditForm(!showEditForm)}
                 >
                   <Pencil className="mr-2 h-4 w-4" />
                   {showEditForm ? "Batalkan Edit" : "Edit Data"}
                 </Button>
-                <Button className="w-full justify-start py-2" variant="outline">
+                <Button className="w-full justify-start py-2 text-sm" variant="outline">
                   <FileText className="mr-2 h-4 w-4" />
                   Tambah Catatan
                 </Button>
-                <Button className="w-full justify-start py-2" variant="outline">
+                <Button className="w-full justify-start py-2 text-sm" variant="outline">
                   <Upload className="mr-2 h-4 w-4" />
                   Upload Dokumen
                 </Button>
-                <Button className="w-full justify-start py-2" variant="outline">
+                <Button className="w-full justify-start py-2 text-sm" variant="outline">
                   <BarChart className="mr-2 h-4 w-4" />
                   Lihat Statistik
                 </Button>
@@ -121,13 +121,13 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
             </div>
 
             {/* Status Overview */}
-            <div className="bg-white rounded-lg shadow border p-4">
-              <h3 className="font-bold text-lg text-gray-900 mb-2">Status Dokumen</h3>
+            <div className="bg-white rounded-lg shadow border p-3 sm:p-4">
+              <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2">Status Dokumen</h3>
               <div className="space-y-2">
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-800">RKPS</span>
-                    <span className="text-sm font-bold text-green-600">✓ Tersedia</span>
+                    <span className="text-xs sm:text-sm font-medium text-gray-800">RKPS</span>
+                    <span className="text-xs sm:text-sm font-bold text-green-600">✓ Tersedia</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div className="bg-green-500 h-2 rounded-full" style={{ width: '100%' }}></div>
@@ -135,8 +135,8 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-800">Peta PS</span>
-                    <span className="text-sm font-bold text-yellow-600">⏳ Dalam Proses</span>
+                    <span className="text-xs sm:text-sm font-medium text-gray-800">Peta PS</span>
+                    <span className="text-xs sm:text-sm font-bold text-yellow-600">⏳ Dalam Proses</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '75%' }}></div>
@@ -144,8 +144,8 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-800">Laporan Tahunan</span>
-                    <span className="text-sm font-bold text-red-600">✗ Belum</span>
+                    <span className="text-xs sm:text-sm font-medium text-gray-800">Laporan Tahunan</span>
+                    <span className="text-xs sm:text-sm font-bold text-red-600">✗ Belum</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div className="bg-red-500 h-2 rounded-full" style={{ width: '30%' }}></div>
@@ -155,28 +155,28 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
             </div>
 
             {/* Timeline */}
-            <div className="bg-white rounded-lg shadow border p-4">
-              <h3 className="font-bold text-lg text-gray-900 mb-2">Linimasa Terkini</h3>
+            <div className="bg-white rounded-lg shadow border p-3 sm:p-4">
+              <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2">Linimasa Terkini</h3>
               <div className="space-y-2">
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">Data diperbarui</p>
+                  <div className="ml-2 sm:ml-3">
+                    <p className="text-xs sm:text-sm font-medium text-gray-900">Data diperbarui</p>
                     <p className="text-xs text-gray-500">2 hari yang lalu</p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">Verifikasi selesai</p>
+                  <div className="ml-2 sm:ml-3">
+                    <p className="text-xs sm:text-sm font-medium text-gray-900">Verifikasi selesai</p>
                     <p className="text-xs text-gray-500">1 minggu yang lalu</p>
                   </div>
                 </div>
@@ -187,7 +187,7 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
 
         {/* Footer Stats */}
         <div className="mt-4 pt-2 border-t">
-          <div className="flex items-center justify-between text-xs text-gray-600">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-gray-600 gap-1">
             <div>
               <span className="font-medium">Terakhir diakses:</span> {new Date().toLocaleDateString('id-ID')}
             </div>

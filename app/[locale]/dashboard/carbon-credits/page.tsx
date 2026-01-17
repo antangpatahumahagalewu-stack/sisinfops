@@ -10,24 +10,86 @@ export default async function CarbonCreditsPage() {
   const canManage = await canManageCarbonProjects()
 
   // Fetch carbon credits with project information
-  const { data: carbonCredits, error } = await supabase
-    .from("carbon_credits")
-    .select(`
-      *,
-      verra_project_registrations (
-        verra_project_id,
-        carbon_projects (kode_project, nama_project)
-      )
-    `)
-    .order("issuance_date", { ascending: false })
-    .limit(50)
+  let carbonCredits = null
+  let fetchError = null
+  
+  try {
+    // First, fetch carbon credits with verra_project_registrations (only carbon_project_id)
+    const { data, error } = await supabase
+      .from("carbon_credits")
+      .select(`
+        *,
+        verra_project_registrations (
+          verra_project_id,
+          carbon_project_id
+        )
+      `)
+      .order("issuance_date", { ascending: false })
+      .limit(50)
+    
+    if (error) throw error
+
+    // Extract unique carbon project IDs from the results
+    const projectIds = data
+      ?.map(credit => credit.verra_project_registrations?.[0]?.carbon_project_id)
+      .filter((id): id is string => !!id) // Type guard to filter out undefined/null
+      .filter((value, index, self) => self.indexOf(value) === index) || []
+
+    // Fetch carbon projects data for these IDs
+    let projectsMap: Record<string, { kode_project: string, nama_project: string }> = {}
+    if (projectIds.length > 0) {
+      const { data: projectsData, error: projectsError } = await supabase
+        .from("carbon_projects")
+        .select("id, kode_project, nama_project")
+        .in("id", projectIds)
+      
+      if (projectsError) {
+        console.warn("Error fetching carbon projects:", projectsError.message)
+      } else if (projectsData) {
+        // Create a map for easy lookup
+        projectsMap = projectsData.reduce((acc, project) => {
+          acc[project.id] = {
+            kode_project: project.kode_project,
+            nama_project: project.nama_project
+          }
+          return acc
+        }, {} as Record<string, { kode_project: string, nama_project: string }>)
+      }
+    }
+
+    // Combine the data
+    carbonCredits = data?.map(credit => {
+      const registration = credit.verra_project_registrations?.[0]
+      const project = registration?.carbon_project_id ? projectsMap[registration.carbon_project_id] : null
+      
+      return {
+        ...credit,
+        verra_project_registrations: registration ? [{
+          ...registration,
+          carbon_projects: project
+        }] : []
+      }
+    }) || []
+
+  } catch (err) {
+    fetchError = err
+  }
 
   // Fetch summary statistics
-  const { data: summaryStats } = await supabase
-    .rpc('get_carbon_credits_summary')
+  let summaryStats = null
+  try {
+    const { data } = await supabase.rpc('get_carbon_credits_summary')
+    summaryStats = data
+  } catch (err) {
+    // If RPC fails, we'll calculate from data
+  }
 
-  if (error) {
-    console.error("Error fetching carbon credits:", error)
+  // Only log error if it contains meaningful information
+  // Skip logging empty objects or null/undefined
+  if (fetchError && typeof fetchError === 'object' && fetchError !== null && 'message' in fetchError) {
+    console.error("Error fetching carbon credits:", fetchError.message)
+  } else if (fetchError && typeof fetchError === 'string' && fetchError.trim().length > 0) {
+    console.error("Error fetching carbon credits:", fetchError)
   }
 
   // Status badge component for carbon credits
@@ -58,19 +120,36 @@ export default async function CarbonCreditsPage() {
 
   // Calculate statistics from data if RPC fails
   const calculateStats = () => {
-    if (!carbonCredits) return { total: 0, issued: 0, retired: 0, value: 0 }
+    if (!carbonCredits || carbonCredits.length === 0) {
+      return { total: 0, issued: 0, retired: 0, value: 0 }
+    }
     
-    const total = carbonCredits.reduce((sum, credit) => sum + (credit.quantity || 0), 0)
-    const issued = carbonCredits.filter(c => c.status === 'issued').reduce((sum, credit) => sum + (credit.quantity || 0), 0)
-    const retired = carbonCredits.filter(c => c.status === 'retired').reduce((sum, credit) => sum + (credit.quantity || 0), 0)
-    
-    // Assuming average price of $10 per ton for display purposes
-    const value = total * 10
-    
-    return { total, issued, retired, value }
+    try {
+      const total = carbonCredits.reduce((sum, credit) => sum + (Number(credit.quantity) || 0), 0)
+      const issued = carbonCredits
+        .filter(c => c.status === 'issued')
+        .reduce((sum, credit) => sum + (Number(credit.quantity) || 0), 0)
+      const retired = carbonCredits
+        .filter(c => c.status === 'retired')
+        .reduce((sum, credit) => sum + (Number(credit.quantity) || 0), 0)
+      
+      // Assuming average price of $10 per ton for display purposes
+      const value = total * 10
+      
+      return { total, issued, retired, value }
+    } catch (error) {
+      console.error("Error calculating carbon credits stats:", error)
+      return { total: 0, issued: 0, retired: 0, value: 0 }
+    }
   }
 
-  const stats = summaryStats || calculateStats()
+  // Determine stats from RPC or calculate locally
+  let stats = { total: 0, issued: 0, retired: 0, value: 0 }
+  if (summaryStats && Array.isArray(summaryStats) && summaryStats.length > 0) {
+    stats = summaryStats[0] || stats
+  } else {
+    stats = calculateStats()
+  }
 
   // Group by vintage year for chart data
   const vintageData = carbonCredits?.reduce((acc, credit) => {

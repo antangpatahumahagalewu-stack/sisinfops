@@ -69,19 +69,19 @@ export function PsHeader({ ps }: PsHeaderProps) {
   return (
     <Card className="overflow-hidden border shadow-lg">
       {/* Header dengan background gradient */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
+      <div className="bg-gradient-to-r from-green-700 to-green-900 text-white p-6">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <Building className="h-8 w-8" />
               <div>
                 <h1 className="text-3xl font-bold tracking-tight">{ps.namaPs}</h1>
-                <p className="text-blue-100 text-lg">
+                <p className="text-green-100 text-lg">
                   {ps.skema}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 text-blue-100">
+            <div className="flex items-center gap-2 text-green-100">
               <MapPin className="h-4 w-4" />
               <span className="font-medium">{ps.desa}, {ps.kecamatan}, {ps.kabupaten}</span>
             </div>
@@ -91,7 +91,7 @@ export function PsHeader({ ps }: PsHeaderProps) {
             <Badge className={`${statusConfig.color} px-4 py-2 text-base font-bold border-0`}>
               {statusConfig.label}
             </Badge>
-            <p className="text-blue-100 text-sm text-right max-w-xs">
+            <p className="text-green-100 text-sm text-right max-w-xs">
               {statusConfig.description}
             </p>
           </div>
@@ -104,8 +104,8 @@ export function PsHeader({ ps }: PsHeaderProps) {
           {/* Statistik Luas */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Trees className="h-6 w-6 text-blue-600" />
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Trees className="h-6 w-6 text-green-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-500">Luas Area</p>
@@ -164,7 +164,7 @@ export function PsHeader({ ps }: PsHeaderProps) {
         <div className="mt-8 pt-6 border-t">
           <div className="flex flex-wrap gap-4 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
               <span className="text-gray-600">Status: <strong>{ps.status.replace("_", " ")}</strong></span>
             </div>
             <div className="flex items-center gap-2">

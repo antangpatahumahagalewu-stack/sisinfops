@@ -10,29 +10,95 @@ export default async function VVBManagementPage() {
   const canManage = await canManageCarbonProjects()
 
   // Fetch VVB organizations
-  const { data: vvbOrganizations, error } = await supabase
-    .from("vvb_organizations")
-    .select("*")
-    .order("organization_name", { ascending: true })
+  let vvbOrganizations = null
+  let vvbError = null
+  
+  try {
+    const { data, error } = await supabase
+      .from("vvb_organizations")
+      .select("*")
+      .order("organization_name", { ascending: true })
+    
+    vvbOrganizations = data
+    vvbError = error
+  } catch (err) {
+    vvbError = err
+  }
 
   // Fetch VVB engagements with projects
-  const { data: vvbEngagements, error: engagementsError } = await supabase
-    .from("vvb_engagements")
-    .select(`
-      *,
-      verra_project_registrations (
-        carbon_project_id,
-        carbon_projects (kode_project, nama_project)
-      ),
-      vvb_organizations (organization_name)
-    `)
-    .order("contract_date", { ascending: false })
+  let vvbEngagements = null
+  let engagementsError = null
+  
+  try {
+    // First, fetch engagements with basic info
+    const { data: engagementsData, error: engagementsFetchError } = await supabase
+      .from("vvb_engagements")
+      .select(`
+        *,
+        verra_project_registrations (
+          carbon_project_id
+        ),
+        vvb_organizations (
+          organization_name
+        )
+      `)
+      .order("contract_date", { ascending: false })
+    
+    if (engagementsFetchError) throw engagementsFetchError
 
-  if (error) {
-    console.error("Error fetching VVB organizations:", error)
+    // Extract unique carbon project IDs
+    const projectIds = engagementsData
+      ?.map(engagement => engagement.verra_project_registrations?.[0]?.carbon_project_id)
+      .filter((id): id is string => !!id)
+      .filter((value, index, self) => self.indexOf(value) === index) || []
+
+    // Fetch carbon projects for these IDs
+    let projectsMap: Record<string, { kode_project: string, nama_project: string }> = {}
+    if (projectIds.length > 0) {
+      const { data: projectsData, error: projectsError } = await supabase
+        .from("carbon_projects")
+        .select("id, kode_project, nama_project")
+        .in("id", projectIds)
+      
+      if (projectsError) {
+        console.warn("Error fetching carbon projects for VVB engagements:", projectsError.message)
+      } else if (projectsData) {
+        projectsMap = projectsData.reduce((acc, project) => {
+          acc[project.id] = {
+            kode_project: project.kode_project,
+            nama_project: project.nama_project
+          }
+          return acc
+        }, {} as Record<string, { kode_project: string, nama_project: string }>)
+      }
+    }
+
+    // Combine the data
+    vvbEngagements = engagementsData?.map(engagement => {
+      const registration = engagement.verra_project_registrations?.[0]
+      const project = registration?.carbon_project_id ? projectsMap[registration.carbon_project_id] : null
+      const vvbOrg = engagement.vvb_organizations
+      
+      return {
+        ...engagement,
+        verra_project_registrations: registration ? [{
+          ...registration,
+          carbon_projects: project
+        }] : [],
+        vvb_organizations: vvbOrg
+      }
+    }) || []
+
+  } catch (err) {
+    engagementsError = err
   }
-  if (engagementsError) {
-    console.error("Error fetching VVB engagements:", engagementsError)
+
+  // Only log errors if they contain meaningful information
+  if (vvbError && typeof vvbError === 'object' && vvbError !== null && 'message' in vvbError) {
+    console.error("Error fetching VVB organizations:", vvbError.message)
+  }
+  if (engagementsError && typeof engagementsError === 'object' && engagementsError !== null && 'message' in engagementsError) {
+    console.error("Error fetching VVB engagements:", engagementsError.message)
   }
 
   // Status badge component for VVB accreditation

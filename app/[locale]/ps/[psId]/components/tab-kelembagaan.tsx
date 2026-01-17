@@ -220,7 +220,7 @@ export function TabKelembagaan({ psId }: { psId: string }) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Memuat data kelembagaan...</p>
         </div>
       </div>
@@ -230,7 +230,7 @@ export function TabKelembagaan({ psId }: { psId: string }) {
   const lembagaInfo = getLembagaInfo(skema)
   const Icon = lembagaInfo.icon
   const warnaKelas = {
-    blue: "bg-blue-100 text-blue-600",
+    blue: "bg-green-100 text-green-600",
     green: "bg-green-100 text-green-600",
     amber: "bg-amber-100 text-amber-600",
     purple: "bg-purple-100 text-purple-600",
@@ -239,7 +239,7 @@ export function TabKelembagaan({ psId }: { psId: string }) {
   }[lembagaInfo.warna]
 
   const iconTextColor = {
-    blue: "text-blue-400",
+    blue: "text-green-400",
     green: "text-green-400",
     amber: "text-amber-400",
     purple: "text-purple-400",

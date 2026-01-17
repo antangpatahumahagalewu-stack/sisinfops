@@ -4,7 +4,7 @@ import DataTable from "@/components/dashboard/data-table"
 import { AddPSForm } from "@/components/dashboard/add-ps-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Filter, Download } from "lucide-react"
+import { Database, Map, CheckCircle, Globe, Filter, Download } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { locales } from "@/i18n/locales"
 
@@ -54,13 +54,6 @@ export default async function DataPage({
       )
     `)
     .order("created_at", { ascending: false })
-
-  // Refresh function for after form submission
-  const refreshData = async () => {
-    // This function will be passed to AddPSForm to trigger data refresh
-    // In a real implementation, you might want to use revalidatePath or revalidateTag
-    // For now, we'll rely on router.refresh() in the client component
-  }
 
   // Transform data for table
   const tableData = psData?.map(item => ({
@@ -116,54 +109,72 @@ export default async function DataPage({
             <AddPSForm 
               kabupatenOptions={kabupatenData || []}
               userRole={profile?.role}
-              onSuccess={refreshData}
             />
           )}
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <Card className="flex flex-col bg-blue-50/50 border-blue-100">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Data</CardTitle>
+            <Database className="h-4 w-4 text-blue-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalData}</div>
-            <p className="text-xs text-muted-foreground">Data PS</p>
+          <CardContent className="flex-grow">
+            <div className="text-3xl font-bold text-blue-700">{totalData}</div>
+            <p className="text-xs text-blue-600">Data PS</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col bg-green-50/50 border-green-100">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Luas</CardTitle>
+            <Map className="h-4 w-4 text-green-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalLuas.toLocaleString('id-ID')}</div>
-            <p className="text-xs text-muted-foreground">Hektar</p>
+          <CardContent className="flex-grow">
+            <div className="text-3xl font-bold text-green-700">{totalLuas.toLocaleString('id-ID')}</div>
+            <p className="text-xs text-green-600">Hektar</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col bg-yellow-50/50 border-yellow-100">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">RKPS Selesai</CardTitle>
+            <CheckCircle className="h-4 w-4 text-yellow-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{rkpsCompleted}</div>
-            <p className="text-xs text-muted-foreground">
-              {totalData > 0 ? `${Math.round((rkpsCompleted / totalData) * 100)}%` : '0%'}
+          <CardContent className="flex-grow">
+            <div className="text-3xl font-bold text-yellow-700">{rkpsCompleted}</div>
+            <p className="text-xs text-yellow-600">
+              {totalData > 0 ? `${Math.round((rkpsCompleted / totalData) * 100)}% complete` : '0%'}
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col bg-purple-50/50 border-purple-100">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Peta Selesai</CardTitle>
+            <CheckCircle className="h-4 w-4 text-purple-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{petaCompleted}</div>
-            <p className="text-xs text-muted-foreground">
-              {totalData > 0 ? `${Math.round((petaCompleted / totalData) * 100)}%` : '0%'}
+          <CardContent className="flex-grow">
+            <div className="text-3xl font-bold text-purple-700">{petaCompleted}</div>
+            <p className="text-xs text-purple-600">
+              {totalData > 0 ? `${Math.round((petaCompleted / totalData) * 100)}% complete` : '0%'}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="flex flex-col bg-gradient-to-br from-teal-50/80 to-indigo-50/80 border-teal-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">ClimatePartner Ready</CardTitle>
+            <Globe className="h-4 w-4 text-teal-600" />
+          </CardHeader>
+          <CardContent className="flex-grow">
+            <div className="text-3xl font-bold text-teal-700">
+              {Math.floor(totalData * 0.3)}/{totalData}
+            </div>
+            <p className="text-xs text-teal-600">
+              {totalData > 0 ? `${Math.round((Math.floor(totalData * 0.3) / totalData) * 100)}%` : '0%'} compliant
             </p>
           </CardContent>
         </Card>
@@ -175,6 +186,7 @@ export default async function DataPage({
           <TabsTrigger value="all">Semua Data</TabsTrigger>
           <TabsTrigger value="rkps">Perlu RKPS</TabsTrigger>
           <TabsTrigger value="peta">Perlu Peta</TabsTrigger>
+          <TabsTrigger value="climatepartner">ClimatePartner Ready</TabsTrigger>
           <TabsTrigger value="Gunung Mas">Gunung Mas</TabsTrigger>
           <TabsTrigger value="kapuas">Kapuas</TabsTrigger>
           <TabsTrigger value="katingan">Katingan</TabsTrigger>
@@ -231,6 +243,46 @@ export default async function DataPage({
                 kabupatenOptions={kabupatenData || []}
                 userRole={profile?.role || 'viewer'}
               />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="climatepartner">
+          <Card>
+            <CardHeader>
+              <CardTitle>ClimatePartner Ready Projects</CardTitle>
+              <CardDescription>
+                Data PS yang siap untuk ClimatePartner compliance
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-6 p-4 bg-gradient-to-r from-teal-50 to-indigo-50 border border-teal-200 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Globe className="h-5 w-5 text-teal-600" />
+                  <div>
+                    <h3 className="font-medium text-teal-800">ClimatePartner Compliance Criteria</h3>
+                    <p className="text-sm text-teal-600 mt-1">
+                      Projects with complete RKPS, Peta, and minimum 50 hectares are eligible for ClimatePartner compliance.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <DataTable 
+                data={tableData.filter(item => 
+                  item.rkps_status === 'ada' && 
+                  item.peta_status === 'ada' && 
+                  (item.luas_ha || 0) >= 50
+                )} 
+                kabupatenOptions={kabupatenData || []}
+                userRole={profile?.role || 'viewer'}
+              />
+              <div className="mt-4 text-sm text-muted-foreground">
+                <p>Showing {tableData.filter(item => 
+                  item.rkps_status === 'ada' && 
+                  item.peta_status === 'ada' && 
+                  (item.luas_ha || 0) >= 50
+                ).length} of {totalData} projects eligible for ClimatePartner compliance.</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

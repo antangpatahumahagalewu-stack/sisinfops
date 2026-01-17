@@ -14,7 +14,6 @@ import { Plus, Loader2, CheckCircle, XCircle } from "lucide-react"
 interface AddPSFormProps {
   kabupatenOptions: Array<{ id: string; nama: string }>
   userRole?: string
-  onSuccess?: () => void
 }
 
 const skemaOptions = [
@@ -37,7 +36,7 @@ const jenisHutanOptions = [
   { value: "Mineral/Gambut", label: "Mineral/Gambut" },
 ]
 
-export function AddPSForm({ kabupatenOptions, userRole, onSuccess }: AddPSFormProps) {
+export function AddPSForm({ kabupatenOptions, userRole }: AddPSFormProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -155,9 +154,6 @@ export function AddPSForm({ kabupatenOptions, userRole, onSuccess }: AddPSFormPr
       })
       
       // Trigger refresh
-      if (onSuccess) {
-        onSuccess()
-      }
       router.refresh()
       
       // Auto close after 3 seconds
