@@ -127,28 +127,42 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs sm:text-sm font-medium text-gray-800">RKPS</span>
-                    <span className="text-xs sm:text-sm font-bold text-green-600">✓ Tersedia</span>
+                    {ps.rkps_status === 'ada' ? (
+                      <span className="text-xs sm:text-sm font-bold text-green-600">✓ Ada</span>
+                    ) : (
+                      <span className="text-xs sm:text-sm font-bold text-red-600">✗ Belum</span>
+                    )}
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '100%' }}></div>
+                    <div
+                      className={`h-2 rounded-full ${ps.rkps_status === 'ada' ? 'bg-green-500' : 'bg-red-500'}`}
+                      style={{ width: ps.rkps_status === 'ada' ? '100%' : '30%' }}
+                    ></div>
                   </div>
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs sm:text-sm font-medium text-gray-800">Peta PS</span>
-                    <span className="text-xs sm:text-sm font-bold text-yellow-600">⏳ Dalam Proses</span>
+                    {ps.peta_status === 'ada' ? (
+                      <span className="text-xs sm:text-sm font-bold text-green-600">✓ Ada</span>
+                    ) : (
+                      <span className="text-xs sm:text-sm font-bold text-red-600">✗ Belum</span>
+                    )}
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '75%' }}></div>
+                    <div
+                      className={`h-2 rounded-full ${ps.peta_status === 'ada' ? 'bg-green-500' : 'bg-red-500'}`}
+                      style={{ width: ps.peta_status === 'ada' ? '100%' : '30%' }}
+                    ></div>
                   </div>
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs sm:text-sm font-medium text-gray-800">Laporan Tahunan</span>
-                    <span className="text-xs sm:text-sm font-bold text-red-600">✗ Belum</span>
+                    <span className="text-xs sm:text-sm font-bold text-gray-600">⏳ Belum Tersedia</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-red-500 h-2 rounded-full" style={{ width: '30%' }}></div>
+                    <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
                   </div>
                 </div>
               </div>

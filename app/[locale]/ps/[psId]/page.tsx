@@ -25,8 +25,19 @@ async function getPsProfile(psId: string): Promise<PsProfile | null> {
     .eq("id", psId)
     .single()
 
-  if (error || !data) {
-    console.error("Error fetching PS profile:", error)
+  if (error) {
+    // Check if error object has any properties
+    if (Object.keys(error).length > 0) {
+      console.error(`Error fetching PS profile ${psId}:`, error)
+    } else {
+      // This is the case when error is an empty object (likely not found)
+      console.warn(`PS profile ${psId} not found`)
+    }
+    return null
+  }
+
+  if (!data) {
+    console.warn(`PS profile ${psId} has no data`)
     return null
   }
 
@@ -102,6 +113,8 @@ async function getPsProfile(psId: string): Promise<PsProfile | null> {
       jumlahAnggota: lembagaData?.jumlah_anggota || data.jumlah_kk || 0,
       kepalaDesa: lembagaData?.kepala_desa || null,
     },
+    rkps_status: data.rkps_status || 'belum',
+    peta_status: data.peta_status || 'belum',
   }
 }
 

@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { 
   TrendingUp, 
   DollarSign, 
@@ -19,7 +21,10 @@ import {
   Users,
   MapPin,
   Calendar,
-  Coins
+  Coins,
+  Search,
+  Filter,
+  Download
 } from "lucide-react"
 import Link from "next/link"
 
@@ -70,10 +75,27 @@ export function InvestorCarbonDashboard() {
     { year: 6, revenue: 450000, cost: 60000, net_cash_flow: 390000, cumulative_cash_flow: 730000 },
     { year: 7, revenue: 550000, cost: 60000, net_cash_flow: 490000, cumulative_cash_flow: 1220000 },
   ])
+  const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [standardFilter, setStandardFilter] = useState("all")
+  const [carbonStats, setCarbonStats] = useState<any>(null)
 
   useEffect(() => {
     fetchCarbonProjects()
+    fetchCarbonStats()
   }, [])
+
+  async function fetchCarbonStats() {
+    try {
+      const response = await fetch('/api/dashboard/carbon-stats')
+      if (response.ok) {
+        const data = await response.json()
+        setCarbonStats(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching carbon stats:", error)
+    }
+  }
 
   async function fetchCarbonProjects() {
     const supabase = createClient()

@@ -77,7 +77,7 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
     luasHa: ps.luasHa,
     tahunSk: ps.tahunSk,
     status: ps.status,
-    lembagaNama: ps.lembaga.nama,
+    lembagaNama: ps.lembaga.nama || "",
     lembagaKetua: ps.lembaga.ketua,
     lembagaJumlahAnggota: ps.lembaga.jumlahAnggota,
     lembagaKepalaDesa: ps.lembaga.kepalaDesa || "",
@@ -115,6 +115,19 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
       const pemegangIzinChanged = ps.namaPs !== formData.namaPs
       const shouldAutoUpdateNama = skemaChanged || pemegangIzinChanged
 
+      // Check if lembaga_pengelola record exists for this PS
+      const { data: existingLembaga, error: fetchLembagaError } = await supabase
+        .from("lembaga_pengelola")
+        .select("id, nama")
+        .eq("perhutanan_sosial_id", ps.id)
+        .maybeSingle()
+
+      if (fetchLembagaError) {
+        console.error("Error fetching lembaga_pengelola:", fetchLembagaError)
+        // Continue but assume it doesn't exist
+      }
+      const lembagaExists = !!existingLembaga
+
       // Step 1: Update data di tabel perhutanan_sosial
       // This will trigger cascade_ps_to_lembaga_update_trigger which will:
       // - Auto-update nama lembaga if skema or pemegang_izin changed
@@ -135,38 +148,115 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
 
       console.log("Update perhutanan_sosial result:", { data: psData, error: psError })
 
-      if (psError) throw psError
+      if (psError) {
+        console.error("Error updating perhutanan_sosial:", psError)
+        // Convert error to a more descriptive string
+        const errorMessage = psError.message || 
+                            (typeof psError === 'object' ? JSON.stringify(psError) : String(psError)) || 
+                            "Unknown error"
+        throw new Error(`Failed to update perhutanan_sosial: ${errorMessage}`)
+      }
 
-      // Step 2: Update lembaga_pengelola for fields not in perhutanan_sosial
-      // Note: If skema or pemegang_izin changed, nama is auto-updated by trigger
-      // so we don't include it in the upsert to avoid overriding the trigger
+      // Step 2: Clean up any duplicate lembaga_pengelola records for this PS
+      const { data: allLembaga, error: fetchAllError } = await supabase
+        .from('lembaga_pengelola')
+        .select('id, created_at')
+        .eq('perhutanan_sosial_id', ps.id)
+        .order('created_at', { ascending: false })
+
+      if (!fetchAllError && allLembaga && allLembaga.length > 1) {
+        // Keep the latest one, delete the rest
+        const idsToDelete = allLembaga.slice(1).map(record => record.id)
+        const { error: deleteError } = await supabase
+          .from('lembaga_pengelola')
+          .delete()
+          .in('id', idsToDelete)
+        
+        if (deleteError) {
+          console.error('Error deleting duplicate lembaga_pengelola records:', deleteError)
+        } else {
+          console.log(`Deleted ${idsToDelete.length} duplicate lembaga_pengelola records for PS ${ps.id}`)
+        }
+      }
+
+      // Step 3: Update lembaga_pengelola for fields not in perhutanan_sosial
       const lembagaUpdateData: any = {
         perhutanan_sosial_id: ps.id,
         ketua: formData.lembagaKetua,
         kepala_desa: formData.lembagaKepalaDesa || null,
       }
 
-      // Only include nama if skema/pemegang_izin didn't change (let trigger handle it if they did)
-      if (!shouldAutoUpdateNama) {
-        lembagaUpdateData.nama = formData.lembagaNama
+      // Logic for including nama in the upsert:
+      // 1. If lembaga record doesn't exist, we MUST provide a non-null nama
+      // 2. If lembaga exists and skema/pemegang_izin changed, the trigger will update nama
+      // 3. If lembaga exists and skema/pemegang_izin didn't change, we use user's input (if provided)
+      
+      if (!lembagaExists) {
+        // For new record, we must provide a non-empty nama
+        const newNama = formData.lembagaNama.trim() || `${formData.skema} - ${formData.namaPs}`
+        lembagaUpdateData.nama = newNama
+        console.log("New lembaga record, setting nama to:", newNama)
+      } else {
+        // For existing record, we need to check the existing nama value
+        const existingNama = existingLembaga?.nama || ""
+        const hasExistingNama = existingNama.trim() !== ""
+        
+        if (!shouldAutoUpdateNama) {
+          // User is not changing skema or pemegang_izin
+          if (formData.lembagaNama.trim() !== "") {
+            // User provided a new nama
+            lembagaUpdateData.nama = formData.lembagaNama.trim()
+            console.log("Updating existing lembaga nama to:", formData.lembagaNama.trim())
+          } else if (!hasExistingNama) {
+            // User didn't provide nama and existing nama is empty, provide a default
+            lembagaUpdateData.nama = `${formData.skema} - ${formData.namaPs}`
+            console.log("Existing nama is empty, setting default:", lembagaUpdateData.nama)
+          } else {
+            // User didn't provide nama and existing nama is not empty, keep existing
+            console.log("User provided empty nama, keeping existing value")
+          }
+        } else {
+          // shouldAutoUpdateNama is true - trigger will update nama
+          // But if existing nama is empty, we should set a default to satisfy not-null constraint
+          if (!hasExistingNama) {
+            lembagaUpdateData.nama = `${formData.skema} - ${formData.namaPs}`
+            console.log("Trigger will update nama, but existing is empty, setting default:", lembagaUpdateData.nama)
+          } else {
+            console.log("Trigger will update nama, existing nama is not empty")
+          }
+        }
       }
 
       // jumlah_anggota is synced with jumlah_kk by trigger, but we include it
       // in case the trigger hasn't run yet (shouldn't happen, but for safety)
       lembagaUpdateData.jumlah_anggota = formData.lembagaJumlahAnggota
 
-      const { data: lembagaData, error: lembagaError } = await supabase
-        .from("lembaga_pengelola")
-        .upsert(lembagaUpdateData, {
-          onConflict: "perhutanan_sosial_id"
-        })
+      console.log("Final lembagaUpdateData:", lembagaUpdateData)
+
+      // Try to update the existing lembaga_pengelola record
+      const { data: updatedLembaga, error: updateError } = await supabase
+        .from('lembaga_pengelola')
+        .update(lembagaUpdateData)
+        .eq('perhutanan_sosial_id', ps.id)
         .select()
 
-      console.log("Update lembaga_pengelola result:", { data: lembagaData, error: lembagaError })
+      console.log("Update lembaga_pengelola result:", { data: updatedLembaga, error: updateError })
 
-      if (lembagaError) {
-        console.error("Error updating lembaga_pengelola:", lembagaError)
-        throw lembagaError
+      if (updateError) {
+        console.error('Error updating lembaga_pengelola:', updateError)
+        // If the record doesn't exist, insert it
+        const { data: insertedLembaga, error: insertError } = await supabase
+          .from('lembaga_pengelola')
+          .insert([lembagaUpdateData])
+          .select()
+
+        if (insertError) {
+          console.error("Error inserting lembaga_pengelola:", insertError)
+          const errorMessage = insertError.message || 
+                              (typeof insertError === 'object' ? JSON.stringify(insertError) : String(insertError)) || 
+                              "Unknown error"
+          throw new Error(`Failed to update or insert lembaga_pengelola: ${errorMessage}`)
+        }
       }
 
       // Step 3: Update status fields if status changed

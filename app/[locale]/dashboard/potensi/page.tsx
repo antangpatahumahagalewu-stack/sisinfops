@@ -206,6 +206,7 @@ export default async function PotensiPage({
                 data={tableData} 
                 kabupatenOptions={kabupatenData || []}
                 userRole={profile?.role || 'viewer'}
+                enablePromote={true}
               />
             </CardContent>
           </Card>
@@ -227,6 +228,7 @@ export default async function PotensiPage({
                 )} 
                 kabupatenOptions={kabupatenData || []}
                 userRole={profile?.role || 'viewer'}
+                enablePromote={true}
               />
             </CardContent>
           </Card>
@@ -247,6 +249,7 @@ export default async function PotensiPage({
                 )} 
                 kabupatenOptions={kabupatenData || []}
                 userRole={profile?.role || 'viewer'}
+                enablePromote={true}
               />
             </CardContent>
           </Card>
@@ -267,6 +270,7 @@ export default async function PotensiPage({
                 )} 
                 kabupatenOptions={kabupatenData || []}
                 userRole={profile?.role || 'viewer'}
+                enablePromote={true}
               />
             </CardContent>
           </Card>
@@ -287,6 +291,7 @@ export default async function PotensiPage({
                 )} 
                 kabupatenOptions={kabupatenData || []}
                 userRole={profile?.role || 'viewer'}
+                enablePromote={true}
               />
             </CardContent>
           </Card>

@@ -331,9 +331,12 @@ export class ExcelParser {
 
   private extractJenisHutan(rowData: Record<string, any>): JenisHutan {
     const value = String(rowData['Jenis Hutan'] || rowData['jenis_hutan'] || rowData[11] || '').trim()
-    if (value.includes('Gambut')) return 'Gambut'
-    if (value.includes('Mineral')) return 'Mineral'
-    return 'Mineral/Gambut'
+    const lower = value.toLowerCase()
+    if (lower.includes('gambut')) {
+      return 'Gambut'
+    }
+    // Default to Mineral for everything else, including "Mineral/Gambut", "Mineral/ Gambut", etc.
+    return 'Mineral'
   }
 
   private extractStatusKawasan(rowData: Record<string, any>): StatusKawasan {
@@ -404,9 +407,12 @@ export class ExcelParser {
 
   private extractJenisHutanPotensi(rowData: Record<string, any>): JenisHutan {
     const value = String(rowData['Jenis Hutan'] || rowData['jenis_hutan'] || rowData[11] || rowData[12] || '').trim()
-    if (value.includes('Gambut')) return 'Gambut'
-    if (value.includes('Mineral')) return 'Mineral'
-    return 'Mineral/Gambut'
+    const lower = value.toLowerCase()
+    if (lower.includes('gambut')) {
+      return 'Gambut'
+    }
+    // Default to Mineral for everything else
+    return 'Mineral'
   }
 
   private extractStatusKawasanPotensi(rowData: Record<string, any>): StatusKawasan {

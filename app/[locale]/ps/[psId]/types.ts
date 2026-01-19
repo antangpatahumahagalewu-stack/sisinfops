@@ -18,4 +18,6 @@ export interface PsProfile {
   tahunSk: number
   status: PsStatus
   lembaga: Lembaga
+  rkps_status: string
+  peta_status: string
 }

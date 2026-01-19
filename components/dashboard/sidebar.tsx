@@ -346,8 +346,8 @@ export default function DashboardSidebar({ role, mobileOpen, onMobileOpenChange 
           </div>
           {(!collapsed || isMobile) && (
             <div>
-              <h1 className="font-bold text-xs">{tCommon('sipsPlus')}</h1>
-              <p className="text-[10px] text-muted-foreground">{tCommon('carbonProjectOS')}</p>
+              <h1 className="font-bold text-sm">{tCommon('sipsPlus')}</h1>
+              <p className="text-xs text-muted-foreground">{tCommon('carbonProjectOS')}</p>
             </div>
           )}
         </div>

@@ -641,7 +641,7 @@ DATA BY REGENCY (SAME AS DASHBOARD):
 ${kabupatenStats.map((kab: KabupatenStat) => `- ${kab.nama.replace('KABUPATEN ', '')}: ${kab.jumlah_ps} PS, ${kab.luas_ha.toLocaleString('id-ID')} ha, ${kab.jumlah_kk.toLocaleString('id-ID')} KK, RKPS: ${kab.rkps_ada}/${kab.jumlah_ps}, Maps: ${kab.peta_ada}/${kab.jumlah_ps}`).join('\n')}
 
 IMPORTANT NOTES:
-- This data is fetched directly from the database using the EXACT SAME queries as the dashboard
+- This data is sourced from the integrated system database which is updated periodically
 - These numbers should match those displayed on the dashboard
 - Any differences may be due to caching or query timing
 `
@@ -664,7 +664,7 @@ IMPORTANT NOTES:
 ${kabupatenStats.map((kab: KabupatenStat) => `- ${kab.nama.replace('KABUPATEN ', '')}：${kab.jumlah_ps} PS，${kab.luas_ha.toLocaleString('id-ID')} 公頃，${kab.jumlah_kk.toLocaleString('id-ID')} KK，RKPS：${kab.rkps_ada}/${kab.jumlah_ps}，地圖：${kab.peta_ada}/${kab.jumlah_ps}`).join('\n')}
 
 重要說明：
-- 此數據使用與儀表板完全相同的查詢直接從數據庫獲取
+- 此數據源自定期更新的集成系統數據庫
 - 這些數字應與儀表板上顯示的數字匹配
 - 任何差異可能由於緩存或查詢時間造成
 `
@@ -687,9 +687,9 @@ DATA PER KABUPATEN (SAMA DENGAN DASHBOARD):
 ${kabupatenStats.map((kab: KabupatenStat) => `- ${kab.nama.replace('KABUPATEN ', '')}: ${kab.jumlah_ps} PS, ${kab.luas_ha.toLocaleString('id-ID')} ha, ${kab.jumlah_kk.toLocaleString('id-ID')} KK, RKPS: ${kab.rkps_ada}/${kab.jumlah_ps}, Peta: ${kab.peta_ada}/${kab.jumlah_ps}`).join('\n')}
 
 CATATAN PENTING:
-- Data ini diambil langsung dari database dengan query yang SAMA PERSIS seperti dashboard
+- Data bersumber dari database sistem yang terintegrasi dan diperbarui secara berkala
 - Angka-angka ini harus cocok dengan yang ditampilkan di dashboard
-- Jika ada perbedaan, mungkin karena cache atau waktu query yang berbeda
+- Jika ada perbedaan, mungkin karena sinkronisasi data atau waktu query yang berbeda
 `
   }
 }

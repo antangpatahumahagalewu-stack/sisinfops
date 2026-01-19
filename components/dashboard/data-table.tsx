@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Search, MoreVertical, Eye, Edit, Trash2, CheckCircle, XCircle, FileText } from "lucide-react"
+import { Search, MoreVertical, Eye, Edit, Trash2, CheckCircle, XCircle, FileText, ArrowUpDown } from "lucide-react"
 import { Kabupaten } from "@/lib/types/pks"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -11,14 +11,18 @@ interface DataTableProps {
   data: any[]
   kabupatenOptions: Kabupaten[]
   userRole: 'admin' | 'monev' | 'viewer'
+  enablePromote?: boolean
 }
 
-export default function DataTable({ data, kabupatenOptions, userRole }: DataTableProps) {
+export default function DataTable({ data, kabupatenOptions, userRole, enablePromote = false }: DataTableProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedKabupaten, setSelectedKabupaten] = useState<string>("all")
   const [selectedSkema, setSelectedSkema] = useState<string>("all")
   const [selectedJenisHutan, setSelectedJenisHutan] = useState<string>("all")
+  const [sortColumn, setSortColumn] = useState<string>('')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [promotingId, setPromotingId] = useState<string | null>(null)
   const dropdownRefs = useRef<Record<string, HTMLDivElement>>({})
   const router = useRouter()
   const locale = useLocale()
@@ -40,7 +44,7 @@ export default function DataTable({ data, kabupatenOptions, userRole }: DataTabl
   }, [openDropdown])
 
   // Filter data
-  const filteredData = data.filter(item => {
+  let filteredData = data.filter(item => {
     const matchesSearch = 
       item.pemegang_izin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.desa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -61,6 +65,44 @@ export default function DataTable({ data, kabupatenOptions, userRole }: DataTabl
 
     return matchesSearch && matchesKabupaten && matchesSkema && matchesJenisHutan
   })
+
+  // Sorting logic
+  if (sortColumn) {
+    filteredData = [...filteredData].sort((a, b) => {
+      let aValue = a[sortColumn]
+      let bValue = b[sortColumn]
+
+      // Handle null/undefined values
+      if (aValue == null) aValue = ''
+      if (bValue == null) bValue = ''
+
+      // Special handling for status columns
+      if (sortColumn === 'rkps_status' || sortColumn === 'peta_status') {
+        // 'ada' should come before 'belum'
+        const statusOrder = { 'ada': 1, 'belum': 2 }
+        aValue = statusOrder[aValue as keyof typeof statusOrder] || 3
+        bValue = statusOrder[bValue as keyof typeof statusOrder] || 3
+      }
+
+      // Special handling for numeric columns
+      if (sortColumn === 'luas_ha') {
+        aValue = Number(aValue) || 0
+        bValue = Number(bValue) || 0
+      }
+
+      // String comparison for text columns
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        aValue = aValue.toLowerCase()
+        bValue = bValue.toLowerCase()
+      }
+
+      let comparison = 0
+      if (aValue < bValue) comparison = -1
+      if (aValue > bValue) comparison = 1
+
+      return sortDirection === 'asc' ? comparison : -comparison
+    })
+  }
 
   // Get unique skema options
   const skemaOptions = Array.from(new Set(data.map(item => item.skema).filter(Boolean)))
@@ -124,6 +166,18 @@ export default function DataTable({ data, kabupatenOptions, userRole }: DataTabl
     )
   }
 
+  // Handle sorting
+  const handleSort = (columnKey: string) => {
+    if (sortColumn === columnKey) {
+      // Toggle direction if same column
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      // New column, default to ascending
+      setSortColumn(columnKey)
+      setSortDirection('asc')
+    }
+  }
+
   // Handle actions
   const handleView = (id: string) => {
     router.push(`/${locale}/ps/${id}`)
@@ -143,6 +197,39 @@ export default function DataTable({ data, kabupatenOptions, userRole }: DataTabl
     }
   }
 
+  const handlePromote = async (id: string) => {
+    if (!confirm("Apakah Anda yakin ingin menaikkan status data potensi ini menjadi Perhutanan Sosial?\n\nData akan dipindahkan dari tabel potensi ke tabel perhutanan_sosial.")) {
+      return
+    }
+
+    setPromotingId(id)
+    setOpenDropdown(null)
+
+    try {
+      const response = await fetch(`/api/potensi/${id}/promote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        alert(`Berhasil mempromosikan data potensi menjadi Perhutanan Sosial!\n\nID PS baru: ${result.psId}`)
+        // Refresh the page to show updated data
+        window.location.reload()
+      } else {
+        alert(`Gagal mempromosikan data: ${result.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error promoting data:', error)
+      alert('Terjadi kesalahan saat mempromosikan data. Silakan coba lagi.')
+    } finally {
+      setPromotingId(null)
+    }
+  }
+
   const toggleDropdown = (id: string) => {
     setOpenDropdown(openDropdown === id ? null : id)
   }
@@ -150,6 +237,34 @@ export default function DataTable({ data, kabupatenOptions, userRole }: DataTabl
   // Format luas
   const formatLuas = (luas: number) => {
     return new Intl.NumberFormat('id-ID').format(luas)
+  }
+
+  // Helper to render sortable header
+  const SortableHeader = ({ 
+    columnKey, 
+    label, 
+    className = "" 
+  }: { 
+    columnKey: string, 
+    label: string, 
+    className?: string 
+  }) => {
+    const isSorted = sortColumn === columnKey
+    return (
+      <th 
+        className={`py-3 px-4 font-medium text-left cursor-pointer hover:bg-muted/70 transition-colors ${className}`}
+        onClick={() => handleSort(columnKey)}
+      >
+        <div className="flex items-center gap-1">
+          {label}
+          {isSorted ? (
+            <ArrowUpDown className={`h-3 w-3 ${sortDirection === 'asc' ? 'rotate-0' : 'rotate-180'}`} />
+          ) : (
+            <ArrowUpDown className="h-3 w-3 opacity-30" />
+          )}
+        </div>
+      </th>
+    )
   }
 
   return (
@@ -218,13 +333,13 @@ export default function DataTable({ data, kabupatenOptions, userRole }: DataTabl
             <thead>
               <tr className="border-b bg-muted/50">
                 <th className="text-left py-3 px-4 font-medium w-[60px]">No</th>
-                <th className="text-left py-3 px-4 font-medium w-[250px]">Pemegang Izin</th>
-                <th className="text-left py-3 px-4 font-medium">Kabupaten</th>
-                <th className="text-left py-3 px-4 font-medium">Skema</th>
-                <th className="text-left py-3 px-4 font-medium">Jenis Hutan</th>
-                <th className="text-left py-3 px-4 font-medium">Luas (Ha)</th>
-                <th className="text-left py-3 px-4 font-medium">RKPS</th>
-                <th className="text-left py-3 px-4 font-medium">Peta</th>
+                <SortableHeader columnKey="pemegang_izin" label="Pemegang Izin" className="w-[250px]" />
+                <SortableHeader columnKey="kabupaten_nama" label="Kabupaten" />
+                <SortableHeader columnKey="skema" label="Skema" />
+                <SortableHeader columnKey="jenis_hutan" label="Jenis Hutan" />
+                <SortableHeader columnKey="luas_ha" label="Luas (Ha)" />
+                <SortableHeader columnKey="rkps_status" label="RKPS" />
+                <SortableHeader columnKey="peta_status" label="Peta" />
                 <th className="text-right py-3 px-4 font-medium">Aksi</th>
               </tr>
             </thead>
@@ -310,6 +425,28 @@ export default function DataTable({ data, kabupatenOptions, userRole }: DataTabl
                                   </button>
                                   <div className="border-t my-1"></div>
                                 </>
+                              )}
+
+                              {enablePromote && (userRole === 'admin' || userRole === 'monev') && (
+                                <button 
+                                  onClick={() => handlePromote(item.id)}
+                                  disabled={promotingId === item.id}
+                                  className="flex items-center w-full px-3 py-2 text-sm text-green-600 hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  {promotingId === item.id ? (
+                                    <>
+                                      <div className="mr-2 h-4 w-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                                      Memproses...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                                      </svg>
+                                      Naikkan ke PS
+                                    </>
+                                  )}
+                                </button>
                               )}
 
                               {item.can_delete && userRole === 'admin' && (

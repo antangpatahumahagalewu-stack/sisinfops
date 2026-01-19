@@ -64,7 +64,7 @@ export default async function DashboardPage() {
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Row 1 */}
-        <Card className="flex flex-col bg-blue-50/50 border-blue-100">
+        <Card className="flex flex-col bg-blue-50/50 border-blue-100 py-4 gap-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total PS</CardTitle>
             <Database className="h-4 w-4 text-blue-600" />
@@ -75,7 +75,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col bg-green-50/50 border-green-100">
+        <Card className="flex flex-col bg-green-50/50 border-green-100 py-4 gap-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Luas</CardTitle>
             <Map className="h-4 w-4 text-green-600" />
@@ -86,7 +86,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col bg-orange-50/50 border-orange-100">
+        <Card className="flex flex-col bg-orange-50/50 border-orange-100 py-4 gap-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total KK</CardTitle>
             <Users className="h-4 w-4 text-orange-600" />
@@ -97,7 +97,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col bg-teal-50/50 border-teal-100">
+        <Card className="flex flex-col bg-teal-50/50 border-teal-100 py-4 gap-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Carbon Projects</CardTitle>
             <TreePine className="h-4 w-4 text-teal-600" />
@@ -111,7 +111,7 @@ export default async function DashboardPage() {
         </Card>
 
         {/* Row 2 */}
-        <Card className="flex flex-col bg-yellow-50/50 border-yellow-100">
+        <Card className="flex flex-col bg-yellow-50/50 border-yellow-100 py-4 gap-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">RKPS Tersedia</CardTitle>
             <CheckCircle className="h-4 w-4 text-yellow-600" />
@@ -124,7 +124,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col bg-purple-50/50 border-purple-100">
+        <Card className="flex flex-col bg-purple-50/50 border-purple-100 py-4 gap-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Peta Tersedia</CardTitle>
             <CheckCircle className="h-4 w-4 text-purple-600" />
@@ -137,7 +137,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col bg-indigo-50/50 border-indigo-100">
+        <Card className="flex flex-col bg-indigo-50/50 border-indigo-100 py-4 gap-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Compliance Rate</CardTitle>
             <Globe className="h-4 w-4 text-indigo-600" />
@@ -150,7 +150,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col bg-gradient-to-br from-green-50/80 to-blue-50/80 border-green-200">
+        <Card className="flex flex-col bg-gradient-to-br from-green-50/80 to-blue-50/80 border-green-200 py-4 gap-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">CO₂ Estimate</CardTitle>
             <TreePine className="h-4 w-4 text-green-600" />

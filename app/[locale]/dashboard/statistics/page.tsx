@@ -84,9 +84,20 @@ export default async function StatisticsPage({
     return acc
   }, {})
 
+  // === NORMALIZE JENIS HUTAN ===
+  const normalizeJenisHutan = (jenis: string | null): string => {
+    if (!jenis) return 'Mineral'
+    const lower = jenis.toLowerCase().trim()
+    if (lower.includes('gambut')) {
+      return 'Gambut'
+    }
+    // Default to Mineral for everything else
+    return 'Mineral'
+  }
+
   // === STATISTICS BY JENIS HUTAN ===
   const jenisHutanStats = psData.reduce((acc: Record<string, { count: number; luas: number }>, ps) => {
-    const jenis = ps.jenis_hutan || 'Tidak Diketahui'
+    const jenis = normalizeJenisHutan(ps.jenis_hutan)
     if (!acc[jenis]) {
       acc[jenis] = { count: 0, luas: 0 }
     }
@@ -98,9 +109,8 @@ export default async function StatisticsPage({
   // === STATISTICS BY JENIS HUTAN PER KABUPATEN ===
   const jenisHutanByKabupaten = kabupatenData.map(kab => {
     const psInKab = psData.filter(ps => ps.kabupaten_id === kab.id)
-    const mineralPS = psInKab.filter(ps => ps.jenis_hutan === 'Mineral')
-    const mineralGambutPS = psInKab.filter(ps => ps.jenis_hutan === 'Mineral/Gambut')
-    const gambutPS = psInKab.filter(ps => ps.jenis_hutan === 'Gambut')
+    const mineralPS = psInKab.filter(ps => normalizeJenisHutan(ps.jenis_hutan) === 'Mineral')
+    const gambutPS = psInKab.filter(ps => normalizeJenisHutan(ps.jenis_hutan) === 'Gambut')
     
     return {
       kabupaten: kab.nama,
@@ -108,10 +118,6 @@ export default async function StatisticsPage({
       mineral: {
         count: mineralPS.length,
         luas: mineralPS.reduce((sum, ps) => sum + (ps.luas_ha || 0), 0)
-      },
-      mineralGambut: {
-        count: mineralGambutPS.length,
-        luas: mineralGambutPS.reduce((sum, ps) => sum + (ps.luas_ha || 0), 0)
       },
       gambut: {
         count: gambutPS.length,
@@ -391,7 +397,7 @@ export default async function StatisticsPage({
             Distribusi Sebaran Jenis Hutan per Kabupaten
           </CardTitle>
           <CardDescription>
-            Sebaran wilayah berdasarkan jenis hutan (Mineral, Mineral/Gambut, Gambut) di setiap kabupaten
+            Sebaran wilayah berdasarkan jenis hutan (Mineral, Gambut) di setiap kabupaten
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -401,7 +407,6 @@ export default async function StatisticsPage({
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 font-medium">Kabupaten</th>
                   <th className="text-center py-3 px-4 font-medium">Mineral</th>
-                  <th className="text-center py-3 px-4 font-medium">Mineral/Gambut</th>
                   <th className="text-center py-3 px-4 font-medium">Gambut</th>
                   <th className="text-center py-3 px-4 font-medium">Total</th>
                 </tr>
@@ -410,9 +415,6 @@ export default async function StatisticsPage({
                 {jenisHutanByKabupaten.map((kab) => {
                   const mineralPercentage = kab.total.count > 0 
                     ? ((kab.mineral.count / kab.total.count) * 100).toFixed(1) 
-                    : '0.0'
-                  const mineralGambutPercentage = kab.total.count > 0 
-                    ? ((kab.mineralGambut.count / kab.total.count) * 100).toFixed(1) 
                     : '0.0'
                   const gambutPercentage = kab.total.count > 0 
                     ? ((kab.gambut.count / kab.total.count) * 100).toFixed(1) 
@@ -431,17 +433,6 @@ export default async function StatisticsPage({
                           </span>
                           <span className="text-xs text-muted-foreground">
                             ({mineralPercentage}%)
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <div className="flex flex-col items-center">
-                          <span className="font-medium text-green-600">{kab.mineralGambut.count}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {kab.mineralGambut.luas.toLocaleString('id-ID')} Ha
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            ({mineralGambutPercentage}%)
                           </span>
                         </div>
                       </td>
@@ -476,16 +467,6 @@ export default async function StatisticsPage({
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {jenisHutanByKabupaten.reduce((sum, kab) => sum + kab.mineral.luas, 0).toLocaleString('id-ID')} Ha
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <div className="flex flex-col items-center">
-                      <span className="text-green-600">
-                        {jenisHutanByKabupaten.reduce((sum, kab) => sum + kab.mineralGambut.count, 0)}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {jenisHutanByKabupaten.reduce((sum, kab) => sum + kab.mineralGambut.luas, 0).toLocaleString('id-ID')} Ha
                       </span>
                     </div>
                   </td>

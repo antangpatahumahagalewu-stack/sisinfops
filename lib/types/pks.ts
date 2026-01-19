@@ -2,7 +2,7 @@ export type Role = 'admin' | 'monev' | 'viewer' | 'program_planner' | 'program_i
 
 export type Skema = 'HKM' | 'LPHD' | 'HA' | 'HTR' | 'IUPHHK' | 'IUPHKm' | 'POTENSI'
 
-export type JenisHutan = 'Mineral' | 'Gambut' | 'Mineral/Gambut'
+export type JenisHutan = 'Mineral' | 'Gambut'
 
 export type StatusKawasan = 'HL' | 'HPT' | 'HPK' | 'HP' | 'HA' | '------'
 

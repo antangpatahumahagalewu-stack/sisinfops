@@ -4,24 +4,27 @@ import { z } from "zod";
 
 // Schema validation based on database schema and template
 const psCreateSchema = z.object({
-  kabupaten_id: z.string().uuid().optional(),
+  kabupaten_id: z.string()
+    .min(1, "Kabupaten wajib dipilih")
+    .uuid("ID kabupaten tidak valid"),
   skema: z.enum(["HD", "HTR", "HKM", "HA", "IUPHHK", "IUPHKm"]),
   pemegang_izin: z.string().min(1, "Nama pemegang izin wajib diisi"),
-  desa: z.string().optional(),
-  kecamatan: z.string().optional(),
-  nomor_sk: z.string().optional(),
+  desa: z.string().optional().nullable(),
+  kecamatan: z.string().optional().nullable(),
+  nomor_sk: z.string().optional().nullable(),
   tanggal_sk: z.string().optional().nullable(),
-  masa_berlaku: z.string().optional(),
+  masa_berlaku: z.string().optional().nullable(),
   tanggal_berakhir_izin: z.string().optional().nullable(),
-  nomor_pks: z.string().optional(),
+  nomor_pks: z.string().optional().nullable(),
   luas_ha: z.number().min(0, "Luas harus >= 0").optional(),
   jenis_hutan: z.string().optional(),
-  status_kawasan: z.string().optional(),
+  status_kawasan: z.string().optional().nullable(),
   rkps_status: z.enum(["ada", "belum"]).default("belum"),
   peta_status: z.enum(["ada", "belum"]).default("belum"),
-  keterangan: z.string().optional(),
-  fasilitator: z.string().optional(),
+  keterangan: z.string().optional().nullable(),
+  fasilitator: z.string().optional().nullable(),
   jumlah_kk: z.number().int().min(0, "Jumlah KK harus >= 0").optional(),
+  nama_kabupaten: z.string().optional(), // for lookup fallback, if needed
 });
 
 export async function POST(request: NextRequest) {

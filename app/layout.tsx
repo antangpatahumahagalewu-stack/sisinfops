@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { headers } from "next/headers";
+import { Toaster } from "sonner";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -53,6 +54,12 @@ export default async function RootLayout({
     <html lang={locale}>
       <body>
         {children}
+        <Toaster 
+          position="top-right"
+          expand={true}
+          richColors
+          closeButton
+        />
       </body>
     </html>
   );
