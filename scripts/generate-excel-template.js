@@ -152,7 +152,7 @@ const psExampleData = [
 // Data validations for Perhutanan Sosial sheet
 const psValidations = {
   'Skema PS': ['HD', 'HTR', 'HKM', 'HA', 'IUPHHK', 'IUPHKm'],
-  'Kabupaten': ['KABUPATEN KAPUAS', 'KABUPATEN GUNUNG MAS', 'KABUPATEN KATINGAN', 'KABUPATEN PULANG PISAU'],
+  'Kabupaten': ['KABUPATEN KAPUAS', 'KABUPATEN GUNUNG MAS', 'KABUPATEN KATINGAN', 'KABUPATEN PULANG PISAU', 'Kotamadya Palangka Raya'],
   'Jenis Hutan': ['Mineral', 'Gambut', 'Mineral/Gambut'],
   'RKPS': ['ada', 'belum'],
   'Peta': ['ada', 'belum']
@@ -340,7 +340,7 @@ const panduanData = [
   ['Nama PS / Pemegang Izin', 'Nama lengkap pemegang izin', 'LPHD HAROWU'],
   ['Desa/Kelurahan', 'Nama desa atau kelurahan', 'HAROWU'],
   ['Kecamatan', 'Nama kecamatan', 'MIRI MANASA'],
-  ['Kabupaten', 'Nama kabupaten', 'KABUPATEN GUNUNG MAS, KABUPATEN KAPUAS, KABUPATEN KATINGAN, KABUPATEN PULANG PISAU'],
+  ['Kabupaten', 'Nama kabupaten', 'KABUPATEN GUNUNG MAS, KABUPATEN KAPUAS, KABUPATEN KATINGAN, KABUPATEN PULANG PISAU, Kotamadya Palangka Raya'],
   ['Jumlah KK', 'Jumlah Kepala Keluarga', 'Angka (57)'],
   ['Luas (Ha)', 'Luas area dalam hektar', 'Angka desimal (1750 atau 1750.5)'],
   ['Jenis Hutan', 'Jenis hutan', 'Mineral, Gambut, Mineral/Gambut'],

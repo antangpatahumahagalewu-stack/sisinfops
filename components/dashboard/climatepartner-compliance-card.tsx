@@ -117,7 +117,7 @@ export function ClimatePartnerComplianceCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>ClimatePartner Compliance</CardTitle>
+          <CardTitle>ClimateBaseline Protocol Compliance</CardTitle>
           <CardDescription>Loading compliance data...</CardDescription>
         </CardHeader>
         <CardContent>
@@ -135,12 +135,12 @@ export function ClimatePartnerComplianceCard() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>ClimatePartner Compliance</CardTitle>
+          <CardTitle>ClimateBaseline Protocol Compliance</CardTitle>
           <CardDescription>No compliance data available</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Start filling in ClimatePartner compliance data for your projects.
+            Start filling in ClimateBaseline Protocol compliance data for your projects.
           </p>
         </CardContent>
       </Card>
@@ -156,10 +156,10 @@ export function ClimatePartnerComplianceCard() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Globe className="h-5 w-5 text-green-600" />
-              ClimatePartner Compliance
+              ClimateBaseline Protocol Compliance
             </CardTitle>
             <CardDescription>
-              Readiness for ClimatePartner project development applications
+              Readiness for ClimateBaseline Protocol project development applications
             </CardDescription>
           </div>
           <Badge variant={compliancePercentage >= 70 ? "default" : "destructive"}>

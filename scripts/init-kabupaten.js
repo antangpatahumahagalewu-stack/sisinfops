@@ -60,21 +60,16 @@ async function initKabupaten() {
     process.exit(1);
   }
   
-  if (existingKabupaten && existingKabupaten.length > 0) {
-    console.log(`Kabupaten table already has ${existingKabupaten.length} records:`);
-    existingKabupaten.forEach(k => console.log(`  - ${k.nama}`));
-    return existingKabupaten;
-  }
-  
-  // Insert the 4 kabupaten
+  // Always upsert all kabupaten from the list
   const kabupatenList = [
-    'KABUPATEN KATINGAN',
-    'KABUPATEN KAPUAS', 
-    'KABUPATEN PULANG PISAU',
-    'KABUPATEN GUNUNG MAS'
+    'Kabupaten Katingan',
+    'Kabupaten Kapuas', 
+    'Kabupaten Pulang Pisau',
+    'Kabupaten Gunung Mas',
+    'Kotamadya Palangka Raya'
   ];
   
-  console.log('Inserting kabupaten data...');
+  console.log('Upserting kabupaten data...');
   
   for (const nama of kabupatenList) {
     const { error } = await supabase
@@ -82,9 +77,9 @@ async function initKabupaten() {
       .upsert({ nama }, { onConflict: 'nama' });
       
     if (error) {
-      console.error(`Error inserting kabupaten ${nama}:`, error.message);
+      console.error(`Error upserting kabupaten ${nama}:`, error.message);
     } else {
-      console.log(`  Inserted: ${nama}`);
+      console.log(`  Upserted: ${nama}`);
     }
   }
   

@@ -207,7 +207,7 @@ export default async function KabupatenListPage({
         <CardHeader>
           <CardTitle>Perbandingan Antar Kabupaten</CardTitle>
           <CardDescription>
-            Analisis komparatif data Perhutanan Sosial di 4 kabupaten
+            Analisis komparatif data Perhutanan Sosial di 5 kabupaten
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -93,7 +93,7 @@ export default async function DataPage({
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Data Perhutanan Sosial</h1>
           <p className="text-muted-foreground">
-            Kelola data Perhutanan Sosial yang telah ber-PKS di 4 kabupaten
+            Kelola data Perhutanan Sosial yang telah ber-PKS di 5 kabupaten
           </p>
         </div>
         <div className="flex gap-2">
@@ -166,7 +166,7 @@ export default async function DataPage({
 
         <Card className="flex flex-col bg-gradient-to-br from-teal-50/80 to-indigo-50/80 border-teal-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">ClimatePartner Ready</CardTitle>
+            <CardTitle className="text-sm font-medium">ClimateBaseline Protocol Ready</CardTitle>
             <Globe className="h-4 w-4 text-teal-600" />
           </CardHeader>
           <CardContent className="flex-grow">
@@ -186,11 +186,12 @@ export default async function DataPage({
           <TabsTrigger value="all">Semua Data</TabsTrigger>
           <TabsTrigger value="rkps">Perlu RKPS</TabsTrigger>
           <TabsTrigger value="peta">Perlu Peta</TabsTrigger>
-          <TabsTrigger value="climatepartner">ClimatePartner Ready</TabsTrigger>
+          <TabsTrigger value="climatepartner">ClimateBaseline Protocol Ready</TabsTrigger>
           <TabsTrigger value="Gunung Mas">Gunung Mas</TabsTrigger>
           <TabsTrigger value="kapuas">Kapuas</TabsTrigger>
           <TabsTrigger value="katingan">Katingan</TabsTrigger>
           <TabsTrigger value="Pulang Pisau">Pulang Pisau</TabsTrigger>
+          <TabsTrigger value="Palangka Raya">Palangka Raya</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
@@ -250,9 +251,9 @@ export default async function DataPage({
         <TabsContent value="climatepartner">
           <Card>
             <CardHeader>
-              <CardTitle>ClimatePartner Ready Projects</CardTitle>
+              <CardTitle>ClimateBaseline Protocol Ready Projects</CardTitle>
               <CardDescription>
-                Data PS yang siap untuk ClimatePartner compliance
+                Data PS yang siap untuk ClimateBaseline Protocol compliance
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -260,9 +261,9 @@ export default async function DataPage({
                 <div className="flex items-center gap-3">
                   <Globe className="h-5 w-5 text-teal-600" />
                   <div>
-                    <h3 className="font-medium text-teal-800">ClimatePartner Compliance Criteria</h3>
+                    <h3 className="font-medium text-teal-800">ClimateBaseline Protocol Compliance Criteria</h3>
                     <p className="text-sm text-teal-600 mt-1">
-                      Projects with complete RKPS, Peta, and minimum 50 hectares are eligible for ClimatePartner compliance.
+                      Projects with complete RKPS, Peta, and minimum 50 hectares are eligible for ClimateBaseline Protocol compliance.
                     </p>
                   </div>
                 </div>
@@ -281,7 +282,7 @@ export default async function DataPage({
                   item.rkps_status === 'ada' && 
                   item.peta_status === 'ada' && 
                   (item.luas_ha || 0) >= 50
-                ).length} of {totalData} projects eligible for ClimatePartner compliance.</p>
+                ).length} of {totalData} projects eligible for ClimateBaseline Protocol compliance.</p>
               </div>
             </CardContent>
           </Card>
@@ -360,6 +361,25 @@ export default async function DataPage({
               <DataTable 
                 data={tableData.filter(item => 
                   normalizeKabupatenName(item.kabupaten_nama) === 'pulang pisau'
+                )} 
+                kabupatenOptions={kabupatenData || []}
+                userRole={profile?.role || 'viewer'}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="Palangka Raya">
+          <Card>
+            <CardHeader>
+              <CardTitle>Data Kotamadya Palangka Raya</CardTitle>
+              <CardDescription>
+                Data Perhutanan Sosial untuk Kotamadya Palangka Raya
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataTable 
+                data={tableData.filter(item => 
+                  normalizeKabupatenName(item.kabupaten_nama) === 'palangka raya'
                 )} 
                 kabupatenOptions={kabupatenData || []}
                 userRole={profile?.role || 'viewer'}

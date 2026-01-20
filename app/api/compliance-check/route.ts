@@ -601,8 +601,8 @@ function getComplianceSummary(score: number) {
   if (score >= 90) {
     return {
       level: "EXCELLENT",
-      description: "Project is highly compliant with ClimatePartner requirements",
-      recommendation: "Ready for submission to ClimatePartner"
+      description: "Project is highly compliant with ClimateBaseline Protocol requirements",
+      recommendation: "Ready for submission to ClimateBaseline Protocol"
     }
   } else if (score >= 70) {
     return {

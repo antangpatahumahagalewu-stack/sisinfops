@@ -103,7 +103,7 @@ export default async function PotensiPage({
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Data Potensi Perhutanan Sosial</h1>
           <p className="text-muted-foreground">
-            Kelola data potensi dan calon lokasi Perhutanan Sosial di 4 kabupaten
+            Kelola data potensi dan calon lokasi Perhutanan Sosial di 5 kabupaten
           </p>
         </div>
         <div className="flex gap-2">
@@ -191,6 +191,7 @@ export default async function PotensiPage({
           <TabsTrigger value="kapuas">Kapuas</TabsTrigger>
           <TabsTrigger value="katingan">Katingan</TabsTrigger>
           <TabsTrigger value="Pulang Pisau">Pulang Pisau</TabsTrigger>
+          <TabsTrigger value="Palangka Raya">Palangka Raya</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
@@ -288,6 +289,26 @@ export default async function PotensiPage({
               <DataTable 
                 data={tableData.filter(item => 
                   normalizeKabupatenName(item.kabupaten_nama) === 'pulang pisau'
+                )} 
+                kabupatenOptions={kabupatenData || []}
+                userRole={profile?.role || 'viewer'}
+                enablePromote={true}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="Palangka Raya">
+          <Card>
+            <CardHeader>
+              <CardTitle>Potensi Kotamadya Palangka Raya</CardTitle>
+              <CardDescription>
+                Data potensi Perhutanan Sosial untuk Kotamadya Palangka Raya
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataTable 
+                data={tableData.filter(item => 
+                  normalizeKabupatenName(item.kabupaten_nama) === 'palangka raya'
                 )} 
                 kabupatenOptions={kabupatenData || []}
                 userRole={profile?.role || 'viewer'}

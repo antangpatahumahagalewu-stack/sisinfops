@@ -57,7 +57,7 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard Nasional</h1>
         <p className="text-muted-foreground">
-          Ringkasan data Perhutanan Sosial & PKS 4 Kabupaten
+          Ringkasan data Perhutanan Sosial & PKS 5 Kabupaten
         </p>
       </div>
 
@@ -164,7 +164,7 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      {/* ClimatePartner Compliance Card */}
+      {/* ClimateBaseline Protocol Compliance Card */}
       <ClimatePartnerComplianceCard />
 
       {/* Action Cards */}
@@ -185,7 +185,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent className="flex-grow">
             <p className="text-sm text-muted-foreground mb-4">
-              Upload file Excel dengan format yang sesuai untuk mengisi data Perhutanan Sosial.
+              Tools untuk memastikan compliance dengan standar ClimateBaseline Protocol.
             </p>
             <Button asChild className="w-full">
               <Link href="/dashboard/upload">
@@ -243,7 +243,7 @@ export default async function DashboardPage() {
                 <Globe className="h-5 w-5 text-purple-600" />
               </div>
               <div>
-                <CardTitle>ClimatePartner Tools</CardTitle>
+                <CardTitle>ClimateBaseline Protocol Tools</CardTitle>
                 <CardDescription>
                   Kelola compliance & proyek karbon
                 </CardDescription>
@@ -251,9 +251,9 @@ export default async function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="flex-grow">
-            <p className="text-sm text-muted-foreground mb-4">
-              Tools untuk memastikan compliance dengan standar ClimatePartner.
-            </p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Tools untuk memastikan compliance dengan standar ClimateBaseline Protocol.
+              </p>
             <div className="space-y-3">
               <Button asChild className="w-full justify-start">
                 <Link href="/dashboard/carbon-projects">
@@ -283,7 +283,7 @@ export default async function DashboardPage() {
         <CardHeader>
           <CardTitle>Statistik per Kabupaten</CardTitle>
           <CardDescription>
-            Ringkasan data Perhutanan Sosial untuk 4 kabupaten
+            Ringkasan data Perhutanan Sosial untuk 5 kabupaten
           </CardDescription>
         </CardHeader>
         <CardContent>
