@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -27,6 +28,7 @@ interface EditLembagaFormProps {
 }
 
 export function EditLembagaForm({ lembaga, psId, skema, onSuccess, onCancel }: EditLembagaFormProps) {
+  const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     nama: lembaga?.nama || "",
@@ -126,6 +128,9 @@ export function EditLembagaForm({ lembaga, psId, skema, onSuccess, onCancel }: E
         throw error
       }
 
+      // Refresh halaman untuk sinkronisasi data
+      router.refresh()
+      
       // Panggil callback onSuccess jika tersedia
       if (onSuccess) {
         onSuccess()
@@ -301,4 +306,3 @@ export function EditLembagaForm({ lembaga, psId, skema, onSuccess, onCancel }: E
     </Card>
   )
 }
-

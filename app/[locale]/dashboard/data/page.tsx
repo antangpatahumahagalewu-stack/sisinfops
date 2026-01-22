@@ -182,7 +182,7 @@ export default async function DataPage({
 
       {/* Main Content */}
       <Tabs defaultValue="all" className="space-y-4">
-        <TabsList>
+        <TabsList className="overflow-x-auto whitespace-nowrap">
           <TabsTrigger value="all">Semua Data</TabsTrigger>
           <TabsTrigger value="rkps">Perlu RKPS</TabsTrigger>
           <TabsTrigger value="peta">Perlu Peta</TabsTrigger>

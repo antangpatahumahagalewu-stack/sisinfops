@@ -217,6 +217,17 @@ export function AddEditPetaForm({ peta, psId, onSuccess, onCancel }: AddEditPeta
         if (error) throw error
       }
 
+      // Update peta_status in perhutanan_sosial table to 'ada'
+      const { error: updateStatusError } = await supabase
+        .from("perhutanan_sosial")
+        .update({ peta_status: 'ada' })
+        .eq("id", psId)
+
+      if (updateStatusError) {
+        console.error("Error updating peta_status:", updateStatusError)
+        // Don't throw, just log. The peta upload succeeded.
+      }
+
       if (onSuccess) {
         onSuccess()
       }
@@ -367,4 +378,3 @@ export function AddEditPetaForm({ peta, psId, onSuccess, onCancel }: AddEditPeta
     </Card>
   )
 }
-

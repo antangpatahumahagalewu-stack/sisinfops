@@ -1,6 +1,31 @@
 import { createClient } from "@/lib/supabase/server"
-import { InvestorCarbonDashboard } from "@/components/dashboard/investor-carbon-dashboard"
 import { redirect } from "next/navigation"
+import dynamic from 'next/dynamic'
+import { Suspense } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
+
+// Dynamic import untuk komponen berat dengan loading fallback
+const InvestorCarbonDashboard = dynamic(
+  () => import("@/components/dashboard/investor-carbon-dashboard").then(mod => mod.InvestorCarbonDashboard),
+  {
+    loading: () => (
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-4 w-full" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-32 w-full" />
+          ))}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <Skeleton key={i} className="h-96 w-full" />
+          ))}
+        </div>
+      </div>
+    ),
+  }
+)
 
 export default async function InvestorDashboardPage() {
   const supabase = await createClient()
@@ -33,7 +58,24 @@ export default async function InvestorDashboardPage() {
         </p>
       </div>
 
-      <InvestorCarbonDashboard />
+      <Suspense fallback={
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-full" />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-32 w-full" />
+            ))}
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <Skeleton key={i} className="h-96 w-full" />
+            ))}
+          </div>
+        </div>
+      }>
+        <InvestorCarbonDashboard />
+      </Suspense>
     </div>
   )
 }

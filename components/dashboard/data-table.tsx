@@ -6,6 +6,8 @@ import { Kabupaten } from "@/lib/types/pks"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useLocale } from 'next-intl'
+import { EditPSForm } from "./edit-ps-form"
+import { toast } from "sonner"
 
 interface DataTableProps {
   data: any[]
@@ -23,6 +25,8 @@ export default function DataTable({ data, kabupatenOptions, userRole, enableProm
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [promotingId, setPromotingId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const dropdownRefs = useRef<Record<string, HTMLDivElement>>({})
   const router = useRouter()
   const locale = useLocale()
@@ -184,16 +188,44 @@ export default function DataTable({ data, kabupatenOptions, userRole, enableProm
   }
 
   const handleEdit = (id: string) => {
-    console.log("Edit item:", id)
+    setEditingId(id)
     setOpenDropdown(null)
-    // Open edit dialog
   }
 
-  const handleDelete = (id: string) => {
-    if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
-      console.log("Delete item:", id)
-      setOpenDropdown(null)
-      // Call delete API
+  const handleDelete = async (id: string) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+      return
+    }
+
+    setDeletingId(id)
+    setOpenDropdown(null)
+
+    try {
+      const response = await fetch(`/api/ps/${id}`, {
+        method: 'DELETE',
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Gagal menghapus data')
+      }
+
+      toast.success("Data berhasil dihapus", {
+        description: "Data Perhutanan Sosial telah dihapus dari sistem",
+        duration: 5000,
+      })
+
+      // Refresh the page to show updated data
+      window.location.reload()
+    } catch (error: any) {
+      toast.error("Gagal menghapus data", {
+        description: error.message || "Terjadi kesalahan saat menghapus data",
+        duration: 5000,
+      })
+      console.error('Error deleting data:', error)
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -228,6 +260,17 @@ export default function DataTable({ data, kabupatenOptions, userRole, enableProm
     } finally {
       setPromotingId(null)
     }
+  }
+
+  // Get PS data for editing
+  const getPsDataForEdit = (id: string) => {
+    return filteredData.find(item => item.id === id)
+  }
+
+  const handleEditSuccess = () => {
+    setEditingId(null)
+    // Refresh the page to show updated data
+    window.location.reload()
   }
 
   const toggleDropdown = (id: string) => {
@@ -485,6 +528,35 @@ export default function DataTable({ data, kabupatenOptions, userRole, enableProm
           </button>
         </div>
       </div>
+
+      {/* Edit Dialog */}
+      {editingId && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Edit Data Perhutanan Sosial</h2>
+                <button 
+                  onClick={() => setEditingId(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <EditPSForm 
+                psData={getPsDataForEdit(editingId)}
+                kabupatenOptions={kabupatenOptions}
+                userRole={userRole}
+                onSuccess={handleEditSuccess}
+                onCancel={() => setEditingId(null)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

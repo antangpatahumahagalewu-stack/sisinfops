@@ -18,6 +18,19 @@ interface Peta {
   created_at: string
 }
 
+// Helper function to extract file extension
+const getFileExtension = (url: string | null, name: string | null): string | null => {
+  const source = url || name
+  if (!source) return null
+  return source.split('.').pop()?.toLowerCase() || null
+}
+
+// Helper function to check if file can be displayed in browser
+const isViewableFile = (ext: string | null): boolean => {
+  if (!ext) return false
+  return ['pdf', 'jpg', 'jpeg', 'png'].includes(ext)
+}
+
 export function TabPeta({ psId }: { psId: string }) {
   const [peta, setPeta] = useState<Peta | null>(null)
   const [loading, setLoading] = useState(true)
@@ -53,6 +66,15 @@ export function TabPeta({ psId }: { psId: string }) {
         }
         setPeta(null)
       } else {
+        console.log("🔍 DEBUG - Peta data fetched:", data)
+        // Debug file_url
+        if (data?.file_url) {
+          console.log("🔍 DEBUG - File URL:", data.file_url)
+          console.log("🔍 DEBUG - File name:", data.file_name)
+          const ext = getFileExtension(data.file_url, data.file_name)
+          console.log("🔍 DEBUG - File extension:", ext)
+          console.log("🔍 DEBUG - Is viewable:", isViewableFile(ext))
+        }
         setPeta(data)
       }
       setLoading(false)
@@ -75,6 +97,7 @@ export function TabPeta({ psId }: { psId: string }) {
       }
       setPeta(null)
     } else {
+      console.log("🔍 DEBUG - Peta data after edit:", data)
       setPeta(data)
     }
     
@@ -133,40 +156,90 @@ export function TabPeta({ psId }: { psId: string }) {
           <Card>
             <CardContent className="p-6">
               <div className="space-y-4">
-                {/* Map Preview Placeholder */}
-                <div className="w-full h-96 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-                  {peta.geojson_data ? (
-                    <div className="text-center">
-                      <Map className="h-16 w-16 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-600 font-medium">
-                        Peta GeoJSON Tersedia
-                      </p>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Integrasikan dengan peta interaktif (Leaflet/Mapbox)
-                      </p>
+                {/* Map Preview */}
+                {(() => {
+                  // Check GeoJSON first (priority for interactive maps)
+                  if (peta.geojson_data) {
+                    return (
+                      <div className="w-full h-96 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                        <div className="text-center">
+                          <Map className="h-16 w-16 text-gray-400 mx-auto mb-2" />
+                          <p className="text-gray-600 font-medium">
+                            Peta GeoJSON Tersedia
+                          </p>
+                          <p className="text-sm text-gray-500 mt-1">
+                            Integrasikan dengan peta interaktif (Leaflet/Mapbox)
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  }
+
+                  // Check if file exists
+                  if (!peta.file_url) {
+                    return (
+                      <div className="w-full h-96 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                        <div className="text-center">
+                          <Map className="h-16 w-16 text-gray-400 mx-auto mb-2" />
+                          <p className="text-gray-600">Peta belum diupload</p>
+                        </div>
+                      </div>
+                    )
+                  }
+
+                  // Get file extension
+                  const fileExt = getFileExtension(peta.file_url, peta.file_name)
+
+                  // Display PDF in iframe
+                  if (fileExt === 'pdf') {
+                    return (
+                      <div className="w-full overflow-hidden rounded-lg border bg-white">
+                        <iframe
+                          src={peta.file_url}
+                          className="w-full h-[80vh] border-0"
+                          title="Peta PDF"
+                          style={{ minHeight: '600px' }}
+                        />
+                      </div>
+                    )
+                  }
+
+                  // Display images directly
+                  if (fileExt === 'jpg' || fileExt === 'jpeg' || fileExt === 'png') {
+                    return (
+                      <div className="w-full max-h-[80vh] overflow-auto bg-gray-50 rounded-lg border p-2">
+                        <img
+                          src={peta.file_url}
+                          alt="Peta"
+                          className="w-full h-auto"
+                        />
+                      </div>
+                    )
+                  }
+
+                  // For KML/KMZ or other files, show download button
+                  return (
+                    <div className="w-full h-96 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                      <div className="text-center">
+                        <Map className="h-16 w-16 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-600 font-medium">
+                          File Peta Tersedia
+                        </p>
+                        <p className="text-sm text-gray-500 mt-2">
+                          {peta.file_name || 'File peta'}
+                        </p>
+                        <Button
+                          variant="outline"
+                          className="mt-4"
+                          onClick={() => window.open(peta.file_url!, "_blank")}
+                        >
+                          <Download className="mr-2 h-4 w-4" />
+                          Download File
+                        </Button>
+                      </div>
                     </div>
-                  ) : peta.file_url ? (
-                    <div className="text-center">
-                      <Map className="h-16 w-16 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-600 font-medium">
-                        File Peta Tersedia
-                      </p>
-                      <Button
-                        variant="outline"
-                        className="mt-4"
-                        onClick={() => window.open(peta.file_url!, "_blank")}
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        Lihat File
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <Map className="h-16 w-16 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-600">Peta belum diupload</p>
-                    </div>
-                  )}
-                </div>
+                  )
+                })()}
 
                 {/* Peta Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">

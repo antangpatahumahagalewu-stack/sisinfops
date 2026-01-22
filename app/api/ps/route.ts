@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 // Schema validation based on database schema and template
-const psCreateSchema = z.object({
+export const psCreateSchema = z.object({
   kabupaten_id: z.string()
     .min(1, "Kabupaten wajib dipilih")
     .uuid("ID kabupaten tidak valid"),
-  skema: z.enum(["HD", "HTR", "HKM", "HA", "IUPHHK", "IUPHKm"]),
+  skema: z.enum(["HKM", "LPHD", "HA", "HTR", "IUPHHK", "IUPHKm", "POTENSI", "HD"]),
   pemegang_izin: z.string().min(1, "Nama pemegang izin wajib diisi"),
   desa: z.string().optional().nullable(),
   kecamatan: z.string().optional().nullable(),

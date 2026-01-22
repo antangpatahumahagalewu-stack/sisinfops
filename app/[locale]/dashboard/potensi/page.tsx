@@ -185,7 +185,7 @@ export default async function PotensiPage({
 
       {/* Main Content */}
       <Tabs defaultValue="all" className="space-y-4">
-        <TabsList>
+        <TabsList className="overflow-x-auto whitespace-nowrap">
           <TabsTrigger value="all">Semua Potensi</TabsTrigger>
           <TabsTrigger value="Gunung Mas">Gunung Mas</TabsTrigger>
           <TabsTrigger value="kapuas">Kapuas</TabsTrigger>
