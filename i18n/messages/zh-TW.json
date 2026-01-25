@@ -48,6 +48,7 @@
     "uploadExcel": "上傳Excel",
     "keuangan": "財務",
     "users": "用戶",
+    "activityLog": "活動日誌",
     "settings": "設置"
   },
   "auth": {
