@@ -129,7 +129,7 @@ export default async function PsProfilePage({ params }: PageProps) {
 
   if (!ps) {
     return (
-      <DashboardLayout params={Promise.resolve({ locale: "id" })}>
+      <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900">Data Tidak Ditemukan</h1>
@@ -152,7 +152,7 @@ export default async function PsProfilePage({ params }: PageProps) {
   }
 
   return (
-    <DashboardLayout params={Promise.resolve({ locale: "id" })}>
+    <DashboardLayout>
       <PsProfileContent ps={ps} psId={psId} />
     </DashboardLayout>
   )

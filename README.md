@@ -1,37 +1,169 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistem Informasi Perhutanan Sosial & PKS
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black)
+![React](https://img.shields.io/badge/React-19.2.3-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-purple)
 
-First, run the development server:
+Aplikasi internal untuk **Yayasan Antangpatahu Mahaga Lewu** yang digunakan untuk mengelola, memantau, dan mengevaluasi data Perhutanan Sosial (PS) di 4 kabupaten secara terpusat dan real-time.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Fitur Utama
+
+- **Dashboard Nasional** - Statistik agregat PS (jumlah unit, luas lahan, status RKPS/Peta)
+- **Manajemen Data PS** - Profil detail setiap unit PS dengan tab informasi lengkap
+- **Role-Based Access Control** - Sistem hak akses 3 level: Admin, Monev, Viewer
+- **Import Data Excel** - Upload dan import data batch dari file Excel
+- **Multi-language Support** - Dukungan Bahasa Indonesia dan Chinese Traditional
+- **Carbon Project Management** - Manajemen proyek karbon dan PDD Generator
+- **Program Management** - Manajemen program dan DRAM (Dokumen Rencana Aksi Mitigasi)
+
+## 🏗️ Arsitektur Teknis
+
+### Tech Stack
+- **Frontend**: Next.js 16 (App Router), React 19, TypeScript 5
+- **Styling**: Tailwind CSS 4, shadcn/ui components
+- **Backend**: Supabase (PostgreSQL, Auth, Storage)
+- **Database**: PostgreSQL dengan Row-Level Security (RLS)
+- **Deployment**: Netlify (dengan Next.js plugin)
+
+### Struktur Proyek
+```
+app-db/
+├── app/                    # Next.js App Router pages
+├── components/            # Reusable UI components
+├── lib/                   # Utilities & libraries
+│   ├── supabase/         # Supabase client config
+│   ├── auth/             # RBAC utilities
+│   └── excel/            # Excel parser
+├── supabase/             # Database migrations & schema
+├── scripts/              # CLI utilities for data import
+├── docs/                 # 📚 Documentation (technical, database, etc.)
+├── public/               # Static assets
+└── testsprite_tests/     # Automated tests
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📦 Instalasi dan Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prasyarat
+- Node.js 18+ (lihat `.nvmrc` untuk versi yang disarankan)
+- npm atau yarn
+- Akun Supabase (untuk database dan auth)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Langkah-langkah
+1. **Clone repository**
+   ```bash
+   git clone <repository-url>
+   cd app-db
+   ```
 
-## Learn More
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+3. **Setup environment variables**
+   ```bash
+   cp .env.local.example .env.local
+   ```
+   Edit `.env.local` dan tambahkan:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Setup database**
+   - Jalankan migrasi SQL di folder `supabase/migrations/`
+   - Atau gunakan Supabase CLI: `supabase db push`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. **Jalankan development server**
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+6. **Buka browser**
+   Navigasi ke [http://localhost:3000](http://localhost:3000)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 👥 Pengguna dan Hak Akses
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# sisinfops
+### Credentials Demo
+| Email | Password | Role | Hak Akses |
+|-------|----------|------|-----------|
+| `admin@yayasan.com` | `admin123` | Admin | Full access |
+| `monev@yayasan.com` | `monev123` | Monev | Read + Edit (no delete) |
+| `viewer@yayasan.com` | `viewer123` | Viewer | Read-only |
+
+### Role Hierarchy
+```
+Admin (Full Access)
+├── Carbon Specialist
+├── Program Planner
+├── Program Implementer
+├── Monev Officer
+└── Viewer (Read-only)
+```
+
+## 📖 Dokumentasi Lengkap
+
+Semua dokumentasi teknis telah dipindahkan ke direktori [`docs/`](./docs/). Lihat [README dokumentasi](./docs/README.md) untuk navigasi lengkap.
+
+### Dokumentasi Penting:
+- **[📋 Spesifikasi Produk](./docs/PRODUCT_SPECIFICATION_DOC.md)** - Fitur lengkap, user roles, roadmap
+- **[🔧 Dokumen Teknis](./docs/TECHNICAL_DOC.md)** - Arsitektur, alur autentikasi, implementasi
+- **[🗄️ Desain Database](./docs/DESAIN_DATABASE_SISTEM_INFORMASI_PERHUTANAN_SOSIAL.md)** - Skema tabel, relasi, RLS, migrasi
+- **[🚀 Deployment](./docs/NETLIFY_DEPLOYMENT.md)** - Panduan deployment ke Netlify
+
+## 🧪 Testing
+
+Proyek ini menggunakan **Testsprite** untuk automated testing. Test cases dapat ditemukan di folder `testsprite_tests/`.
+
+### Menjalankan Testsprite
+```bash
+# Bootstrap Testsprite (sesuaikan port jika diperlukan)
+npx @testsprite/testsprite-mcp@latest
+
+# Generate dan execute tests
+npm run test:sprite
+```
+
+## 🚢 Deployment
+
+### Deploy ke Netlify
+1. Push kode ke repository Git
+2. Connect repository ke Netlify
+3. Konfigurasi environment variables di Netlify dashboard
+4. Deploy otomatis akan berjalan
+
+### Build untuk Production
+```bash
+npm run build:prod
+```
+
+## 🤝 Kontribusi
+
+1. Fork repository
+2. Buat branch fitur (`git checkout -b feature/amazing-feature`)
+3. Commit perubahan (`git commit -m 'Add amazing feature'`)
+4. Push ke branch (`git push origin feature/amazing-feature`)
+5. Buat Pull Request
+
+### Code Style
+- Gunakan TypeScript strict mode
+- Ikuti konvensi naming Next.js App Router
+- Gunakan ESLint untuk linting (`npm run lint`)
+- Format kode dengan Prettier (terintegrasi dengan ESLint)
+
+## 📄 Lisensi
+
+Proyek ini adalah software proprietary milik **Yayasan Antangpatahu Mahaga Lewu**. Penggunaan, modifikasi, dan distribusi dibatasi untuk keperluan internal yayasan.
+
+## 🆘 Support
+
+Untuk bantuan teknis atau pertanyaan:
+- Dokumentasi: Lihat folder [`docs/`](./docs/)
+- Issues: Buat issue di repository internal
+- Tim Pengembang: Hubungi tim pengembang internal yayasan
+
+---
+
+**Yayasan Antangpatahu Mahaga Lewu** © 2025 - Sistem Informasi Perhutanan Sosial & PKS

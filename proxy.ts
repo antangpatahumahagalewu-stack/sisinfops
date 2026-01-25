@@ -60,6 +60,37 @@ async function handleRequest(request: NextRequest) {
     data: { session }
   } = await supabase.auth.getSession()
 
+  // Maximum session duration: 24 hours in milliseconds
+  const MAX_SESSION_DURATION = 24 * 60 * 60 * 1000 // 24 hours
+
+  // Check if session exists and handle expiration
+  if (session?.expires_at) {
+    // expires_at is in seconds (Unix timestamp), convert to milliseconds
+    const expiresAt = session.expires_at * 1000
+    const currentTime = Date.now()
+    
+    // Check if session has expired based on expires_at
+    if (currentTime > expiresAt) {
+      // Session expired, sign out and redirect to login
+      await supabase.auth.signOut()
+      const locale = pathname.split('/')[1] || 'id'
+      const redirectUrl = new URL(`/${locale}/login`, request.url)
+      return NextResponse.redirect(redirectUrl)
+    }
+    
+    // Additional safety check: if session is valid for more than 24 hours from now,
+    // force logout (this handles cases where JWT expiry might be misconfigured)
+    const timeUntilExpiry = expiresAt - currentTime
+    if (timeUntilExpiry > MAX_SESSION_DURATION) {
+      // Session would be valid for more than 24 hours from current time
+      // This shouldn't happen if Supabase JWT expiry is properly configured to 24 hours
+      await supabase.auth.signOut()
+      const locale = pathname.split('/')[1] || 'id'
+      const redirectUrl = new URL(`/${locale}/login`, request.url)
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
+
   // Protect all routes except /login and root locale pages
   // Note: paths now include locale prefix (e.g., /id/login, /zh-TW/login)
   const isAuthPage = pathname.endsWith('/login') ||

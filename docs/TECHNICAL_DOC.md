@@ -2,42 +2,92 @@
 
 ### 1. Ringkasan Aplikasi
 
-Aplikasi ini adalah **Sistem Informasi Perhutanan Sosial & PKS** yang digunakan secara internal oleh yayasan untuk mengelola dan memantau data Perhutanan Sosial (PS) di beberapa kabupaten. Fitur utama:
+Aplikasi ini adalah **Sistem Informasi Perhutanan Sosial & PKS** yang digunakan secara internal oleh **Yayasan Antangpatahu Mahaga Lewu** untuk mengelola dan memantau data Perhutanan Sosial (PS) di 4 kabupaten (Katingan, Kapuas, Pulang Pisau, Gunung Mas). Fitur utama:
 
-- **Autentikasi pengguna** berbasis email/password dengan Supabase.
+- **Autentikasi pengguna** berbasis email/password dengan Supabase Auth.
 - **Dashboard nasional** yang menampilkan statistik PS (jumlah unit, luas, status RKPS, status peta).
-- **Manajemen dan profil detail PS** per lokasi (`/ps/[psId]`).
-- **Upload & import data Excel** ke database Supabase.
+- **Manajemen dan profil detail PS** per lokasi (`/ps/[psId]`) dengan 7 tab informasi.
+- **Upload & import data Excel** ke database Supabase melalui API endpoint.
 - **Dashboard per kabupaten** dan tampilan data terperinci.
-- **Role-based access control (RBAC)** dengan tiga peran: `admin`, `monev`, `viewer`.
+- **Role-based access control (RBAC)** dengan 6 peran: `admin`, `carbon_specialist`, `program_planner`, `program_implementer`, `monev`, `viewer`.
+- **Internationalization (i18n)** dengan dukungan Bahasa Indonesia dan Chinese Traditional.
+- **Carbon Project Management** untuk mengelola proyek karbon dan PDD generator.
+- **Program Management** untuk manajemen program dan DRAM (Dokumen Rencana Aksi Mitigasi).
+- **Multiple API endpoints** untuk berbagai fitur: chat, compliance-check, financial-model, dll.
 
 ---
 
 ### 2. Arsitektur Teknis
 
-- **Framework**: Next.js (App Router, direktori `app/`).
-- **Bahasa**: TypeScript + React.
-- **UI**: Tailwind CSS + komponen `components/ui` (button, card, table, tabs, dsb.).
-- **Backend & Database**: Supabase (PostgreSQL, Row-Level Security, storage).
-- **Autentikasi & Session**: Supabase Auth (JWT + cookies via middleware Next.js).
-- **Hosting/Runtime**: Standar Next.js (mis. Vercel atau Node server).
+- **Framework**: Next.js 16.1.1 (App Router, direktori `app/`).
+- **Bahasa**: TypeScript 5 + React 19.
+- **UI**: Tailwind CSS 4 + shadcn/ui components + Radix UI primitives.
+- **Backend & Database**: Supabase (PostgreSQL dengan Row-Level Security, Auth, Storage).
+- **Autentikasi & Session**: Supabase Auth dengan JWT + cookies via middleware Next.js.
+- **Internationalization**: next-intl untuk multi-language support (id, zh-TW).
+- **Validation**: Zod untuk schema validation + React Hook Form untuk form handling.
+- **Hosting**: Netlify dengan @netlify/plugin-nextjs.
 
-Struktur utama:
+#### Struktur Direktori Utama:
 
-- `app/`
-  - `page.tsx`: root, merender halaman login.
-  - `(auth)/login/page.tsx`: halaman login (client component).
-  - `dashboard/`: halaman dashboard utama & subfitur (upload, data per kabupaten, dsb.).
-  - `ps/[psId]/`: halaman profil detail PS dan komponen-komponennya.
-  - `api/excel/import/route.ts`: endpoint API import Excel ke Supabase.
-- `lib/`
-  - `supabase/client.ts`: Supabase client untuk browser.
-  - `supabase/server.ts`: Supabase client untuk server (SSR/route handler).
-  - `auth/rbac.ts`: utilitas RBAC.
-  - `excel/parser.ts`: parser untuk data Excel.
-  - `types/`: definisi tipe domain (mis. `pks.ts`).
-- `supabase/migrations/`: skrip SQL untuk skema tabel dan kebijakan RLS.
-- `components/`: komponen UI generik dan komponen dashboard.
+```
+app/
+├── [locale]/                    # Internationalized routes
+│   ├── (auth)/login/           # Halaman login
+│   ├── dashboard/              # Dashboard utama
+│   └── ps/[psId]/              # Profil detail PS
+├── api/                        # API Routes
+│   ├── carbon-projects/        # Manajemen proyek karbon
+│   ├── chat/                   # Chat functionality
+│   ├── compliance-check/       # Compliance checking
+│   ├── dashboard/              # Dashboard data
+│   ├── excel/import/           # Import Excel
+│   ├── financial-model/        # Model keuangan
+│   └── ... (13 total endpoints)
+└── ... (other app routes)
+
+lib/
+├── supabase/                   # Supabase clients
+│   ├── client.ts              # Browser client
+│   └── server.ts              # Server client
+├── auth/                       # Authentication utilities
+│   └── rbac.ts                # RBAC dengan 6 roles
+├── excel/                      # Excel processing
+│   └── parser.ts              # Parser untuk data Excel
+├── types/                      # TypeScript definitions
+│   └── pks.ts                 # Tipe data domain
+└── utils.ts                   # Utility functions
+
+supabase/migrations/           # Database migrations (15+ files)
+components/                    # UI Components
+├── ui/                        # shadcn/ui components
+├── dashboard/                 # Dashboard components
+└── chat/                      # Chat components
+
+scripts/                       # CLI utilities untuk data import
+testsprite_tests/              # Automated tests dengan Testsprite
+docs/                          # 📚 Dokumentasi lengkap
+```
+
+#### API Endpoints yang Tersedia:
+
+1. **`/api/carbon-projects`** - Manajemen proyek karbon (GET/POST)
+2. **`/api/carbon-model-details`** - Detail model karbon
+3. **`/api/chat`** - Chat functionality
+4. **`/api/compliance-check`** - Compliance checking
+5. **`/api/dashboard`** - Data dashboard
+6. **`/api/deforestation-drivers`** - Data drivers deforestasi
+7. **`/api/excel/import`** - Import data Excel
+8. **`/api/financial-model`** - Model keuangan
+9. **`/api/forest-status-history`** - History status hutan
+10. **`/api/implementation-timeline`** - Timeline implementasi
+11. **`/api/land-tenure`** - Data land tenure
+12. **`/api/organizations`** - Manajemen organisasi
+13. **`/api/potensi`** - Data potensi
+14. **`/api/profile`** - Manajemen profil user
+15. **`/api/ps`** - Data Perhutanan Sosial
+
+Semua endpoint dilindungi dengan autentikasi dan authorization berdasarkan RBAC.
 
 ---
 
@@ -95,7 +145,7 @@ File: `lib/auth/rbac.ts`
 
 Konsep:
 
-- **Roles**: `'admin'`, `'monev'`, `'viewer'`.
+- **Roles**: 6 peran yang didefinisikan: `'admin'`, `'carbon_specialist'`, `'program_planner'`, `'program_implementer'`, `'monev'`, `'viewer'`.
 - Tabel `profiles` menyimpan `role` dan informasi pengguna.
 
 Fungsi utama:
@@ -107,18 +157,39 @@ Fungsi utama:
 - **`checkUserRole(requiredRoles, userId?)`**  
   Mengecek apakah role user termasuk dalam salah satu `requiredRoles`.
 
-Helper:
+Helper functions untuk permission checking:
 
 - **`canEdit`** → `admin` atau `monev`.
 - **`isAdmin`** → hanya `admin`.
 - **`canDelete`** → hanya `admin`.
+- **`canManageCarbonProjects`** → `admin` atau `carbon_specialist`
+- **`canManagePrograms`** → `admin` atau `program_planner`
+- **`canManageDRAM`** → `admin` atau `program_planner`
+- **`canImplementPrograms`** → `admin` atau `program_implementer`
+- **`canDoMonitoring`** → `admin` atau `monev`
+- **`canGeneratePDD`** → `admin` atau `carbon_specialist`
+- **`canManageLegal`** → `admin` atau `carbon_specialist`
+- **`canManageStakeholders`** → `admin`, `carbon_specialist`, atau `program_planner`
+- **`canManageEconomicEmpowerment`** → `admin` atau `program_planner`
 
-Permissions terpusat:
+Permissions terpusat (didefinisikan dalam `Permissions` object):
 
-- `READ`: `['admin', 'monev', 'viewer']`
-- `EDIT`: `['admin', 'monev']`
-- `DELETE`: `['admin']`
-- `MANAGE_USERS`: `['admin']`
+- `READ`: Semua 6 role
+- `EDIT`: `['admin', 'monev', 'program_planner', 'program_implementer', 'carbon_specialist']`
+- `DELETE`: Hanya `['admin']`
+- `MANAGE_USERS`: Hanya `['admin']`
+- `CARBON_PROJECTS`: `['admin', 'carbon_specialist']`
+- `PROGRAM_MANAGEMENT`: `['admin', 'program_planner', 'carbon_specialist']`
+- `DRAM_MANAGEMENT`: `['admin', 'program_planner']`
+- `IMPLEMENTATION`: `['admin', 'program_implementer', 'program_planner']`
+- `MONITORING_EVALUATION`: `['admin', 'monev', 'program_planner', 'carbon_specialist']`
+- `ECONOMIC_EMPOWERMENT`: `['admin', 'program_planner', 'program_implementer']`
+- `STAKEHOLDER_MANAGEMENT`: `['admin', 'carbon_specialist', 'program_planner']`
+- `LEGAL_MANAGEMENT`: `['admin', 'carbon_specialist']`
+- `PDD_GENERATION`: `['admin', 'carbon_specialist']`
+- `UPLOAD_EXCEL`: `['admin', 'monev']`
+
+Fungsi `hasPermission(permission, userId?)` dan `getUserPermissions(userId?)` tersedia untuk permission checking yang lebih fleksibel.
 
 RLS di Supabase (lihat folder `supabase/migrations`) menguatkan pembatasan ini di level database.
 

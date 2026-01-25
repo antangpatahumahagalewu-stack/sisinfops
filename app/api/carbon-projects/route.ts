@@ -155,6 +155,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
+import { cacheGet } from "@/lib/redis/client";
+import { generateQueryCacheKey } from "@/lib/redis/security";
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
@@ -176,48 +179,66 @@ export async function GET(request: NextRequest) {
     const offset = searchParams.get("offset") ? parseInt(searchParams.get("offset")!) : 0;
     const search = searchParams.get("search");
 
-    let query = supabase
-      .from("carbon_projects")
-      .select(`
-        *,
-        profiles:created_by (full_name, role)
-      `, { count: 'exact' });
+    // Build params object for cache key
+    const params: Record<string, any> = {
+      status,
+      standar_karbon,
+      limit,
+      offset,
+      search
+    };
 
-    // Apply filters
-    if (status) {
-      query = query.eq("status", status);
-    }
-    
-    if (standar_karbon) {
-      query = query.eq("standar_karbon", standar_karbon);
-    }
+    const cacheKey = generateQueryCacheKey('carbon-projects', params);
 
-    if (search) {
-      query = query.or(`kode_project.ilike.%${search}%,nama_project.ilike.%${search}%`);
-    }
+    return await cacheGet(
+      cacheKey,
+      async () => {
+        let query = supabase
+          .from("carbon_projects")
+          .select(`
+            *,
+            profiles:created_by (full_name, role)
+          `, { count: 'exact' });
 
-    // Apply pagination
-    query = query.order("created_at", { ascending: false })
-                 .range(offset, offset + limit - 1);
+        // Apply filters
+        if (status) {
+          query = query.eq("status", status);
+        }
+        
+        if (standar_karbon) {
+          query = query.eq("standar_karbon", standar_karbon);
+        }
 
-    const { data: projects, error, count } = await query;
+        if (search) {
+          query = query.or(`kode_project.ilike.%${search}%,nama_project.ilike.%${search}%`);
+        }
 
-    if (error) {
-      console.error("Database error:", error);
-      return NextResponse.json(
-        { error: "Failed to fetch carbon projects", details: error.message },
-        { status: 500 }
-      );
-    }
+        // Apply pagination
+        query = query.order("created_at", { ascending: false })
+                     .range(offset, offset + limit - 1);
 
-    return NextResponse.json(
-      { 
-        data: projects || [],
-        total: count || 0,
-        limit,
-        offset 
+        const { data: projects, error, count } = await query;
+
+        if (error) {
+          console.error("Database error:", error);
+          return NextResponse.json(
+            { error: "Failed to fetch carbon projects", details: error.message },
+            { status: 500 }
+          );
+        }
+
+        return NextResponse.json(
+          { 
+            data: projects || [],
+            total: count || 0,
+            limit,
+            offset 
+          },
+          { status: 200 }
+        );
       },
-      { status: 200 }
+      60, // TTL 60 seconds for dynamic project listings
+      false // No encryption needed for project data
     );
 
   } catch (error) {
