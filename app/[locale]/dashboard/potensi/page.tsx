@@ -78,8 +78,8 @@ export default async function PotensiPage({
   // Helper function to normalize kabupaten name for filtering
   const normalizeKabupatenName = (name: string): string => {
     if (!name) return ''
-    // Remove "KABUPATEN " prefix and convert to lowercase for comparison
-    return name.toLowerCase().replace('kabupaten ', '').trim()
+    // Remove "KABUPATEN " or "KOTAMADYA " prefix and convert to lowercase for comparison
+    return name.toLowerCase().replace(/kabupaten |kotamadya /g, '').trim()
   }
 
   // Get statistics for potensi data
@@ -191,7 +191,7 @@ export default async function PotensiPage({
           <TabsTrigger value="kapuas">Kapuas</TabsTrigger>
           <TabsTrigger value="katingan">Katingan</TabsTrigger>
           <TabsTrigger value="Pulang Pisau">Pulang Pisau</TabsTrigger>
-          <TabsTrigger value="Palangka Raya">Palangka Raya</TabsTrigger>
+          <TabsTrigger value="Palangka Raya">Kotamadya Palangka Raya</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
