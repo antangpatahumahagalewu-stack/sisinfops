@@ -48,6 +48,7 @@
     "uploadExcel": "Upload Excel",
     "keuangan": "Keuangan",
     "users": "Pengguna",
+    "activityLog": "Log Aktivitas",
     "settings": "Pengaturan"
   },
   "auth": {

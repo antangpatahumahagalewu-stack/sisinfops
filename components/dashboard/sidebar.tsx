@@ -31,7 +31,8 @@ import {
   ShieldCheck,
   Coins,
   TrendingUp,
-  Shield
+  Shield,
+  History
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Role } from "@/lib/types/pks"
@@ -237,6 +238,14 @@ const menuItems = [
     href: "/dashboard/users",
     translationKey: "users",
     icon: Users,
+    roles: ["admin"] as Role[],
+    group: "system"
+  },
+  {
+    title: "Log Aktivitas",
+    href: "/dashboard/activity-log",
+    translationKey: "activityLog",
+    icon: History,
     roles: ["admin"] as Role[],
     group: "system"
   },
