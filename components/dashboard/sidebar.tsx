@@ -32,7 +32,8 @@ import {
   Coins,
   TrendingUp,
   Shield,
-  History
+  History,
+  DollarSign
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Role } from "@/lib/types/pks"
@@ -226,11 +227,19 @@ const menuItems = [
     group: "system"
   },
   {
+    title: "Financial Dashboard",
+    href: "/dashboard/finance",
+    translationKey: "financialDashboard",
+    icon: DollarSign,
+    roles: ["admin", "finance", "finance_manager", "carbon_specialist", "program_planner", "monev_officer"] as Role[],
+    group: "system"
+  },
+  {
     title: "Keuangan",
     href: "/dashboard/keuangan",
     translationKey: "keuangan",
     icon: CircleDollarSign,
-    roles: ["admin", "carbon_specialist", "program_planner", "monev_officer"] as Role[],
+    roles: ["admin", "finance", "finance_manager", "carbon_specialist", "program_planner", "monev_officer"] as Role[],
     group: "system"
   },
   {

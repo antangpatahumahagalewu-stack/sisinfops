@@ -7,8 +7,8 @@
 
 import { createClient } from "@/lib/supabase/client"
 
-// Type definitions for roles - updated to include all 6 roles
-export type UserRole = 'admin' | 'monev' | 'viewer' | 'program_planner' | 'program_implementer' | 'carbon_specialist'
+// Type definitions for roles - updated to include all 8 roles including finance
+export type UserRole = 'admin' | 'monev' | 'viewer' | 'program_planner' | 'program_implementer' | 'carbon_specialist' | 'finance' | 'finance_manager'
 
 export interface UserProfile {
   id: string
@@ -129,9 +129,58 @@ export async function canDelete(userId?: string): Promise<boolean> {
   return isAdmin(userId)
 }
 
-/**
- * Extended permission checks for new roles
- */
+  /**
+   * Financial module permission checks
+   */
+
+  /**
+   * Check if user can manage financial transactions (admin, finance, finance_manager)
+   * @param userId - User ID (optional, defaults to current authenticated user)
+   * @returns true if user can manage financial transactions
+   */
+  export async function canManageFinancialTransactions(userId?: string): Promise<boolean> {
+    return checkUserRole(['admin', 'finance', 'finance_manager'], userId)
+  }
+
+  /**
+   * Check if user can manage budgets (admin, finance_manager)
+   * @param userId - User ID (optional, defaults to current authenticated user)
+   * @returns true if user can manage budgets
+   */
+  export async function canManageBudgets(userId?: string): Promise<boolean> {
+    return checkUserRole(['admin', 'finance_manager'], userId)
+  }
+
+  /**
+   * Check if user can approve financial transactions (admin, finance_manager)
+   * @param userId - User ID (optional, defaults to current authenticated user)
+   * @returns true if user can approve financial transactions
+   */
+  export async function canApproveFinancialTransactions(userId?: string): Promise<boolean> {
+    return checkUserRole(['admin', 'finance_manager'], userId)
+  }
+
+  /**
+   * Check if user can view financial reports (all roles except viewer with limited access)
+   * @param userId - User ID (optional, defaults to current authenticated user)
+   * @returns true if user can view financial reports
+   */
+  export async function canViewFinancialReports(userId?: string): Promise<boolean> {
+    return checkUserRole(['admin', 'finance', 'finance_manager', 'monev', 'program_planner', 'carbon_specialist'], userId)
+  }
+
+  /**
+   * Check if user can manage benefit distributions (admin, finance_manager, program_implementer)
+   * @param userId - User ID (optional, defaults to current authenticated user)
+   * @returns true if user can manage benefit distributions
+   */
+  export async function canManageBenefitDistributions(userId?: string): Promise<boolean> {
+    return checkUserRole(['admin', 'finance_manager', 'program_implementer'], userId)
+  }
+
+  /**
+   * Extended permission checks for new roles
+   */
 
 /**
  * Check if user can manage carbon projects (admin or carbon specialist)
@@ -214,34 +263,47 @@ export async function canManageEconomicEmpowerment(userId?: string): Promise<boo
   return checkUserRole(['admin', 'program_planner'], userId)
 }
 
-/**
- * Permission definitions for different actions - UPDATED FOR ALL ROLES
- */
-export const Permissions = {
-  // Basic permissions
-  READ: ['admin', 'monev', 'viewer', 'program_planner', 'program_implementer', 'carbon_specialist'] as UserRole[],
-  EDIT: ['admin', 'monev', 'program_planner', 'program_implementer', 'carbon_specialist'] as UserRole[],
-  DELETE: ['admin'] as UserRole[],
-  MANAGE_USERS: ['admin'] as UserRole[],
-  
-  // Module-specific permissions
-  CARBON_PROJECTS: ['admin', 'carbon_specialist'] as UserRole[],
-  PROGRAM_MANAGEMENT: ['admin', 'program_planner', 'carbon_specialist'] as UserRole[],
-  DRAM_MANAGEMENT: ['admin', 'program_planner'] as UserRole[],
-  IMPLEMENTATION: ['admin', 'program_implementer', 'program_planner'] as UserRole[],
-  MONITORING_EVALUATION: ['admin', 'monev', 'program_planner', 'carbon_specialist'] as UserRole[],
-  ECONOMIC_EMPOWERMENT: ['admin', 'program_planner', 'program_implementer'] as UserRole[],
-  STAKEHOLDER_MANAGEMENT: ['admin', 'carbon_specialist', 'program_planner'] as UserRole[],
-  LEGAL_MANAGEMENT: ['admin', 'carbon_specialist'] as UserRole[],
-  PDD_GENERATION: ['admin', 'carbon_specialist'] as UserRole[],
-  
-  // Data access permissions
-  PS_DATA_ACCESS: ['admin', 'monev', 'viewer', 'program_planner', 'program_implementer', 'carbon_specialist'] as UserRole[],
-  POTENSI_DATA_ACCESS: ['admin', 'monev', 'viewer', 'program_planner', 'program_implementer', 'carbon_specialist'] as UserRole[],
-  KABUPATEN_DATA_ACCESS: ['admin', 'monev', 'viewer', 'program_planner', 'program_implementer', 'carbon_specialist'] as UserRole[],
-  STATISTICS_ACCESS: ['admin', 'monev', 'viewer', 'program_planner', 'program_implementer', 'carbon_specialist'] as UserRole[],
-  UPLOAD_EXCEL: ['admin', 'monev'] as UserRole[],
-} as const
+  /**
+   * Permission definitions for different actions - UPDATED FOR ALL ROLES INCLUDING FINANCE
+   */
+  export const Permissions = {
+    // Basic permissions
+    READ: ['admin', 'monev', 'viewer', 'program_planner', 'program_implementer', 'carbon_specialist', 'finance', 'finance_manager'] as UserRole[],
+    EDIT: ['admin', 'monev', 'program_planner', 'program_implementer', 'carbon_specialist', 'finance', 'finance_manager'] as UserRole[],
+    DELETE: ['admin'] as UserRole[],
+    MANAGE_USERS: ['admin'] as UserRole[],
+    
+    // Module-specific permissions
+    CARBON_PROJECTS: ['admin', 'carbon_specialist'] as UserRole[],
+    PROGRAM_MANAGEMENT: ['admin', 'program_planner', 'carbon_specialist'] as UserRole[],
+    DRAM_MANAGEMENT: ['admin', 'program_planner'] as UserRole[],
+    IMPLEMENTATION: ['admin', 'program_implementer', 'program_planner'] as UserRole[],
+    MONITORING_EVALUATION: ['admin', 'monev', 'program_planner', 'carbon_specialist'] as UserRole[],
+    ECONOMIC_EMPOWERMENT: ['admin', 'program_planner', 'program_implementer'] as UserRole[],
+    STAKEHOLDER_MANAGEMENT: ['admin', 'carbon_specialist', 'program_planner'] as UserRole[],
+    LEGAL_MANAGEMENT: ['admin', 'carbon_specialist'] as UserRole[],
+    PDD_GENERATION: ['admin', 'carbon_specialist'] as UserRole[],
+    
+    // Financial module permissions
+    FINANCIAL_VIEW: ['admin', 'finance', 'finance_manager', 'monev', 'program_planner', 'carbon_specialist', 'viewer'] as UserRole[],
+    FINANCIAL_TRANSACTION_CREATE: ['admin', 'finance', 'finance_manager'] as UserRole[],
+    FINANCIAL_TRANSACTION_EDIT: ['admin', 'finance', 'finance_manager'] as UserRole[],
+    FINANCIAL_TRANSACTION_DELETE: ['admin', 'finance_manager'] as UserRole[],
+    FINANCIAL_TRANSACTION_APPROVE: ['admin', 'finance_manager'] as UserRole[],
+    FINANCIAL_BUDGET_MANAGE: ['admin', 'finance_manager'] as UserRole[],
+    FINANCIAL_BENEFIT_DISTRIBUTE: ['admin', 'finance_manager', 'program_implementer'] as UserRole[],
+    FINANCIAL_REPORT_VIEW: ['admin', 'finance', 'finance_manager', 'monev', 'program_planner', 'carbon_specialist'] as UserRole[],
+    FINANCIAL_REPORT_EXPORT: ['admin', 'finance', 'finance_manager'] as UserRole[],
+    FINANCIAL_LEDGER_MANAGE: ['admin', 'finance_manager'] as UserRole[],
+    FINANCIAL_AUDIT_VIEW: ['admin', 'finance_manager'] as UserRole[],
+    
+    // Data access permissions
+    PS_DATA_ACCESS: ['admin', 'monev', 'viewer', 'program_planner', 'program_implementer', 'carbon_specialist', 'finance', 'finance_manager'] as UserRole[],
+    POTENSI_DATA_ACCESS: ['admin', 'monev', 'viewer', 'program_planner', 'program_implementer', 'carbon_specialist', 'finance', 'finance_manager'] as UserRole[],
+    KABUPATEN_DATA_ACCESS: ['admin', 'monev', 'viewer', 'program_planner', 'program_implementer', 'carbon_specialist', 'finance', 'finance_manager'] as UserRole[],
+    STATISTICS_ACCESS: ['admin', 'monev', 'viewer', 'program_planner', 'program_implementer', 'carbon_specialist', 'finance', 'finance_manager'] as UserRole[],
+    UPLOAD_EXCEL: ['admin', 'monev'] as UserRole[],
+  } as const
 
 /**
  * Check if user has a specific permission

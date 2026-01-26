@@ -1,12 +1,49 @@
 -- Migration: Add program enhancements for kategori hutan and aksi mitigasi
 -- Date: 2026-01-27
 -- Description: Add kategori_hutan to programs, create master_aksi_mitigasi and program_aksi_mitigasi junction table
+-- FIXED: Updated to handle integer IDs in audit triggers
 
--- 1. Add kategori_hutan column to programs table
+-- 0. Fix audit system to support integer IDs (if needed)
+DO $$
+BEGIN
+    -- Check if audit_log.record_id is UUID and needs to be changed to TEXT
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'audit_log' 
+        AND column_name = 'record_id' 
+        AND data_type = 'uuid'
+    ) THEN
+        ALTER TABLE audit_log ALTER COLUMN record_id TYPE TEXT;
+    END IF;
+END $$;
+
+-- 1. Update the audit_trigger_function to handle TEXT record_id
+CREATE OR REPLACE FUNCTION audit_trigger_function()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'DELETE') THEN
+        INSERT INTO audit_log (table_name, record_id, operation, old_data, user_id)
+        VALUES (TG_TABLE_NAME, OLD.id::TEXT, 'DELETE', to_jsonb(OLD), auth.uid());
+        RETURN OLD;
+    ELSIF (TG_OP = 'UPDATE') THEN
+        INSERT INTO audit_log (table_name, record_id, operation, old_data, new_data, user_id)
+        VALUES (TG_TABLE_NAME, NEW.id::TEXT, 'UPDATE', to_jsonb(OLD), to_jsonb(NEW), auth.uid());
+        RETURN NEW;
+    ELSIF (TG_OP = 'INSERT') THEN
+        INSERT INTO audit_log (table_name, record_id, operation, new_data, user_id)
+        VALUES (TG_TABLE_NAME, NEW.id::TEXT, 'INSERT', to_jsonb(NEW), auth.uid());
+        RETURN NEW;
+    END IF;
+    RETURN NULL;
+END;
+$$ language 'plpgsql';
+
+-- 2. Add kategori_hutan column to programs table
 ALTER TABLE programs 
 ADD COLUMN IF NOT EXISTS kategori_hutan VARCHAR(20) CHECK (kategori_hutan IN ('MINERAL', 'GAMBUT'));
 
--- 2. Create master_aksi_mitigasi table
+-- 3. Create master_aksi_mitigasi table
 CREATE TABLE IF NOT EXISTS master_aksi_mitigasi (
     id SERIAL PRIMARY KEY,
     kode VARCHAR(10) UNIQUE NOT NULL,
@@ -17,7 +54,7 @@ CREATE TABLE IF NOT EXISTS master_aksi_mitigasi (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Insert 15 aksi mitigasi from the user's list
+-- 4. Insert 15 aksi mitigasi from the user's list
 -- Using the structure: A. Perlindungan Hutan, B. Peningkatan Serapan Karbon, C. Tata Kelola, D. Sosial, E. Sertifikasi
 INSERT INTO master_aksi_mitigasi (kode, nama_aksi, kelompok, deskripsi) VALUES
 -- A. Perlindungan Hutan (Avoided Emissions)
@@ -46,7 +83,7 @@ SET nama_aksi = EXCLUDED.nama_aksi,
     deskripsi = EXCLUDED.deskripsi,
     updated_at = NOW();
 
--- 4. Create junction table for program to aksi mitigasi (many-to-many)
+-- 5. Create junction table for program to aksi mitigasi (many-to-many)
 CREATE TABLE IF NOT EXISTS program_aksi_mitigasi (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     program_id UUID NOT NULL REFERENCES programs(id) ON DELETE CASCADE,
@@ -55,22 +92,22 @@ CREATE TABLE IF NOT EXISTS program_aksi_mitigasi (
     UNIQUE(program_id, aksi_mitigasi_id)
 );
 
--- 5. Add indexes for performance
+-- 6. Add indexes for performance
 CREATE INDEX IF NOT EXISTS idx_programs_kategori_hutan ON programs(kategori_hutan);
 CREATE INDEX IF NOT EXISTS idx_master_aksi_mitigasi_kelompok ON master_aksi_mitigasi(kelompok);
 CREATE INDEX IF NOT EXISTS idx_program_aksi_mitigasi_program ON program_aksi_mitigasi(program_id);
 CREATE INDEX IF NOT EXISTS idx_program_aksi_mitigasi_aksi ON program_aksi_mitigasi(aksi_mitigasi_id);
 
--- 6. Enable RLS on new tables
+-- 7. Enable RLS on new tables
 ALTER TABLE master_aksi_mitigasi ENABLE ROW LEVEL SECURITY;
 ALTER TABLE program_aksi_mitigasi ENABLE ROW LEVEL SECURITY;
 
--- 7. RLS Policies: master_aksi_mitigasi readable by all authenticated users
+-- 8. RLS Policies: master_aksi_mitigasi readable by all authenticated users
 DROP POLICY IF EXISTS "Master aksi mitigasi readable by authenticated users" ON master_aksi_mitigasi;
 CREATE POLICY "Master aksi mitigasi readable by authenticated users" ON master_aksi_mitigasi
     FOR SELECT USING (auth.role() = 'authenticated');
 
--- 8. RLS Policies: program_aksi_mitigasi - users can see their own program's aksi
+-- 9. RLS Policies: program_aksi_mitigasi - users can see their own program's aksi
 DROP POLICY IF EXISTS "Program aksi mitigasi readable by authenticated users" ON program_aksi_mitigasi;
 CREATE POLICY "Program aksi mitigasi readable by authenticated users" ON program_aksi_mitigasi
     FOR SELECT USING (
@@ -89,7 +126,7 @@ CREATE POLICY "Program aksi mitigasi readable by authenticated users" ON program
         )
     );
 
--- 9. RLS Policies: program_aksi_mitigasi - admin and program_planner can manage
+-- 10. RLS Policies: program_aksi_mitigasi - admin and program_planner can manage
 DROP POLICY IF EXISTS "Program aksi mitigasi manageable by admin and program_planner" ON program_aksi_mitigasi;
 CREATE POLICY "Program aksi mitigasi manageable by admin and program_planner" ON program_aksi_mitigasi
     FOR ALL USING (
@@ -108,13 +145,13 @@ CREATE POLICY "Program aksi mitigasi manageable by admin and program_planner" ON
         )
     );
 
--- 10. Trigger for updated_at on master_aksi_mitigasi
+-- 11. Trigger for updated_at on master_aksi_mitigasi
 DROP TRIGGER IF EXISTS update_master_aksi_mitigasi_updated_at ON master_aksi_mitigasi;
 CREATE TRIGGER update_master_aksi_mitigasi_updated_at
     BEFORE UPDATE ON master_aksi_mitigasi
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- 11. Audit trigger for new tables
+-- 12. Audit trigger for new tables
 DROP TRIGGER IF EXISTS audit_master_aksi_mitigasi ON master_aksi_mitigasi;
 CREATE TRIGGER audit_master_aksi_mitigasi
     AFTER INSERT OR UPDATE OR DELETE ON master_aksi_mitigasi
@@ -125,7 +162,7 @@ CREATE TRIGGER audit_program_aksi_mitigasi
     AFTER INSERT OR UPDATE OR DELETE ON program_aksi_mitigasi
     FOR EACH ROW EXECUTE FUNCTION audit_trigger_function();
 
--- 12. Comments
+-- 13. Comments
 COMMENT ON TABLE master_aksi_mitigasi IS 'Master data 15 aksi mitigasi untuk Program Karbon';
 COMMENT ON TABLE program_aksi_mitigasi IS 'Junction table antara Program dan Aksi Mitigasi (many-to-many)';
 COMMENT ON COLUMN programs.kategori_hutan IS 'Kategori hutan: MINERAL atau GAMBUT';

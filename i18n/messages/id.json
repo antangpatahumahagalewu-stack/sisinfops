@@ -46,6 +46,7 @@
     "dataPS": "Data PS",
     "dashboardProgram": "Dashboard Program",
     "uploadExcel": "Upload Excel",
+    "financialDashboard": "Dashboard Keuangan",
     "keuangan": "Keuangan",
     "users": "Pengguna",
     "activityLog": "Log Aktivitas",
@@ -64,5 +65,11 @@
     "divisionName": "Divisi Perencana Program, Implementasi, dan Monev",
     "copyright": "Copyright © 2026 Yayasan Antangpatahu Mahaga Lewu",
     "internalAppNotice": "Aplikasi ini hanya untuk penggunaan internal yayasan. Hubungi administrator untuk mendapatkan akses."
+  },
+  "dashboard": {
+    "financialDashboard": {
+      "title": "Dashboard Keuangan",
+      "description": "Pemantauan keuangan real-time dengan kepatuhan SAK - Sistem Dual Ledger"
+    }
   }
 }
