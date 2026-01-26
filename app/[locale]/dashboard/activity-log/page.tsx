@@ -119,6 +119,35 @@ export default async function ActivityLogPage({
 
   const topUsersList = Object.entries(topUsers || {}).slice(0, 5)
 
+  // Get online users (active in last 5 minutes)
+  let onlineUsers: any[] = []
+  try {
+    const { data: onlineUsersData } = await supabase
+      .from("online_users_view")
+      .select("*")
+      .order("last_seen_at", { ascending: false })
+
+    onlineUsers = onlineUsersData || []
+  } catch (error) {
+    console.error("Error fetching online users:", error)
+    onlineUsers = []
+  }
+
+  // Get user activity dashboard data
+  let userActivityData: any[] = []
+  try {
+    const { data: activityData } = await supabase
+      .from("user_activity_dashboard")
+      .select("*")
+      .order("last_seen_at", { ascending: false })
+      .limit(10)
+
+    userActivityData = activityData || []
+  } catch (error) {
+    console.error("Error fetching user activity data:", error)
+    userActivityData = []
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -291,7 +320,7 @@ export default async function ActivityLogPage({
       </Tabs>
 
       {/* Additional Info */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>Pengguna Paling Aktif</CardTitle>
@@ -332,6 +361,53 @@ export default async function ActivityLogPage({
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">
                 Belum ada data aktivitas
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Pengguna Online</CardTitle>
+            <CardDescription>
+              User yang aktif dalam 5 menit terakhir
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {onlineUsers.length > 0 ? (
+              <div className="space-y-3">
+                {onlineUsers.slice(0, 5).map((user) => (
+                  <div key={user.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-2 w-2 rounded-full ${user.is_online ? 'bg-green-500' : 'bg-gray-300'}`} />
+                      <div>
+                        <p className="text-sm font-medium">
+                          {user.full_name || 'Unknown User'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {user.role} • {user.activity_status}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground">
+                        {user.last_seen_at ? new Date(user.last_seen_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {user.is_online ? 'Online' : 'Offline'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {onlineUsers.length > 5 && (
+                  <p className="text-xs text-muted-foreground text-center pt-2">
+                    + {onlineUsers.length - 5} pengguna online lainnya
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                Tidak ada pengguna online
               </p>
             )}
           </CardContent>

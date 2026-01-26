@@ -62,20 +62,20 @@ export default async function PemberdayaanEkonomiPage({
     .select("*")
     .order("tahun", { ascending: false })
 
-  // Apply filters if provided
-  if (searchParamsObj?.kabupaten) {
+  // Apply filters if provided and not "all"
+  if (searchParamsObj?.kabupaten && searchParamsObj.kabupaten !== "all") {
     query = query.eq("kabupaten_id", searchParamsObj.kabupaten)
   }
 
-  if (searchParamsObj?.tahun) {
+  if (searchParamsObj?.tahun && searchParamsObj.tahun !== "all") {
     query = query.eq("tahun", parseInt(searchParamsObj.tahun))
   }
 
-  if (searchParamsObj?.jenis_usaha) {
+  if (searchParamsObj?.jenis_usaha && searchParamsObj.jenis_usaha !== "") {
     query = query.ilike("jenis_usaha", `%${searchParamsObj.jenis_usaha}%`)
   }
 
-  if (searchParamsObj?.status) {
+  if (searchParamsObj?.status && searchParamsObj.status !== "all") {
     query = query.eq("status", searchParamsObj.status)
   }
 
@@ -204,7 +204,7 @@ export default async function PemberdayaanEkonomiPage({
             <div>
               <CardTitle>Data Usaha Pemberdayaan Ekonomi</CardTitle>
               <CardDescription>
-                {searchParamsObj?.kabupaten 
+                {searchParamsObj?.kabupaten && searchParamsObj.kabupaten !== "all"
                   ? `Data untuk kabupaten ${kabupatenList?.find(k => k.id === searchParamsObj.kabupaten)?.nama.replace('KABUPATEN ', '')}`
                   : "Semua data usaha pemberdayaan ekonomi"
                 }

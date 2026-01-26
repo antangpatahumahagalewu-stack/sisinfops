@@ -1,65 +1,178 @@
-import { createClient } from "@/lib/supabase/server"
+"use client"
+
+import { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Target, Plus, Eye, Edit, Trash2, ArrowUpRight, CheckCircle, XCircle, Link as LinkIcon, Users } from "lucide-react"
+import { Target, Plus, Eye, Edit, Trash2, ArrowUpRight, CheckCircle, XCircle, Link as LinkIcon, Users, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { canManagePrograms } from "@/lib/auth/rbac"
+import { toast } from "sonner"
 
-export default async function ProgramsPage() {
-  const supabase = await createClient()
-  const canManage = await canManagePrograms()
+interface Program {
+  id: string
+  kode_program: string
+  nama_program: string
+  jenis_program: string
+  kategori_hutan: string | null
+  tujuan: string | null
+  lokasi_spesifik: string | null
+  target: string | null
+  risiko: string | null
+  carbon_project_id: string | null
+  perhutanan_sosial_id: string | null
+  status: string
+  created_at: string
+  carbon_projects: {
+    kode_project: string
+    nama_project: string
+  } | null
+  perhutanan_sosial: {
+    pemegang_izin: string
+    desa: string
+  } | null
+}
 
-  // Fetch programs with basic data first to avoid join errors
-  let programs: any[] = []
-  let fetchError = null
-  
-  try {
-    const { data, error } = await supabase
-      .from("programs")
-      .select("*")
-      .order("created_at", { ascending: false })
-    
-    if (error) {
-      // Only log if error object is not empty
-      if (error && Object.keys(error).length > 0) {
-        console.error("Error fetching programs:", error)
+export default function ProgramsPage() {
+  const [programs, setPrograms] = useState<Program[]>([])
+  const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string>("viewer")
+  const [canManage, setCanManage] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const supabase = createClient()
+
+  // Load user role and permissions
+  useEffect(() => {
+    async function loadUser() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single()
+        
+        const role = profile?.role || "viewer"
+        setUserRole(role)
+        setCanManage(role === "admin" || role === "program_planner")
+        setIsAdmin(role === "admin")
       }
-      fetchError = error
-    } else {
-      programs = data || []
     }
-  } catch (err) {
-    // Only log if error object is not empty
-    if (err && Object.keys(err).length > 0) {
-      console.error("Exception fetching programs:", err)
+    loadUser()
+  }, [])
+
+  // Load programs and related data
+  useEffect(() => {
+    async function loadPrograms() {
+      setLoading(true)
+      try {
+        // First, fetch programs
+        const { data: programsData, error: programsError } = await supabase
+          .from("programs")
+          .select("*")
+          .order("created_at", { ascending: false })
+
+        if (programsError) {
+          console.error("Error fetching programs:", programsError)
+          toast.error("Gagal memuat program")
+          return
+        }
+
+        if (!programsData || programsData.length === 0) {
+          setPrograms([])
+          setLoading(false)
+          return
+        }
+
+        // Get IDs for related data
+        const carbonProjectIds = programsData.map(p => p.carbon_project_id).filter(Boolean) as string[]
+        const psIds = programsData.map(p => p.perhutanan_sosial_id).filter(Boolean) as string[]
+
+        // Fetch carbon projects
+        let carbonProjectsMap = new Map()
+        if (carbonProjectIds.length > 0) {
+          const { data: carbonProjects } = await supabase
+            .from("carbon_projects")
+            .select("id, kode_project, nama_project")
+            .in("id", carbonProjectIds)
+          
+          if (carbonProjects) {
+            carbonProjects.forEach(cp => {
+              carbonProjectsMap.set(cp.id, cp)
+            })
+          }
+        }
+
+        // Fetch perhutanan sosial
+        let psMap = new Map()
+        if (psIds.length > 0) {
+          const { data: psData } = await supabase
+            .from("perhutanan_sosial")
+            .select("id, pemegang_izin, desa")
+            .in("id", psIds)
+          
+          if (psData) {
+            psData.forEach(ps => {
+              psMap.set(ps.id, ps)
+            })
+          }
+        }
+
+        // Attach related data to programs
+        const programsWithRelations = programsData.map(program => ({
+          ...program,
+          carbon_projects: carbonProjectsMap.get(program.carbon_project_id) || null,
+          perhutanan_sosial: psMap.get(program.perhutanan_sosial_id) || null
+        })) as Program[]
+
+        setPrograms(programsWithRelations)
+
+      } catch (error) {
+        console.error("Error loading programs:", error)
+        toast.error("Terjadi kesalahan saat memuat program")
+      } finally {
+        setLoading(false)
+      }
     }
-    fetchError = err
-  }
 
-  // Fetch carbon projects for stats and mapping
-  const { data: carbonProjects } = await supabase
-    .from("carbon_projects")
-    .select("id, nama_project, kode_project")
+    loadPrograms()
+  }, [])
 
-  // Fetch PS for stats and mapping  
-  const { data: perhutananSosial } = await supabase
-    .from("perhutanan_sosial")
-    .select("id, pemegang_izin, desa")
+  // Delete program function
+  const handleDeleteProgram = async (programId: string, programName: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus program "${programName}"?`)) {
+      return
+    }
 
-  // Create lookup maps for related data
-  const carbonProjectMap = new Map()
-  const psMap = new Map()
-  
-  if (carbonProjects) {
-    carbonProjects.forEach(project => {
-      carbonProjectMap.set(project.id, project)
-    })
-  }
-  
-  if (perhutananSosial) {
-    perhutananSosial.forEach(ps => {
-      psMap.set(ps.id, ps)
-    })
+    setDeletingId(programId)
+    try {
+      const response = await fetch(`/api/programs/${programId}`, {
+        method: "DELETE",
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || "Gagal menghapus program")
+      }
+
+      // Remove program from state
+      setPrograms(prev => prev.filter(p => p.id !== programId))
+      
+      toast.success("Program berhasil dihapus", {
+        description: `Program "${programName}" telah dihapus.`,
+        duration: 5000,
+      })
+
+    } catch (error: any) {
+      console.error("Error deleting program:", error)
+      toast.error("Gagal menghapus program", {
+        description: error.message || "Terjadi kesalahan",
+        duration: 5000,
+      })
+    } finally {
+      setDeletingId(null)
+    }
   }
 
   // Status badge component
@@ -111,6 +224,17 @@ export default async function ProgramsPage() {
     )
   }
 
+  if (loading) {
+    return (
+      <div className="container mx-auto py-6 flex justify-center items-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground">Memuat data program...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -120,14 +244,12 @@ export default async function ProgramsPage() {
             Kelola program dalam proyek karbon: Karbon, Pemberdayaan Ekonomi PS, Kapasitas
           </p>
         </div>
-        {canManage && (
-          <Button asChild>
-            <Link href="/dashboard/programs/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Program Baru
-            </Link>
-          </Button>
-        )}
+        <Button asChild>
+          <Link href="/dashboard/programs/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Program Baru
+          </Link>
+        </Button>
       </div>
 
       {/* Stats Summary */}
@@ -250,16 +372,26 @@ export default async function ProgramsPage() {
                             </Link>
                           </Button>
                           {canManage && (
-                            <>
-                              <Button size="sm" variant="outline" asChild>
-                                <Link href={`/dashboard/programs/${program.id}/edit`}>
-                                  <Edit className="h-3 w-3" />
-                                </Link>
-                              </Button>
-                              <Button size="sm" variant="outline" disabled>
+                            <Button size="sm" variant="outline" asChild>
+                              <Link href={`/dashboard/programs/${program.id}/edit`}>
+                                <Edit className="h-3 w-3" />
+                              </Link>
+                            </Button>
+                          )}
+                          {isAdmin && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={() => handleDeleteProgram(program.id, program.nama_program)}
+                              disabled={deletingId === program.id}
+                              className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                            >
+                              {deletingId === program.id ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
                                 <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </>
+                              )}
+                            </Button>
                           )}
                         </div>
                       </td>
@@ -275,14 +407,12 @@ export default async function ProgramsPage() {
               <p className="text-muted-foreground mt-2">
                 Mulai dengan membuat program pertama Anda dalam carbon project.
               </p>
-              {canManage && (
-                <Button asChild className="mt-4">
-                  <Link href="/dashboard/programs/new">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Buat Program
-                  </Link>
-                </Button>
-              )}
+              <Button asChild className="mt-4">
+                <Link href="/dashboard/programs/new">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Buat Program
+                </Link>
+              </Button>
             </div>
           )}
         </CardContent>
