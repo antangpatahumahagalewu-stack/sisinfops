@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CalendarDays, Mail, Phone, MapPin, Edit } from "lucide-react"
 import Link from "next/link"
+import ChangePasswordForm from "@/components/profile/change-password-form"
 
 export default async function ProfilePage({
   params
@@ -55,6 +56,13 @@ export default async function ProfilePage({
       case "program_planner": return "Program Planner"
       case "program_implementer": return "Program Implementer"
       case "carbon_specialist": return "Carbon Specialist"
+      case "monev_officer": return "Monev Officer"
+      case "finance_manager": return "Finance Manager"
+      case "finance_operational": return "Finance Operational"
+      case "finance_project_carbon": return "Finance Project Carbon"
+      case "finance_project_implementation": return "Finance Project Implementation"
+      case "finance_project_social": return "Finance Project Social"
+      case "investor": return "Investor"
       default: return "User"
     }
   }
@@ -224,31 +232,7 @@ export default async function ProfilePage({
             </TabsContent>
 
             <TabsContent value="settings">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Pengaturan Akun</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Keamanan</h4>
-                    <Button variant="outline" className="w-full justify-start">
-                      Ubah Kata Sandi
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Notifikasi</h4>
-                    <Button variant="outline" className="w-full justify-start">
-                      Atur Notifikasi
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Privasi</h4>
-                    <Button variant="outline" className="w-full justify-start">
-                      Pengaturan Privasi
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <ChangePasswordForm />
             </TabsContent>
           </Tabs>
         </div>

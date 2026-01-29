@@ -56,6 +56,13 @@ export default function DashboardHeader({ user, profile, onMenuToggle }: Dashboa
       case "program_planner": return "Program Planner"
       case "program_implementer": return "Program Implementer"
       case "carbon_specialist": return "Carbon Specialist"
+      case "monev_officer": return "Monev Officer"
+      case "finance_manager": return "Finance Manager"
+      case "finance_operational": return "Finance Operational"
+      case "finance_project_carbon": return "Finance Project Carbon"
+      case "finance_project_implementation": return "Finance Project Implementation"
+      case "finance_project_social": return "Finance Project Social"
+      case "investor": return "Investor"
       default: return "User"
     }
   }
@@ -117,7 +124,7 @@ export default function DashboardHeader({ user, profile, onMenuToggle }: Dashboa
               <UserIcon className="mr-2 h-4 w-4" />
               <span>{t('profile')}</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push(`/${locale}/dashboard/settings`)}>
               <Settings className="mr-2 h-4 w-4" />
               <span>{t('settings')}</span>
             </DropdownMenuItem>

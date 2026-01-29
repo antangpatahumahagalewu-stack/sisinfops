@@ -24,6 +24,8 @@ export const psCreateSchema = z.object({
   keterangan: z.string().optional().nullable(),
   fasilitator: z.string().optional().nullable(),
   jumlah_kk: z.number().int().min(0, "Jumlah KK harus >= 0").optional(),
+  ketua_ps: z.string().optional().nullable(),
+  kepala_desa: z.string().optional().nullable(),
   nama_kabupaten: z.string().optional(), // for lookup fallback, if needed
 });
 

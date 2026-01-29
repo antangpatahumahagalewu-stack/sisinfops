@@ -13,10 +13,16 @@ import {
   AlertCircle,
   ArrowUpRight,
   Calendar,
-  Target
+  Target,
+  Building,
+  TreePine,
+  Shield,
+  CheckCircle
 } from "lucide-react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
+import { FinancialControlsSection } from "@/components/dashboard/financial-controls-section"
+import { FinancialReportsSection } from "@/components/dashboard/financial-reports-section"
 
 export default async function FinancialDashboardPage() {
   const supabase = await createClient()
@@ -34,9 +40,16 @@ export default async function FinancialDashboardPage() {
 
   const { data: transactionsData } = await supabase
     .from("financial_transactions")
-    .select("id, kode_transaksi, jumlah, jenis_transaksi, tanggal_transaksi, status_rekonsiliasi")
+    .select("id, kode_transaksi, jumlah, jenis_transaksi, tanggal_transaksi, status_rekonsiliasi, ledger_id")
     .order("tanggal_transaksi", { ascending: false })
     .limit(10)
+
+  // Fetch accounting ledgers for dual ledger system
+  const { data: ledgersData } = await supabase
+    .from("accounting_ledgers")
+    .select("id, ledger_code, ledger_name, ledger_type, description, current_balance")
+    .eq("is_active", true)
+    .order("ledger_type")
 
   // Calculate basic stats (placeholder - real calculations will be implemented)
   const totalDonors = donorsData?.length || 0
@@ -52,6 +65,13 @@ export default async function FinancialDashboardPage() {
   const totalOutgoing = transactionsData?.filter(t => t.jenis_transaksi === 'PENGELUARAN')
     .reduce((sum, t) => sum + (t.jumlah || 0), 0) || 0
   const netBalance = totalIncoming - totalOutgoing
+
+  // Prepare ledger data
+  const operationalLedgers = ledgersData?.filter(l => l.ledger_type === 'OPERATIONAL') || []
+  const projectLedgers = ledgersData?.filter(l => l.ledger_type === 'PROJECT') || []
+  const carbonLedgers = ledgersData?.filter(l => l.ledger_code === 'LEDGER-PRJ-CARBON') || []
+  const socialLedgers = ledgersData?.filter(l => l.ledger_code === 'LEDGER-PRJ-SOCIAL') || []
+  const implementationLedgers = ledgersData?.filter(l => l.ledger_code === 'LEDGER-PRJ-IMPLEMENTATION') || []
 
   // Alerts (placeholder)
   const alerts = [
@@ -102,14 +122,19 @@ export default async function FinancialDashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Dana Grant</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                Proyek & Program
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalGrantAmount)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {totalGrants} grant ({activeGrants} aktif)
+              {totalGrants} grant ({activeGrants} aktif) • Termasuk dalam pembukuan Proyek
             </p>
           </CardContent>
         </Card>
@@ -155,6 +180,127 @@ export default async function FinancialDashboardPage() {
             <p className="text-xs text-muted-foreground">
               Aktif: {donorsData?.filter(d => d.status === 'active').length || 0}
             </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Dual Ledger Quick Actions - REPOSITIONED FOR VISIBILITY */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Operational Ledger Quick Actions */}
+        <Card className="border-blue-200 bg-blue-50/30">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Building className="h-5 w-5 text-blue-600" />
+              <div>
+                <CardTitle className="text-lg">Operasional Kantor</CardTitle>
+                <CardDescription>
+                  Pembukuan untuk biaya operasional kantor
+                  {operationalLedgers.length > 0 && (
+                    <span className="ml-2">
+                      • Saldo: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(operationalLedgers[0].current_balance || 0)}
+                    </span>
+                  )}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <Button asChild className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white">
+                <Link href="/dashboard/keuangan/transactions/new?ledger_type=OPERATIONAL">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Tambah Transaksi Operasional
+                </Link>
+              </Button>
+              <Button asChild className="w-full justify-start" variant="outline">
+                <Link href="/dashboard/keuangan/budgets?ledger_type=OPERATIONAL">
+                  <Target className="mr-2 h-4 w-4" />
+                  Kelola Anggaran Kantor
+                </Link>
+              </Button>
+              <Button asChild className="w-full justify-start" variant="outline">
+                <Link href="/dashboard/keuangan/reports?ledger_type=OPERATIONAL">
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Laporan Operasional
+                </Link>
+              </Button>
+              <div className="pt-2 border-t">
+                <p className="text-xs text-muted-foreground">
+                  <Shield className="inline h-3 w-3 mr-1 text-blue-500" />
+                  Dana terpisah: Tidak tercampur dengan dana proyek
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Project Ledger Quick Actions */}
+        <Card className="border-green-200 bg-green-50/30">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <TreePine className="h-5 w-5 text-green-600" />
+              <div>
+                <CardTitle className="text-lg">Proyek & Program</CardTitle>
+                <CardDescription>
+                  Pembukuan khusus untuk dana investor & donor
+                  {projectLedgers.length > 0 && (
+                    <span className="ml-2">
+                      • Total Saldo: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
+                        projectLedgers.reduce((sum, ledger) => sum + (ledger.current_balance || 0), 0)
+                      )}
+                    </span>
+                  )}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <Button asChild className="w-full justify-start bg-green-600 hover:bg-green-700 text-white">
+                <Link href="/dashboard/keuangan/transactions/new?ledger_type=PROJECT">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Tambah Transaksi Proyek
+                </Link>
+              </Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button asChild className="justify-start" variant="outline" size="sm">
+                  <Link href="/dashboard/keuangan/budgets?ledger_code=LEDGER-PRJ-CARBON">
+                    Anggaran Karbon
+                  </Link>
+                </Button>
+                <Button asChild className="justify-start" variant="outline" size="sm">
+                  <Link href="/dashboard/keuangan/budgets?ledger_code=LEDGER-PRJ-SOCIAL">
+                    Anggaran PS
+                  </Link>
+                </Button>
+                <Button asChild className="justify-start" variant="outline" size="sm">
+                  <Link href="/dashboard/keuangan/budgets?ledger_code=LEDGER-PRJ-IMPLEMENTATION">
+                    Anggaran Implementasi
+                  </Link>
+                </Button>
+                <Button asChild className="justify-start" variant="outline" size="sm">
+                  <Link href="/dashboard/keuangan/grants">
+                    Kelola Grant
+                  </Link>
+                </Button>
+                <Button asChild className="justify-start" variant="outline" size="sm">
+                  <Link href="/dashboard/keuangan/reports?ledger_type=PROJECT">
+                    Laporan Proyek
+                  </Link>
+                </Button>
+                <Button asChild className="justify-start" variant="outline" size="sm">
+                  <Link href="/dashboard/keuangan/donors">
+                    Donor
+                  </Link>
+                </Button>
+              </div>
+              <div className="pt-2 border-t">
+                <p className="text-xs text-muted-foreground">
+                  <Shield className="inline h-3 w-3 mr-1 text-green-500" />
+                  100% dana investor: Tidak digunakan untuk operasional kantor
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -271,44 +417,6 @@ export default async function FinancialDashboardPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Aksi cepat untuk manajemen keuangan
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <Button asChild className="w-full justify-start">
-                <Link href="/dashboard/keuangan/transactions/new">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Tambah Transaksi Baru
-                </Link>
-              </Button>
-              <Button asChild className="w-full justify-start" variant="outline">
-                <Link href="/dashboard/keuangan/budgets">
-                  <Target className="mr-2 h-4 w-4" />
-                  Kelola Anggaran
-                </Link>
-              </Button>
-              <Button asChild className="w-full justify-start" variant="outline">
-                <Link href="/dashboard/keuangan/reports">
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  Generate Laporan
-                </Link>
-              </Button>
-              <Button asChild className="w-full justify-start" variant="outline">
-                <Link href="/dashboard/keuangan/donors">
-                  <Users className="mr-2 h-4 w-4" />
-                  Kelola Donor
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Metric Cards */}
@@ -361,27 +469,13 @@ export default async function FinancialDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Phase 2 Financial Controls Section */}
+      <FinancialControlsSection />
+
+      {/* Phase 3 Reporting & Analytics Section */}
+      <FinancialReportsSection />
     </div>
   )
 }
 
-// Temporary component for CheckCircle icon (should be imported from lucide-react)
-function CheckCircle(props: any) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
-  )
-}

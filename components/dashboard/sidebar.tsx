@@ -33,7 +33,15 @@ import {
   TrendingUp,
   Shield,
   History,
-  DollarSign
+  DollarSign,
+  Building,
+  TreePine,
+  Wallet,
+  CreditCard,
+  Receipt,
+  ListChecks,
+  Banknote,
+  Tag
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Role } from "@/lib/types/pks"
@@ -217,29 +225,78 @@ const menuItems = [
     roles: ["admin", "carbon_specialist"] as Role[],
     group: "legal"
   },
-  // F. SISTEM & ADMINISTRASI
+  // F. FINANCE (GRUP BARU)
+  {
+    title: "Dashboard Keuangan",
+    href: "/dashboard/finance",
+    translationKey: "financialDashboard",
+    icon: LayoutDashboard,
+    roles: ["admin", "finance_manager", "finance_operational", "finance_project_carbon", "finance_project_implementation", "finance_project_social", "investor", "carbon_specialist", "program_planner", "monev_officer"] as Role[],
+    group: "finance"
+  },
+  {
+    title: "Operasional Kantor",
+    href: "/dashboard/finance/operasional",
+    translationKey: "operasionalKantor",
+    icon: Building,
+    roles: ["admin", "finance_manager", "finance_operational"] as Role[],
+    group: "finance"
+  },
+  {
+    title: "Proyek & Program",
+    href: "/dashboard/finance/proyek",
+    translationKey: "proyekProgram",
+    icon: TreePine,
+    roles: ["admin", "finance_manager", "finance_project_carbon", "finance_project_implementation", "finance_project_social", "program_planner", "carbon_specialist"] as Role[],
+    group: "finance"
+  },
+  {
+    title: "Transaksi",
+    href: "/dashboard/finance/transactions",
+    translationKey: "transactions",
+    icon: Receipt,
+    roles: ["admin", "finance_manager", "finance_operational", "finance_project_carbon", "finance_project_implementation", "finance_project_social"] as Role[],
+    group: "finance"
+  },
+  {
+    title: "Anggaran",
+    href: "/dashboard/finance/budgets",
+    translationKey: "budgets",
+    icon: Wallet,
+    roles: ["admin", "finance_manager", "finance_operational"] as Role[],
+    group: "finance"
+  },
+  {
+    title: "Master Price List",
+    href: "/dashboard/finance/price-list",
+    translationKey: "masterPriceList",
+    icon: Tag,
+    roles: ["admin", "finance_manager", "finance_operational", "program_planner"] as Role[],
+    group: "finance"
+  },
+  {
+    title: "Laporan Keuangan",
+    href: "/dashboard/finance/reports",
+    translationKey: "financialReports",
+    icon: FileText,
+    roles: ["admin", "finance_manager", "finance_operational", "finance_project_carbon", "finance_project_implementation", "finance_project_social", "investor", "program_planner", "carbon_specialist"] as Role[],
+    group: "finance"
+  },
+  {
+    title: "Kontrol & Kepatuhan",
+    href: "/dashboard/finance/controls",
+    translationKey: "financialControls",
+    icon: ShieldCheck,
+    roles: ["admin", "finance_manager"] as Role[],
+    group: "finance"
+  },
+  // G. SISTEM & ADMINISTRASI (TANPA MENU KEUANGAN)
   {
     title: "Upload Excel",
     href: "/dashboard/upload",
     translationKey: "uploadExcel",
     icon: Upload,
     roles: ["admin", "monev"] as Role[],
-    group: "system"
-  },
-  {
-    title: "Financial Dashboard",
-    href: "/dashboard/finance",
-    translationKey: "financialDashboard",
-    icon: DollarSign,
-    roles: ["admin", "finance", "finance_manager", "carbon_specialist", "program_planner", "monev_officer"] as Role[],
-    group: "system"
-  },
-  {
-    title: "Keuangan",
-    href: "/dashboard/keuangan",
-    translationKey: "keuangan",
-    icon: CircleDollarSign,
-    roles: ["admin", "finance", "finance_manager", "carbon_specialist", "program_planner", "monev_officer"] as Role[],
     group: "system"
   },
   {
@@ -304,11 +361,12 @@ export default function DashboardSidebar({ role, mobileOpen, onMobileOpenChange 
     implementation: "IMPLEMENTASI & MRV",
     socioeconomic: "SOSIAL-EKONOMI & SAFEGUARD",
     legal: "LEGAL & TATA KELOLA",
+    finance: "FINANCE",
     system: "SISTEM & ADMINISTRASI"
   }
 
   // Order of groups to display
-  const groupOrder = ["foundation", "development", "implementation", "socioeconomic", "legal", "system"]
+  const groupOrder = ["foundation", "development", "implementation", "socioeconomic", "legal", "finance", "system"]
 
   const renderMenuItems = () => {
     return groupOrder.map((groupId) => {

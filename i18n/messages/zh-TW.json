@@ -50,7 +50,14 @@
     "keuangan": "財務",
     "users": "用戶",
     "activityLog": "活動日誌",
-    "settings": "設置"
+    "settings": "設置",
+    "masterPriceList": "主價格清單",
+    "operasionalKantor": "辦公室運營",
+    "proyekProgram": "項目與計劃",
+    "transactions": "交易",
+    "budgets": "預算",
+    "financialReports": "財務報告",
+    "financialControls": "控制與合規"
   },
   "auth": {
     "welcome": "歡迎",
@@ -70,6 +77,34 @@
     "financialDashboard": {
       "title": "財務儀表板",
       "description": "符合印尼會計準則的即時財務監控 - 雙賬簿系統"
+    },
+    "masterPriceList": {
+      "title": "主價格清單",
+      "description": "管理商品和服務價格清單"
+    },
+    "operasionalKantor": {
+      "title": "辦公室運營",
+      "description": "管理辦公室運營財務"
+    },
+    "proyekProgram": {
+      "title": "項目與計劃",
+      "description": "管理碳專案和社會計劃財務"
+    },
+    "transactions": {
+      "title": "財務交易",
+      "description": "管理所有財務交易"
+    },
+    "budgets": {
+      "title": "財務預算",
+      "description": "管理運營和項目預算"
+    },
+    "financialReports": {
+      "title": "財務報告",
+      "description": "存取和生成財務報告"
+    },
+    "financialControls": {
+      "title": "控制與合規",
+      "description": "監控內部控制和財務合規"
     }
   }
 }

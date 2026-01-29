@@ -50,7 +50,14 @@
     "keuangan": "Keuangan",
     "users": "Pengguna",
     "activityLog": "Log Aktivitas",
-    "settings": "Pengaturan"
+    "settings": "Pengaturan",
+    "masterPriceList": "Master Price List",
+    "operasionalKantor": "Operasional Kantor",
+    "proyekProgram": "Proyek & Program",
+    "transactions": "Transaksi",
+    "budgets": "Anggaran",
+    "financialReports": "Laporan Keuangan",
+    "financialControls": "Kontrol & Kepatuhan"
   },
   "auth": {
     "welcome": "Selamat Datang",
@@ -70,6 +77,34 @@
     "financialDashboard": {
       "title": "Dashboard Keuangan",
       "description": "Pemantauan keuangan real-time dengan kepatuhan SAK - Sistem Dual Ledger"
+    },
+    "masterPriceList": {
+      "title": "Master Price List",
+      "description": "Kelola daftar harga barang dan jasa"
+    },
+    "operasionalKantor": {
+      "title": "Operasional Kantor",
+      "description": "Kelola keuangan operasional kantor"
+    },
+    "proyekProgram": {
+      "title": "Proyek & Program",
+      "description": "Kelola keuangan proyek karbon dan program sosial"
+    },
+    "transactions": {
+      "title": "Transaksi Keuangan",
+      "description": "Kelola semua transaksi keuangan"
+    },
+    "budgets": {
+      "title": "Anggaran Keuangan",
+      "description": "Kelola anggaran operasional dan proyek"
+    },
+    "financialReports": {
+      "title": "Laporan Keuangan",
+      "description": "Akses dan generate laporan keuangan"
+    },
+    "financialControls": {
+      "title": "Kontrol & Kepatuhan",
+      "description": "Monitor kontrol internal dan kepatuhan keuangan"
     }
   }
 }

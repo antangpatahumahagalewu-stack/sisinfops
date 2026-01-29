@@ -90,6 +90,8 @@ export async function PUT(
     if (data.keterangan !== undefined) updateData.keterangan = data.keterangan;
     if (data.fasilitator !== undefined) updateData.fasilitator = data.fasilitator;
     if (data.jumlah_kk !== undefined) updateData.jumlah_kk = data.jumlah_kk;
+    if (data.ketua_ps !== undefined) updateData.ketua_ps = data.ketua_ps;
+    if (data.kepala_desa !== undefined) updateData.kepala_desa = data.kepala_desa;
 
     // Update in database
     const { data: updatedPs, error } = await supabase

@@ -142,6 +142,8 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
           luas_ha: formData.luasHa,
           tanggal_sk: `${formData.tahunSk}-01-01`, // Format tanggal sederhana
           jumlah_kk: formData.lembagaJumlahAnggota,
+          ketua_ps: formData.lembagaKetua, // Tambahkan ketua_ps langsung ke perhutanan_sosial
+          kepala_desa: formData.lembagaKepalaDesa || null, // Tambahkan kepala_desa langsung ke perhutanan_sosial
         })
         .eq("id", ps.id)
         .select()
