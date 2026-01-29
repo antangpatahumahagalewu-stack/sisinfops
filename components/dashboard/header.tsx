@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { LogOut, User as UserIcon, Settings, Menu } from "lucide-react"
+import { LogOut, User as UserIcon, Settings, Menu, Shield } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useTranslations, useLocale } from 'next-intl'
@@ -49,8 +49,11 @@ export default function DashboardHeader({ user, profile, onMenuToggle }: Dashboa
   }
 
   const getRoleDisplay = () => {
+    if (profile?.role === "admin") {
+      return "GOD MODE - Administrator"
+    }
+    
     switch (profile?.role) {
-      case "admin": return "Administrator"
       case "monev": return "Monitoring & Evaluasi"
       case "viewer": return "Viewer"
       case "program_planner": return "Program Planner"
@@ -95,7 +98,14 @@ export default function DashboardHeader({ user, profile, onMenuToggle }: Dashboa
           <p className="text-sm font-medium text-gray-900">
             {profile?.full_name || user.email}
           </p>
-          <p className="text-xs text-gray-500">{getRoleDisplay()}</p>
+          <div className="flex items-center justify-end gap-1">
+            {profile?.role === "admin" && (
+              <Shield className="h-3 w-3 text-red-600" />
+            )}
+            <p className={`text-xs ${profile?.role === "admin" ? "text-red-600 font-bold" : "text-gray-500"}`}>
+              {getRoleDisplay()}
+            </p>
+          </div>
         </div>
 
         <DropdownMenu>

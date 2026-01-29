@@ -300,8 +300,8 @@ const menuItems = [
     group: "system"
   },
   {
-    title: "Pengguna",
-    href: "/dashboard/users",
+    title: "Manajemen Pengguna",
+    href: "/dashboard/user-management",
     translationKey: "users",
     icon: Users,
     roles: ["admin"] as Role[],
