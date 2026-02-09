@@ -26,7 +26,23 @@ import {
   FileCode,
   CircleDollarSign,
   Users2,
-  Gavel
+  Gavel,
+  FileCheck,
+  ShieldCheck,
+  Coins,
+  TrendingUp,
+  Shield,
+  History,
+  DollarSign,
+  Building,
+  TreePine,
+  Wallet,
+  CreditCard,
+  Receipt,
+  ListChecks,
+  Banknote,
+  Tag,
+  AlertCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Role } from "@/lib/types/pks"
@@ -37,6 +53,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet"
+import { Badge } from "@/components/ui/badge"
 
 interface SidebarProps {
   role: Role
@@ -44,132 +61,321 @@ interface SidebarProps {
   onMobileOpenChange?: (open: boolean) => void
 }
 
-const menuItems = [
+  const menuItems = [
+  // A. DATA DASAR / BASELINE (Phase 1 - READY)
   {
     title: "Dashboard",
     href: "/dashboard",
     translationKey: "dashboard",
     icon: LayoutDashboard,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[]
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "foundation",
+    phase: 1
   },
   {
     title: "Data PS",
     href: "/dashboard/data",
     translationKey: "dataPS",
     icon: Database,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[]
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "foundation",
+    phase: 1
   },
   {
     title: "Data Potensi",
     href: "/dashboard/potensi",
     translationKey: "potensi",
     icon: Trees,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[]
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "foundation",
+    phase: 1
   },
   {
     title: "Per Kabupaten",
     href: "/dashboard/kabupaten",
     translationKey: "kabupaten",
     icon: Map,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[]
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "foundation",
+    phase: 1
   },
   {
     title: "Statistik",
     href: "/dashboard/statistics",
     translationKey: "statistics",
     icon: BarChart3,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[]
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "foundation",
+    phase: 1
   },
-  {
-    title: "Dashboard Program",
-    href: "/dashboard/program-dashboard",
-    translationKey: "dashboardProgram",
-    icon: BarChart3,
-    roles: ["admin", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[]
-  },
+// B. PROYEK KARBON (Phase 2)
   {
     title: "Carbon Projects",
     href: "/dashboard/carbon-projects",
     translationKey: "carbonProjects",
     icon: FolderTree,
-    roles: ["admin", "carbon_specialist", "program_planner"] as Role[]
+    roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
+    group: "development",
+    phase: 2
   },
   {
-    title: "Program Management",
+    title: "Investor Dashboard",
+    href: "/dashboard/investor",
+    translationKey: "investorDashboard",
+    icon: TrendingUp,
+    roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
+    group: "development",
+    phase: 2
+  },
+  {
+    title: "Due Diligence Toolkit",
+    href: "/dashboard/due-diligence",
+    translationKey: "dueDiligenceToolkit",
+    icon: Shield,
+    roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
+    group: "development",
+    phase: 2
+  },
+  {
+    title: "Verra Registration",
+    href: "/dashboard/verra-registration",
+    translationKey: "verraRegistration",
+    icon: FileCheck,
+    roles: ["admin", "carbon_specialist"] as Role[],
+    group: "development",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Program Kerja",
     href: "/dashboard/programs",
     translationKey: "programs",
     icon: Target,
-    roles: ["admin", "program_planner", "carbon_specialist"] as Role[]
+    roles: ["admin", "program_planner", "carbon_specialist"] as Role[],
+    group: "development",
+    phase: 2,
+    maintenance: true
   },
   {
     title: "DRAM Management",
     href: "/dashboard/dram",
     translationKey: "dram",
     icon: FileText,
-    roles: ["admin", "program_planner"] as Role[]
-  },
-  {
-    title: "Implementasi Program",
-    href: "/dashboard/implementasi",
-    translationKey: "implementasi",
-    icon: CalendarCheck,
-    roles: ["admin", "program_implementer", "program_planner"] as Role[]
-  },
-  {
-    title: "Monitoring & Evaluasi",
-    href: "/dashboard/monev",
-    translationKey: "monev",
-    icon: Eye,
-    roles: ["admin", "monev_officer", "program_planner", "carbon_specialist"] as Role[]
-  },
-  {
-    title: "Pemberdayaan Ekonomi",
-    href: "/dashboard/pemberdayaan-ekonomi",
-    translationKey: "pemberdayaanEkonomi",
-    icon: CircleDollarSign,
-    roles: ["admin", "program_planner", "program_implementer"] as Role[]
-  },
-  {
-    title: "Stakeholder & FPIC",
-    href: "/dashboard/stakeholders",
-    translationKey: "stakeholders",
-    icon: Users2,
-    roles: ["admin", "carbon_specialist", "program_planner"] as Role[]
-  },
-  {
-    title: "Legal & Carbon Rights",
-    href: "/dashboard/legal",
-    translationKey: "legal",
-    icon: Gavel,
-    roles: ["admin", "carbon_specialist"] as Role[]
+    roles: ["admin", "program_planner"] as Role[],
+    group: "development",
+    phase: 2,
+    maintenance: true
   },
   {
     title: "PDD Generator",
     href: "/dashboard/pdd-generator",
     translationKey: "pddGenerator",
     icon: FileCode,
-    roles: ["admin", "carbon_specialist"] as Role[]
+    roles: ["admin", "carbon_specialist"] as Role[],
+    group: "development",
+    phase: 2,
+    maintenance: true
   },
+  {
+    title: "VVB Management",
+    href: "/dashboard/vvb-management",
+    translationKey: "vvbManagement",
+    icon: ShieldCheck,
+    roles: ["admin", "carbon_specialist"] as Role[],
+    group: "development",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Carbon Credits",
+    href: "/dashboard/carbon-credits",
+    translationKey: "carbonCredits",
+    icon: Coins,
+    roles: ["admin", "carbon_specialist"] as Role[],
+    group: "development",
+    phase: 2,
+    maintenance: true
+  },
+  // C. IMPLEMENTASI & MRV (Phase 2 - MAINTENANCE)
+  {
+    title: "Dashboard Program",
+    href: "/dashboard/program-dashboard",
+    translationKey: "dashboardProgram",
+    icon: BarChart3,
+    roles: ["admin", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "implementation",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Implementasi Program",
+    href: "/dashboard/implementasi",
+    translationKey: "implementasi",
+    icon: CalendarCheck,
+    roles: ["admin", "program_implementer", "program_planner"] as Role[],
+    group: "implementation",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Monitoring & Evaluasi",
+    href: "/dashboard/monev",
+    translationKey: "monev",
+    icon: Eye,
+    roles: ["admin", "monev", "program_planner", "carbon_specialist"] as Role[],
+    group: "implementation",
+    phase: 2,
+    maintenance: true
+  },
+  // D. SOSIAL-EKONOMI & SAFEGUARD (Phase 2 - MAINTENANCE)
+  {
+    title: "Pemberdayaan Ekonomi",
+    href: "/dashboard/pemberdayaan-ekonomi",
+    translationKey: "pemberdayaanEkonomi",
+    icon: CircleDollarSign,
+    roles: ["admin", "program_planner", "program_implementer"] as Role[],
+    group: "socioeconomic",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Stakeholder & FPIC",
+    href: "/dashboard/stakeholders",
+    translationKey: "stakeholders",
+    icon: Users2,
+    roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
+    group: "socioeconomic",
+    phase: 2,
+    maintenance: true
+  },
+  // E. LEGAL & TATA KELOLA (Phase 2 - MAINTENANCE)
+  {
+    title: "Legal & Carbon Rights",
+    href: "/dashboard/legal",
+    translationKey: "legal",
+    icon: Gavel,
+    roles: ["admin", "carbon_specialist"] as Role[],
+    group: "legal",
+    phase: 2,
+    maintenance: true
+  },
+  // F. FINANCE (Phase 2 - MAINTENANCE)
+  {
+    title: "Dashboard Keuangan",
+    href: "/dashboard/finance",
+    translationKey: "financialDashboard",
+    icon: LayoutDashboard,
+    roles: ["admin", "finance_manager", "finance_operational", "finance_project_carbon", "finance_project_implementation", "finance_project_social", "investor", "carbon_specialist", "program_planner"] as Role[],
+    group: "finance",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Operasional Kantor",
+    href: "/dashboard/finance/operasional",
+    translationKey: "operasionalKantor",
+    icon: Building,
+    roles: ["admin", "finance_manager", "finance_operational"] as Role[],
+    group: "finance",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Proyek & Program",
+    href: "/dashboard/finance/proyek",
+    translationKey: "proyekProgram",
+    icon: TreePine,
+    roles: ["admin", "finance_manager", "finance_project_carbon", "finance_project_implementation", "finance_project_social", "program_planner", "carbon_specialist"] as Role[],
+    group: "finance",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Transaksi",
+    href: "/dashboard/finance/transactions",
+    translationKey: "transactions",
+    icon: Receipt,
+    roles: ["admin", "finance_manager", "finance_operational", "finance_project_carbon", "finance_project_implementation", "finance_project_social"] as Role[],
+    group: "finance",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Anggaran",
+    href: "/dashboard/finance/budgets",
+    translationKey: "budgets",
+    icon: Wallet,
+    roles: ["admin", "finance_manager", "finance_operational"] as Role[],
+    group: "finance",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Master Price List",
+    href: "/dashboard/finance/price-list",
+    translationKey: "masterPriceList",
+    icon: Tag,
+    roles: ["admin", "finance_manager", "finance_operational", "program_planner"] as Role[],
+    group: "finance",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Laporan Keuangan",
+    href: "/dashboard/finance/reports",
+    translationKey: "financialReports",
+    icon: FileText,
+    roles: ["admin", "finance_manager", "finance_operational", "finance_project_carbon", "finance_project_implementation", "finance_project_social", "investor", "program_planner", "carbon_specialist"] as Role[],
+    group: "finance",
+    phase: 2,
+    maintenance: true
+  },
+  {
+    title: "Kontrol & Kepatuhan",
+    href: "/dashboard/finance/controls",
+    translationKey: "financialControls",
+    icon: ShieldCheck,
+    roles: ["admin", "finance_manager"] as Role[],
+    group: "finance",
+    phase: 2,
+    maintenance: true
+  },
+  // G. SISTEM & ADMINISTRASI (Phase 1 - READY)
   {
     title: "Upload Excel",
     href: "/dashboard/upload",
     translationKey: "uploadExcel",
     icon: Upload,
-    roles: ["admin", "monev"] as Role[]
+    roles: ["admin", "monev"] as Role[],
+    group: "system",
+    phase: 1
   },
   {
-    title: "Pengguna",
-    href: "/dashboard/users",
+    title: "Manajemen Pengguna",
+    href: "/dashboard/user-management",
     translationKey: "users",
     icon: Users,
-    roles: ["admin"] as Role[]
+    roles: ["admin"] as Role[],
+    group: "system",
+    phase: 1
+  },
+  {
+    title: "Log Aktivitas",
+    href: "/dashboard/activity-log",
+    translationKey: "activityLog",
+    icon: History,
+    roles: ["admin"] as Role[],
+    group: "system",
+    phase: 1
   },
   {
     title: "Pengaturan",
     href: "/dashboard/settings",
     translationKey: "settings",
     icon: Settings,
-    roles: ["admin"] as Role[]
+    roles: ["admin"] as Role[],
+    group: "system",
+    phase: 1
   },
 ]
 
@@ -191,33 +397,84 @@ export default function DashboardSidebar({ role, mobileOpen, onMobileOpenChange 
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Pisahkan menu menjadi dua kelompok
-  const mainMenuItems = menuItems.slice(0, 5) // Dashboard sampai Statistik
-  const programMenuItems = menuItems.slice(5) // Dashboard Program dan seterusnya
+  // Group menu items by category
+  const groupedMenuItems = menuItems.reduce((acc, item) => {
+    if (!item.roles.includes(role)) return acc
+    
+    if (!acc[item.group]) {
+      acc[item.group] = []
+    }
+    acc[item.group].push(item)
+    return acc
+  }, {} as Record<string, typeof menuItems>)
 
-  const filteredMainMenu = mainMenuItems.filter(item => 
-    item.roles.includes(role)
-  )
-  const filteredProgramMenu = programMenuItems.filter(item => 
-    item.roles.includes(role)
-  )
+  // Group labels in Indonesian
+  const groupLabels: Record<string, string> = {
+    foundation: "BASELINE",
+    development: "PROYEK KARBON",
+    implementation: "IMPLEMENTASI & MRV",
+    socioeconomic: "SOSIAL-EKONOMI & SAFEGUARD",
+    legal: "LEGAL & TATA KELOLA",
+    finance: "FINANCE",
+    system: "SISTEM & ADMINISTRASI"
+  }
 
-  const renderMenuItems = (items: typeof menuItems) => {
-    return items.map((item) => {
-      const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
+  // Order of groups to display
+  const groupOrder = ["foundation", "development", "implementation", "socioeconomic", "legal", "finance", "system"]
+
+  const renderMenuItems = () => {
+    return groupOrder.map((groupId) => {
+      const items = groupedMenuItems[groupId]
+      if (!items || items.length === 0) return null
+
       return (
-        <Link key={item.href} href={`/${locale}${item.href}`}>
-          <Button
-            variant={isActive ? "secondary" : "ghost"}
-            className={cn(
-              "w-full justify-start gap-3",
-              collapsed && "justify-center px-2"
-            )}
-          >
-            <item.icon className="h-4 w-4" />
-            {!collapsed && <span>{t(item.translationKey)}</span>}
-          </Button>
-        </Link>
+        <div key={groupId} className="space-y-0">
+          {!collapsed && (
+            <div className="px-2 pt-0.5 pb-0">
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                {groupLabels[groupId]}
+              </p>
+            </div>
+          )}
+          {items.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
+            const isMaintenance = item.maintenance === true
+            return (
+              <Link key={item.href} href={`/${locale}${item.href}`}>
+                <Button
+                  variant={isActive ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full justify-start gap-1.5 relative text-sm",
+                    collapsed && "justify-center px-1.5",
+                    isMaintenance && "opacity-70"
+                  )}
+                  title={collapsed ? `${groupLabels[groupId]} - ${t(item.translationKey)}${isMaintenance ? ' (MAINTENANCE)' : ''}` : undefined}
+                  disabled={isMaintenance}
+                >
+                  <item.icon className="h-3.5 w-3.5" />
+                  {!collapsed && (
+                    <div className="flex items-center justify-between flex-1">
+                      <span className="text-sm">{t(item.translationKey)}</span>
+                      {isMaintenance && (
+                        <Badge variant="outline" className="ml-2 text-[10px] px-1 py-0 h-4">
+                          MAINT
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                  {collapsed && isMaintenance && (
+                    <div className="absolute -top-0.5 -right-0.5">
+                      <AlertCircle className="h-3 w-3 text-amber-500" />
+                    </div>
+                  )}
+                </Button>
+              </Link>
+            )
+          })}
+          {!collapsed && groupId !== "system" && (
+            <div className="mx-2 my-1 border-t border-gray-200" />
+          )}
+        </div>
       )
     })
   }
@@ -225,9 +482,9 @@ export default function DashboardSidebar({ role, mobileOpen, onMobileOpenChange 
   // Sidebar content component (used by both desktop and mobile)
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <>
-      <div className="flex h-16 items-center border-b px-4">
+      <div className="flex h-14 items-center border-b px-3">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 flex-shrink-0">
+          <div className="h-7 w-7 flex-shrink-0">
             <img
               src="/logo6.png"
               alt="Logo Yayasan ANTANGPATAHU MAHAGA LEWU"
@@ -243,16 +500,9 @@ export default function DashboardSidebar({ role, mobileOpen, onMobileOpenChange 
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
-        <nav className="space-y-1">
-          {renderMenuItems(filteredMainMenu)}
-          
-          {filteredProgramMenu.length > 0 && (
-            <>
-              <div className="my-2 border-t border-gray-200" />
-              {renderMenuItems(filteredProgramMenu)}
-            </>
-          )}
+      <div className="flex-1 overflow-y-auto p-2">
+        <nav className="space-y-0">
+          {renderMenuItems()}
         </nav>
       </div>
 

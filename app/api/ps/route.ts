@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { canEdit, isAdmin, hasPermission } from "@/lib/auth/rbac";
 
 // Schema validation based on database schema and template
 export const psCreateSchema = z.object({
@@ -42,15 +43,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user profile for role check
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", session.user.id)
-      .single();
-
-    // Only admin and monev can create
-    if (!profile || !["admin", "monev"].includes(profile.role)) {
+    // Check if user can edit data (admin or monev)
+    const canEditData = await canEdit(session.user.id);
+    if (!canEditData) {
       return NextResponse.json(
         { error: "Forbidden: Only admin and monev can create data" },
         { status: 403 }

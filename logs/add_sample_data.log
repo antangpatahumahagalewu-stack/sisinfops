@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "/home/sangumang/Documents/sisinfops/add_verra_sample_data.py", line 167, in main
+    cursor.execute(insert_query, (
+psycopg2.errors.CheckViolation: new row for relation "verra_project_registrations" violates check constraint "verra_project_registrations_registration_status_check"
+DETAIL:  Failing row contains (bdd56992-cd8d-49e6-a4e2-050c34ec54cf, 1b8c6266-fff0-4ec5-9a3f-c913d6345ae6, VERRA-CP-002-2025-002, under_validation, 2024-12-01, null, https://registry.verra.org/app/projectDetail/VCS/CP-002, null, null, null, null, null, 2026-02-02 00:44:41.578591+00, 2026-02-02 00:44:41.578591+00, VERRA-VCS-2025-002, 1b8c6266-fff0-4ec5-9a3f-c913d6345ae6, under_validation).
+
+============================================================
+📝 ADDING SAMPLE VERRA REGISTRATION DATA
+============================================================
+✅ Connected to db.saelrsljpneclsbfdxfy.supabase.co
+📊 Found 3 carbon projects
+
+📋 Project 1: CP-001 - Katingan Forest Protection
+✅ Already has data: ID=VERRA-VCS-2025-001, Status=registered
+
+📋 Project 2: CP-002 - Kapuas Mangrove Restoration
+❌ Error: new row for relation "verra_project_registrations" violates check constraint "verra_project_registrations_registration_status_check"
+DETAIL:  Failing row contains (bdd56992-cd8d-49e6-a4e2-050c34ec54cf, 1b8c6266-fff0-4ec5-9a3f-c913d6345ae6, VERRA-CP-002-2025-002, under_validation, 2024-12-01, null, https://registry.verra.org/app/projectDetail/VCS/CP-002, null, null, null, null, null, 2026-02-02 00:44:41.578591+00, 2026-02-02 00:44:41.578591+00, VERRA-VCS-2025-002, 1b8c6266-fff0-4ec5-9a3f-c913d6345ae6, under_validation).
+
+🔌 Database connection closed
+
+📋 NEXT STEPS:
+1. The 'Error fetching carbon projects: {}' error should be fixed
+2. Restart Next.js server if it's running
+3. Visit Verra Registration page to see the data
+4. Check browser console for any remaining errors

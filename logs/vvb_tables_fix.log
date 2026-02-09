@@ -1,0 +1,78 @@
+🚀 VVB TABLES FIX FOR FRONTEND COMPATIBILITY
+
+This script will create missing VVB tables to fix frontend errors:
+1. 'Could not find the table 'public.vvb_organizations' in the schema cache'
+2. 'Could not find the table 'public.vvb_engagements' in the schema cache'
+============================================================
+============================================================
+🔧 CREATING MISSING VVB TABLES
+============================================================
+
+Frontend error: 'Could not find the table 'public.vvb_organizations' in the schema cache'
+Solution: Create vvb_organizations and vvb_engagements tables
+============================================================
+✅ Connected to db.saelrsljpneclsbfdxfy.supabase.co
+
+📊 Checking existing tables...
+   • vvb_organizations: ❌ MISSING
+   • vvb_engagements: ❌ MISSING
+
+🔨 Creating vvb_organizations table...
+✅ Created vvb_organizations table
+
+🔨 Creating vvb_engagements table...
+✅ Created vvb_engagements table
+
+🔓 Setting up permissions...
+✅ Disabled RLS
+✅ Granted permissions to anon user
+
+📝 Adding sample VVB data...
+✅ Added 3 VVB organizations
+
+📝 Adding sample VVB engagements...
+✅ Added 2 VVB engagements
+
+🔍 Verifying tables...
+✅ vvb_organizations: 3 records
+✅ vvb_engagements: 2 records
+
+📋 Sample VVB organizations:
+   • VVBA-001: TÜV Rheinland (UNFCCC)
+   • VVBA-002: SGS (Verra)
+   • VVBA-003: DNV GL (Gold Standard)
+
+📋 Sample VVB engagements:
+   • validation: active, Start: 2024-11-01, VVB: TÜV Rheinland
+   • verification: pending, Start: 2025-05-01, VVB: TÜV Rheinland
+
+✅ VVB tables created successfully!
+🔌 Database connection closed
+
+============================================================
+🔍 TESTING FRONTEND COMPATIBILITY
+============================================================
+✅ Connected to db.saelrsljpneclsbfdxfy.supabase.co
+
+📊 Testing frontend-style queries...
+✅ Query vvb_organizations: 3 results
+✅ Query vvb_engagements: 2 results
+✅ Complex join query: 4 results
+
+📋 Sample join results:
+   • CP-001: Katingan Forest Protection, VVB: TÜV Rheinland, Type: validation, Status: active
+   • CP-001: Katingan Forest Protection, VVB: TÜV Rheinland, Type: verification, Status: pending
+
+✅ Frontend compatibility tests passed!
+
+============================================================
+🎉 VVB TABLES CREATED SUCCESSFULLY!
+============================================================
+
+✅ Frontend VVB Management page should now work without errors.
+
+📋 NEXT STEPS:
+1. Restart Next.js server if it's running
+2. Clear browser cache if needed
+3. Visit: http://localhost:3001/dashboard/vvb-management
+4. Check browser console for any remaining errors

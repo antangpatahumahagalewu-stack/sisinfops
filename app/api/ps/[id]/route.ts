@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { psCreateSchema } from "../route"; // kita akan import skema dari file induk
+import { psCreateSchema } from "../route";
+import { canEdit, canDelete } from "@/lib/auth/rbac";
 
 // Schema untuk update (semua field optional kecuali id)
 const psUpdateSchema = psCreateSchema.partial();
@@ -23,15 +24,9 @@ export async function PUT(
       );
     }
 
-    // Get user profile for role check
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", session.user.id)
-      .single();
-
-    // Only admin and monev can update
-    if (!profile || !["admin", "monev"].includes(profile.role)) {
+    // Check if user can edit data (admin or monev)
+    const canEditData = await canEdit(session.user.id);
+    if (!canEditData) {
       return NextResponse.json(
         { error: "Forbidden: Only admin and monev can update data" },
         { status: 403 }
@@ -143,15 +138,9 @@ export async function DELETE(
       );
     }
 
-    // Get user profile for role check
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", session.user.id)
-      .single();
-
-    // Only admin can delete
-    if (!profile || profile.role !== 'admin') {
+    // Check if user can delete data (admin only)
+    const canDeleteData = await canDelete(session.user.id);
+    if (!canDeleteData) {
       return NextResponse.json(
         { error: "Forbidden: Only admin can delete data" },
         { status: 403 }

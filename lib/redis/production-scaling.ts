@@ -203,37 +203,21 @@ export class RedisProductionScalingManager {
     health: 'healthy' | 'unhealthy';
   }>> {
     try {
-      // In a real implementation, this would use CLUSTER NODES command
-      // For now, return mock data
-      return [
-        {
-          id: 'node1',
-          host: '127.0.0.1',
-          port: 7000,
-          role: 'master',
-          slotRange: [0, 5460],
-          health: 'healthy'
-        },
-        {
-          id: 'node2',
-          host: '127.0.0.1',
-          port: 7001,
-          role: 'master',
-          slotRange: [5461, 10922],
-          health: 'healthy'
-        },
-        {
-          id: 'node3',
-          host: '127.0.0.1',
-          port: 7002,
-          role: 'master',
-          slotRange: [10923, 16383],
-          health: 'healthy'
-        }
-      ];
+      // Only try to get cluster nodes if cluster is enabled
+      if (!this.clusterConfig.clusterEnabled) {
+        console.log('ℹ️ Redis cluster is disabled, returning empty node list');
+        return [];
+      }
+      
+      // In a production environment, we would use Redis cluster commands
+      // Since we're removing mock data and the actual Redis instance may not be in cluster mode,
+      // we return an empty array rather than mock data
+      console.log('ℹ️ Redis cluster nodes API called - returning empty array (no mock data)');
+      return [];
       
     } catch (error) {
-      console.error('❌ Failed to get cluster nodes:', error);
+      console.warn('⚠️ Failed to get cluster nodes:', error instanceof Error ? error.message : error);
+      // Return empty array instead of mock data
       return [];
     }
   }

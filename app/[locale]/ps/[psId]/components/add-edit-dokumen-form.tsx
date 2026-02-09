@@ -223,19 +223,18 @@ export function AddEditDokumenForm({ dokumen, psId, onSuccess, onCancel }: AddEd
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="nama">Nama Dokumen *</Label>
+            <Label htmlFor="nama">Nama Dokumen</Label>
             <Input
               id="nama"
               name="nama"
               value={formData.nama}
               onChange={handleChange}
-              required
               placeholder="Contoh: SK Perhutanan Sosial"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="jenis">Jenis Dokumen *</Label>
+            <Label htmlFor="jenis">Jenis Dokumen</Label>
             <Select
               value={formData.jenis}
               onValueChange={(value) => handleSelectChange("jenis", value)}

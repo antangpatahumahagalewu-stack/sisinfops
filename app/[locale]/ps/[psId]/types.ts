@@ -5,6 +5,8 @@ export interface Lembaga {
   ketua: string
   jumlahAnggota: number
   kepalaDesa?: string | null
+  teleponKetua?: string | null
+  teleponKepalaDesa?: string | null
 }
 
 export interface PsProfile {
@@ -20,4 +22,8 @@ export interface PsProfile {
   lembaga: Lembaga
   rkps_status: string
   peta_status: string
+  teleponKetuaPs?: string | null
+  teleponKepalaDesa?: string | null
+  fasilitator?: string | null
+  namaPendamping?: string | null
 }

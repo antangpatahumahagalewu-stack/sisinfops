@@ -139,8 +139,15 @@ class SQLExecutor:
             result.success = False
             
             # Extract error position if available
-            if hasattr(e, 'diag') and e.diag:
-                result.error_position = e.diag.get('position')
+            try:
+                if hasattr(e, 'diag') and e.diag:
+                    # Access the position attribute from diagnostics
+                    if hasattr(e.diag, 'position'):
+                        result.error_position = e.diag.position
+                    elif hasattr(e.diag, 'get'):
+                        result.error_position = e.diag.get('position')
+            except (AttributeError, TypeError):
+                pass  # Ignore if we can't access position
             
             return result
     

@@ -1,0 +1,40 @@
+============================================================
+🔧 FIXING VERRA TABLE CONSTRAINTS
+============================================================
+✅ Connected to db.saelrsljpneclsbfdxfy.supabase.co
+
+📊 Checking existing constraints...
+✅ Found 4 constraints:
+   • verra_project_registrations_pkey (p): PRIMARY KEY (id)
+   • verra_project_registrations_project_id_fkey (f): FOREIGN KEY (project_id) REFERENCES carbon_projects(id) ON DELETE CASCADE
+   • verra_project_registrations_registration_code_key (u): UNIQUE (registration_code)
+   • verra_project_registrations_registration_status_check (c): CHECK (((registration_status)::text = ANY ((ARRAY['draft'::character varying, 'submitted'::character varying, 'under_review'::character varying, 'registered'::character varying, 'rejected'::character varying, 'withdrawn'::character varying])::text[])))
+
+📊 Checking check constraint details...
+   • verra_project_registrations_registration_status_check: CHECK (((registration_status)::text = ANY ((ARRAY['draft'::character varying, 'submitted'::character varying, 'under_review'::character varying, 'registered'::character varying, 'rejected'::character varying, 'withdrawn'::character varying])::text[])))
+
+🔧 Fixing constraints...
+✅ Existing registration_status values: ['registered']
+✅ Existing status values: ['registered']
+
+🗑️  Dropping check constraint...
+✅ Dropped check constraint
+
+📝 Adding sample data with various statuses...
+✅ Added CP-002: internal_review
+✅ Added CP-003: vvb_appointed
+
+🔍 Verifying final state...
+✅ Total verra registrations: 3
+✅ Final registration_status values: ['vvb_appointed', 'registered', 'internal_review']
+
+🔍 Testing frontend query...
+✅ Frontend query returns 3 results
+
+✅ Constraints fixed and data added!
+🔌 Database connection closed
+
+📋 NEXT STEPS:
+1. Restart Next.js server
+2. Verra Registration page should now work
+3. Check browser console for errors

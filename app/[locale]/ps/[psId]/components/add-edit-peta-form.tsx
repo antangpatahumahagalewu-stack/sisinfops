@@ -38,10 +38,11 @@ export function AddEditPetaForm({ peta, psId, onSuccess, onCancel }: AddEditPeta
   const [file, setFile] = useState<File | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    if (selectedFile) {
-      // Validate file type
+const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files
+    if (selectedFiles && selectedFiles.length > 0) {
+      // For SHP files, we might get multiple files (.shp, .shx, .dbf, .prj, .cpg)
+      // We'll handle the main .shp file and note that it's a shapefile
       const allowedTypes = [
         'application/json',
         'application/geo+json',
@@ -49,28 +50,41 @@ export function AddEditPetaForm({ peta, psId, onSuccess, onCancel }: AddEditPeta
         'application/vnd.google-earth.kmz',
         'image/jpeg',
         'image/png',
-        'application/pdf'
+        'application/pdf',
+        'application/octet-stream', // For SHP files
+        'application/zip', // For zipped SHP files
+        'application/x-zip-compressed'
       ]
       
-      const fileExt = selectedFile.name.split('.').pop()?.toLowerCase()
-      const allowedExts = ['json', 'geojson', 'kml', 'kmz', 'jpg', 'jpeg', 'png', 'pdf']
+      const allowedExts = ['json', 'geojson', 'kml', 'kmz', 'jpg', 'jpeg', 'png', 'pdf', 'shp', 'shx', 'dbf', 'prj', 'cpg', 'zip']
       
-      if (!allowedTypes.includes(selectedFile.type) && !allowedExts.includes(fileExt || '')) {
-        setFileError("Format file tidak didukung. Gunakan GeoJSON, KML, KMZ, JPG, PNG, atau PDF")
-        setFile(null)
-        return
+      // Check all selected files
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i]
+        const fileExt = file.name.split('.').pop()?.toLowerCase()
+        
+        if (!allowedTypes.includes(file.type) && !allowedExts.includes(fileExt || '')) {
+          setFileError(`Format file tidak didukung: ${file.name}. Gunakan GeoJSON, KML, KMZ, SHP, JPG, PNG, PDF, atau ZIP`)
+          setFile(null)
+          return
+        }
+
+        // Validate file size (max 50MB for map files)
+        if (file.size > 50 * 1024 * 1024) {
+          setFileError(`Ukuran file ${file.name} terlalu besar (maks 50MB)`)
+          setFile(null)
+          return
+        }
       }
 
-      // Validate file size (max 20MB for map files)
-      if (selectedFile.size > 20 * 1024 * 1024) {
-        setFileError("Ukuran file maksimal 20MB")
-        setFile(null)
-        return
-      }
-
-      setFile(selectedFile)
+      // For now, just take the first file (main .shp file if shapefile)
+      // In a production system, you would handle uploading all SHP components
+      const mainFile = selectedFiles[0]
+      setFile(mainFile)
       setFileError(null)
 
+      const fileExt = mainFile.name.split('.').pop()?.toLowerCase()
+      
       // If it's a GeoJSON file, try to parse it
       if (fileExt === 'json' || fileExt === 'geojson') {
         const reader = new FileReader()
@@ -82,7 +96,6 @@ export function AddEditPetaForm({ peta, psId, onSuccess, onCancel }: AddEditPeta
               // Simple centroid calculation (can be improved)
               const firstFeature = json.features[0]
               if (firstFeature.geometry && firstFeature.geometry.coordinates) {
-                // This is a simplified version - in production, use proper centroid calculation
                 console.log("GeoJSON loaded, can extract coordinates")
               }
             }
@@ -90,7 +103,12 @@ export function AddEditPetaForm({ peta, psId, onSuccess, onCancel }: AddEditPeta
             console.warn("Could not parse GeoJSON:", err)
           }
         }
-        reader.readAsText(selectedFile)
+        reader.readAsText(mainFile)
+      }
+      
+      // If it's a SHP file, note that additional files might be needed
+      if (fileExt === 'shp') {
+        console.log("SHP file selected - note: make sure to upload all components (.shx, .dbf, .prj, .cpg) separately if needed")
       }
     }
   }
@@ -278,9 +296,10 @@ export function AddEditPetaForm({ peta, psId, onSuccess, onCancel }: AddEditPeta
               <Input
                 id="file"
                 type="file"
-                accept=".json,.geojson,.kml,.kmz,.jpg,.jpeg,.png,.pdf"
+                accept=".json,.geojson,.kml,.kmz,.jpg,.jpeg,.png,.pdf,.shp,.shx,.dbf,.prj,.cpg,.zip"
                 onChange={handleFileChange}
                 className="cursor-pointer"
+                multiple
               />
               {fileError && (
                 <p className="text-sm text-red-600">{fileError}</p>
@@ -292,7 +311,7 @@ export function AddEditPetaForm({ peta, psId, onSuccess, onCancel }: AddEditPeta
               )}
               {!peta && !file && (
                 <p className="text-sm text-gray-500">
-                  Pilih file peta untuk diupload (GeoJSON, KML, KMZ, JPG, PNG, PDF - maks 20MB)
+                  Pilih file peta untuk diupload (GeoJSON, KML, KMZ, SHP, JPG, PNG, PDF, ZIP - maks 50MB)
                 </p>
               )}
             </div>

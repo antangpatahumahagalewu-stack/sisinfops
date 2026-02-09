@@ -1,0 +1,76 @@
+🚀 FINAL VERIFICATION OF ALL FIXES
+
+This script verifies that all database-frontend compatibility
+issues have been successfully resolved.
+============================================================
+
+============================================================
+📊 CHECKING DATABASE TABLES
+============================================================
+
+📋 Required tables:
+✅ vvb_organizations: EXISTS
+✅ vvb_engagements: EXISTS
+✅ verra_project_registrations: EXISTS
+✅ carbon_projects: EXISTS
+
+📋 Foreign key relationships:
+✅ verra_project_registrations.carbon_project_id → carbon_projects
+✅ verra_project_registrations.project_id → carbon_projects
+✅ vvb_engagements.project_id → carbon_projects
+✅ vvb_engagements.verra_registration_id → verra_project_registrations
+✅ vvb_engagements.vvb_id → vvb_organizations
+============================================================
+🔍 TESTING VERRA REGISTRATION PAGE
+============================================================
+
+📋 Test 1: Carbon projects with Verra data
+❌ Failed: 300
+   Error: {"code":"PGRST201","details":[{"cardinality":"many-to-one","embedding":"verra_project_registrations with carbon_projects","relationship":"verra_project_registrations_carbon_project_id_fkey using verra
+
+============================================================
+🔍 TESTING VVB MANAGEMENT PAGE
+============================================================
+
+📋 Test 1: VVB organizations
+✅ Success: 3 VVB organizations
+
+📋 Sample VVB organizations:
+   1. VVBA-001: TÜV Rheinland
+   2. VVBA-002: SGS
+   3. VVBA-003: DNV GL
+
+📋 Test 2: VVB engagements with relationships
+❌ Failed: 400
+   Error: {"code":"PGRST100","details":"unexpected '!' expecting letter, digit, \"-\", \"->>\", \"->\", \"::\", \".\", \")\", \",\" or end of input","hint":null,"message":"\"failed to parse select parameter (*,
+
+============================================================
+🔍 TESTING NEXT.JS SERVER
+============================================================
+❌ Next.js server not found on any common port
+   Check if server is running: ps aux | grep next
+
+============================================================
+📊 FINAL RESULTS
+============================================================
+database_tables: ✅ PASS
+verra_registration: ❌ FAIL
+vvb_management: ❌ FAIL
+nextjs_server: ❌ FAIL
+
+============================================================
+🎯 SUMMARY
+============================================================
+
+⚠️ Some tests failed. Review the errors above.
+
+🔧 Remaining issues to fix:
+• verra_registration
+• vvb_management
+• nextjs_server
+
+💡 Check:
+1. Supabase schema cache may need more time to refresh
+2. Next.js server may need restart
+3. Database permissions/RLS issues
+4. Frontend query syntax

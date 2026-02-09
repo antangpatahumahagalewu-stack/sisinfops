@@ -50,7 +50,7 @@ export default function DashboardHeader({ user, profile, onMenuToggle }: Dashboa
 
   const getRoleDisplay = () => {
     if (profile?.role === "admin") {
-      return "GOD MODE - Administrator"
+      return "Root - Administrator"
     }
     
     switch (profile?.role) {

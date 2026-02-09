@@ -1,0 +1,99 @@
+🚀 FIXING VVB-TO-VERRA RELATIONSHIP
+
+This script will fix the missing relationship error:
+❌ 'Could not find a relationship between 'vvb_engagements' and 'verra_project_registrations' in the schema cache'
+============================================================
+============================================================
+🔍 CHECKING TABLE RELATIONSHIPS
+============================================================
+✅ Connected to db.saelrsljpneclsbfdxfy.supabase.co
+
+📊 vvb_engagements table columns:
+   • id (uuid, nullable: NO)
+   • project_id (uuid, nullable: YES)
+   • vvb_id (uuid, nullable: YES)
+   • engagement_type (character varying, nullable: YES)
+   • engagement_status (character varying, nullable: YES)
+   • start_date (date, nullable: YES)
+   • end_date (date, nullable: YES)
+   • contract_number (character varying, nullable: YES)
+   • contract_value (numeric, nullable: YES)
+   • currency (character varying, nullable: YES)
+   • notes (text, nullable: YES)
+   • created_at (timestamp with time zone, nullable: YES)
+   • updated_at (timestamp with time zone, nullable: YES)
+
+🔗 Foreign key relationships:
+   • vvb_engagements.project_id → carbon_projects.id
+   • vvb_engagements.vvb_id → vvb_organizations.id
+
+📊 verra_project_registrations table columns:
+   • project_id (uuid)
+   • verra_project_id (character varying)
+   • carbon_project_id (uuid)
+
+📊 carbon_projects table columns:
+   • id (uuid)
+   • ps_id (uuid)
+   • project_code (character varying)
+   • project_name (character varying)
+   • project_type (character varying)
+✅ Carbon projects count: 3
+
+🔌 Database connection closed
+
+============================================================
+🔧 FIXING VVB-TO-VERRA RELATIONSHIP
+============================================================
+
+Problem: Frontend expects relationship between vvb_engagements and verra_project_registrations
+Solution: Add verra_registration_id column to vvb_engagements
+============================================================
+✅ Connected to db.saelrsljpneclsbfdxfy.supabase.co
+
+🔨 Adding verra_registration_id column...
+✅ Added verra_registration_id column
+
+🔗 Adding foreign key constraint...
+✅ Foreign key constraint already exists
+
+🔗 Linking existing data...
+✅ Linked 2 vvb_engagements to verra registrations
+
+🔍 Verifying relationships...
+✅ Total vvb_engagements: 2
+✅ With verra_registration_id: 2
+✅ Without verra_registration_id: 0
+
+📋 Sample linked data:
+   • CON-2025-001: verification, Project: CP-001, Verra: VERRA-VCS-2025-001, Status: registered
+   • CON-2024-001: validation, Project: CP-001, Verra: VERRA-VCS-2025-001, Status: registered
+
+✅ Relationship fixed successfully!
+🔌 Database connection closed
+
+============================================================
+🔍 TESTING FRONTEND QUERY
+============================================================
+✅ Connected to db.saelrsljpneclsbfdxfy.supabase.co
+
+📊 Testing Supabase-style relationship query...
+✅ Relationship query successful! Found 2 results
+
+📋 Result structure:
+   • vvb_engagements columns: 14
+   • verra_project_registrations columns: 17
+   • First result has 45 columns total
+   • Sample join: CON-2024-001 → Verra: VERRA-VCS-2025-001, VVB: TÜV Rheinland
+
+============================================================
+🎉 RELATIONSHIP FIX COMPLETED!
+============================================================
+
+✅ Frontend VVB Management page should now work without relationship errors.
+
+📋 NEXT STEPS:
+1. Supabase needs to refresh its schema cache (usually automatic)
+2. Restart Next.js server if still having issues
+3. Clear browser cache
+4. Test http://localhost:3001/dashboard/vvb-management

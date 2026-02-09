@@ -25,7 +25,7 @@ export default async function VVBManagementPage() {
     vvbError = err
   }
 
-  // Fetch VVB engagements with projects
+    // Fetch VVB engagements with projects
   let vvbEngagements = null
   let engagementsError = null
   
@@ -35,10 +35,10 @@ export default async function VVBManagementPage() {
       .from("vvb_engagements")
       .select(`
         *,
-        verra_project_registrations (
+        verra_project_registrations!inner (
           carbon_project_id
         ),
-        vvb_organizations (
+        vvb_organizations!inner (
           organization_name
         )
       `)

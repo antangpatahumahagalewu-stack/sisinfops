@@ -96,9 +96,11 @@ export function FinancialReportsSection() {
       const canViewFinancial = await hasPermission("FINANCIAL_VIEW");
       
       if (!canViewFinancial) {
-        // User doesn't have permission, show mock data only
-        console.warn("User doesn't have FINANCIAL_VIEW permission, showing mock data");
-        setMockData();
+        // User doesn't have permission, don't fetch data
+        console.warn("User doesn't have FINANCIAL_VIEW permission, cannot fetch data");
+        setReports([]);
+        setImpactMetrics([]);
+        setPriceList([]);
         return;
       }
 
@@ -124,9 +126,8 @@ export function FinancialReportsSection() {
         })) || [];
         setReports(formattedReports);
       } else {
-        console.warn('Failed to fetch reports from API, using mock data');
-        setMockData();
-        return;
+        console.warn('Failed to fetch reports from API');
+        setReports([]);
       }
 
       // Fetch impact metrics from API
@@ -150,9 +151,8 @@ export function FinancialReportsSection() {
         })) || [];
         setImpactMetrics(formattedMetrics);
       } else {
-        console.warn('Failed to fetch impact metrics from API, using mock data');
-        setMockData();
-        return;
+        console.warn('Failed to fetch impact metrics from API');
+        setImpactMetrics([]);
       }
 
       // Fetch price list from API
@@ -180,75 +180,19 @@ export function FinancialReportsSection() {
         })) || [];
         setPriceList(formattedPriceList);
       } else {
-        console.warn('Failed to fetch price list from API, using mock data');
-        setMockData();
-        return;
+        console.warn('Failed to fetch price list from API');
+        setPriceList([]);
       }
 
     } catch (error) {
       console.error("Error fetching data:", error);
-      // Fallback to mock data if API fails
-      setMockData();
+      // Don't fallback to mock data, set empty arrays instead
+      setReports([]);
+      setImpactMetrics([]);
+      setPriceList([]);
     } finally {
       setLoading(false)
     }
-  }
-
-  // Function to set mock data when API fails or user doesn't have permission
-  function setMockData() {
-    const mockReports: FinancialReport[] = [
-      {
-        report_type: "BALANCE_SHEET",
-        report_period: "MONTHLY",
-        year: 2026,
-        month: 1,
-        data: [
-          { section: "ASSETS", account_code: "1110", account_name: "Kas", balance: 50000000 },
-          { section: "ASSETS", account_code: "1120", account_name: "Bank", balance: 150000000 },
-          { section: "LIABILITIES", account_code: "2110", account_name: "Hutang Usaha", balance: 25000000 },
-          { section: "EQUITY", account_code: "3110", account_name: "Modal Yayasan", balance: 175000000 }
-        ],
-        summary: {
-          total_assets: 200000000,
-          total_liabilities: 25000000,
-          total_equity: 175000000,
-          balance_check: true
-        },
-        generated_at: "2026-01-27T08:30:00Z"
-      }
-    ];
-    setReports(mockReports);
-    
-    const mockImpactMetrics: ImpactMetric[] = [
-      {
-        id: "1",
-        metric_type: "COST_PER_HECTARE",
-        program_name: "Program Rehabilitasi Hutan",
-        project_name: "",
-        metric_value: 1500000,
-        unit: "IDR/Ha",
-        currency: "IDR",
-        calculated_at: "2026-01-27T08:00:00Z"
-      }
-    ];
-    setImpactMetrics(mockImpactMetrics);
-    
-    const mockPriceList: PriceListItem[] = [
-      {
-        id: "1",
-        item_code: "MAT-001",
-        item_name: "Bibit Pohon Sengon",
-        item_category: "MATERIAL",
-        unit: "batang",
-        unit_price: 2500,
-        currency: "IDR",
-        validity_start: "2026-01-01",
-        validity_end: "2026-12-31",
-        is_active: true,
-        approval_status: "APPROVED"
-      }
-    ];
-    setPriceList(mockPriceList);
   }
 
   // Calculate metrics summary

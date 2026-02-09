@@ -87,100 +87,111 @@ export function FinancialDashboard() {
 
   async function fetchFinancialData() {
     setLoading(true)
-    const supabase = createClient()
 
     try {
-      // Fetch recent transactions
-      const { data: transactionsData, error: transactionsError } = await supabase
-        .from("financial_transactions")
-        .select(`
-          id,
-          transaction_date,
-          transaction_number,
-          jenis_transaksi,
-          jumlah_idr,
-          description,
-          status,
-          accounting_ledgers!inner(ledger_name),
-          profiles!financial_transactions_created_by_fkey(full_name)
-        `)
-        .order("transaction_date", { ascending: false })
-        .limit(10)
+      // Fetch recent transactions from API
+      const [transactionsResponse, budgetsResponse, ledgerResponse] = await Promise.all([
+        fetch('/api/finance/transactions?limit=10'),
+        fetch('/api/finance/budgets?status=active&limit=10'),
+        fetch('/api/finance/ledgers/balances')
+      ]);
 
-      if (transactionsError) throw transactionsError
-
-      if (transactionsData) {
-        const formattedTransactions: FinancialTransaction[] = transactionsData.map(tx => ({
+      // Process transactions
+      if (transactionsResponse.ok) {
+        const transactionsData = await transactionsResponse.json();
+        const formattedTransactions: FinancialTransaction[] = (transactionsData.data || []).map((tx: any) => ({
           id: tx.id,
           transaction_date: tx.transaction_date,
-          transaction_number: tx.transaction_number,
-          jenis_transaksi: tx.jenis_transaksi,
-          jumlah_idr: tx.jumlah_idr,
-          description: tx.description,
-          status: tx.status,
-          ledger_name: tx.accounting_ledgers?.[0]?.ledger_name || "N/A",
-          created_by_name: tx.profiles?.[0]?.full_name || "Unknown"
-        }))
-        setTransactions(formattedTransactions)
+          transaction_number: tx.transaction_number || `TX-${tx.id.substring(0, 8)}`,
+          jenis_transaksi: tx.jenis_transaksi || "PENGELUARAN",
+          jumlah_idr: tx.jumlah_idr || 0,
+          description: tx.description || "Transaction",
+          status: tx.status || "DRAFT",
+          ledger_name: tx.accounting_ledgers?.ledger_name || "General Ledger",
+          created_by_name: tx.profiles?.full_name || "System"
+        }));
+        setTransactions(formattedTransactions);
+      } else {
+        console.error('Failed to fetch transactions:', transactionsResponse.status);
+        // Don't set mock data, just leave empty array
+        setTransactions([]);
       }
 
-      // Fetch ledger balances (simulated data for now)
-      const mockLedgerBalances: LedgerBalance[] = [
-        {
-          ledger_code: "LEDGER-OPR",
-          ledger_name: "Operasional Kantor",
-          opening_balance: 100000000,
-          total_receipts: 25000000,
-          total_payments: 15000000,
-          closing_balance: 110000000
-        },
-        {
-          ledger_code: "LEDGER-PRJ-CARBON",
-          ledger_name: "Proyek Karbon",
-          opening_balance: 0,
-          total_receipts: 500000000,
-          total_payments: 300000000,
-          closing_balance: 200000000
-        },
-        {
-          ledger_code: "LEDGER-PRJ-SOSIAL",
-          ledger_name: "Program Sosial",
-          opening_balance: 50000000,
-          total_receipts: 100000000,
-          total_payments: 75000000,
-          closing_balance: 75000000
-        }
-      ]
-      setLedgerBalances(mockLedgerBalances)
+      // Process budgets
+      if (budgetsResponse.ok) {
+        const budgetsData = await budgetsResponse.json();
+        const formattedBudgets: BudgetStatus[] = (budgetsData.data || []).map((budget: any) => ({
+          budget_name: budget.budget_name || budget.budget_code,
+          total_amount: budget.total_amount || 0,
+          utilized_amount: budget.spent_amount || budget.utilized_amount || 0,
+          remaining_amount: budget.remaining_amount || (budget.total_amount - (budget.spent_amount || budget.utilized_amount || 0)),
+          utilization_percentage: budget.total_amount > 0 
+            ? ((budget.spent_amount || budget.utilized_amount || 0) / budget.total_amount) * 100 
+            : 0
+        }));
+        setBudgetStatus(formattedBudgets);
+      } else {
+        console.error('Failed to fetch budgets:', budgetsResponse.status);
+        setBudgetStatus([]);
+      }
 
-      // Fetch budget status (simulated data for now)
-      const mockBudgetStatus: BudgetStatus[] = [
-        {
-          budget_name: "Anggaran Operasional 2026",
-          total_amount: 500000000,
-          utilized_amount: 150000000,
-          remaining_amount: 350000000,
-          utilization_percentage: 30
-        },
-        {
-          budget_name: "Anggaran Proyek Karbon 2026",
-          total_amount: 1000000000,
-          utilized_amount: 300000000,
-          remaining_amount: 700000000,
-          utilization_percentage: 30
-        },
-        {
-          budget_name: "Anggaran Program Sosial 2026",
-          total_amount: 300000000,
-          utilized_amount: 75000000,
-          remaining_amount: 225000000,
-          utilization_percentage: 25
+      // Process ledger balances
+      if (ledgerResponse.ok) {
+        const ledgerData = await ledgerResponse.json();
+        setLedgerBalances(ledgerData.data || []);
+      } else {
+        // If ledger API not available, try to calculate from transactions
+        console.warn('Ledger balances API not available, trying to calculate from transactions');
+        
+        if (transactionsResponse.ok) {
+          const transactionsData = await transactionsResponse.json();
+          // Calculate simple ledger balances from transactions
+          // This is a temporary fallback until ledger API is fully implemented
+          const ledgerMap = new Map<string, LedgerBalance>();
+          
+          (transactionsData.data || []).forEach((tx: any) => {
+            if (tx.accounting_ledgers) {
+              const ledgerId = tx.ledger_id;
+              const ledgerName = tx.accounting_ledgers.ledger_name;
+              const ledgerCode = tx.accounting_ledgers.ledger_code;
+              
+              if (!ledgerMap.has(ledgerId)) {
+                ledgerMap.set(ledgerId, {
+                  ledger_code: ledgerCode,
+                  ledger_name: ledgerName,
+                  opening_balance: 0,
+                  total_receipts: 0,
+                  total_payments: 0,
+                  closing_balance: 0
+                });
+              }
+              
+              const ledger = ledgerMap.get(ledgerId)!;
+              if (tx.jenis_transaksi === 'PENERIMAAN') {
+                ledger.total_receipts += tx.jumlah_idr || 0;
+              } else if (tx.jenis_transaksi === 'PENGELUARAN') {
+                ledger.total_payments += tx.jumlah_idr || 0;
+              }
+            }
+          });
+          
+          // Calculate closing balances
+          Array.from(ledgerMap.values()).forEach(ledger => {
+            ledger.closing_balance = ledger.opening_balance + ledger.total_receipts - ledger.total_payments;
+          });
+          
+          setLedgerBalances(Array.from(ledgerMap.values()));
+        } else {
+          setLedgerBalances([]);
         }
-      ]
-      setBudgetStatus(mockBudgetStatus)
+      }
 
     } catch (error) {
-      console.error("Error fetching financial data:", error)
+      console.error("Error fetching financial data:", error);
+      // Set empty arrays instead of mock data
+      setTransactions([]);
+      setLedgerBalances([]);
+      setBudgetStatus([]);
     } finally {
       setLoading(false)
     }

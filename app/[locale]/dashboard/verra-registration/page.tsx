@@ -10,26 +10,58 @@ export default async function VerraRegistrationPage() {
   const canManage = await canManageCarbonProjects()
 
   // Fetch carbon projects with Verra registration status
-  const { data: carbonProjects, error } = await supabase
-    .from("carbon_projects")
-    .select(`
-      *,
-      verra_project_registrations (
-        status,
-        verra_project_id,
-        registration_date
-      )
-    `)
-    .order("created_at", { ascending: false })
-
-  if (error) {
-    console.error("Error fetching carbon projects:", error)
+  // We'll fetch projects and registrations separately due to cardinality issues
+  let carbonProjects = null
+  let error = null
+  
+  try {
+    // First, fetch carbon projects
+    const { data: projectsData, error: projectsError } = await supabase
+      .from("carbon_projects")
+      .select("*")
+      .order("created_at", { ascending: false })
+    
+    if (projectsError) throw projectsError
+    
+    // Then, fetch Verra registrations
+    const { data: registrationsData, error: registrationsError } = await supabase
+      .from("verra_project_registrations")
+      .select("carbon_project_id, status, verra_project_id, registration_date")
+    
+    if (registrationsError) throw registrationsError
+    
+    // Create a map of registrations by project_id
+    const registrationsByProject: Record<string, any[]> = {}
+    registrationsData?.forEach(reg => {
+      if (reg.carbon_project_id) {
+        if (!registrationsByProject[reg.carbon_project_id]) {
+          registrationsByProject[reg.carbon_project_id] = []
+        }
+        registrationsByProject[reg.carbon_project_id].push(reg)
+      }
+    })
+    
+    // Combine the data
+    carbonProjects = projectsData?.map(project => ({
+      ...project,
+      verra_project_registrations: registrationsByProject[project.id] || []
+    })) || []
+    
+  } catch (err) {
+    error = err
+    console.error("Error fetching carbon projects:", err)
   }
 
   // Fetch Verra registration statistics
-  const { data: verraStats } = await supabase
-    .from("verra_project_registrations")
-    .select("status")
+  let verraStats = null
+  try {
+    const { data } = await supabase
+      .from("verra_project_registrations")
+      .select("status")
+    verraStats = data
+  } catch (err) {
+    console.warn("Error fetching Verra stats:", err)
+  }
 
   // Status badge component for Verra registration
   const VerraStatusBadge = ({ status }: { status: string }) => {

@@ -28,6 +28,9 @@ interface User {
   email: string
   role: string
   is_active: boolean
+  last_sign_in_at: string | null
+  created_at: string
+  profile_updated_at: string
 }
 
 interface EditUserModalProps {

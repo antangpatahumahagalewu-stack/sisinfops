@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -22,16 +21,28 @@ import {
   FileText,
   Shield,
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  RefreshCw,
+  AlertCircle
 } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 interface InvestorDashboardData {
-  totalCarbonProjects: number
-  totalAreaHectares: number
-  estimatedCarbonSequestration: number
-  totalInvestment: number
-  averageROI: number
+  summary: {
+    totalCarbonProjects: number
+    totalAreaHectares: number
+    estimatedCarbonSequestration: number
+    totalInvestment: number
+    averageROI: number
+    totalRevenue: number
+    totalExpenses: number
+    netIncome: number
+    activeProjects: number
+    completedProjects: number
+    excellentProjects: number
+    goodProjects: number
+  }
   projectPerformance: {
     name: string
     status: string
@@ -41,6 +52,9 @@ interface InvestorDashboardData {
     roi_percentage: number
     start_date: string
     end_date: string
+    kode_project: string
+    performance_rating: string
+    credits_issued: number
   }[]
   financialSummary: {
     period: string
@@ -55,112 +69,91 @@ interface InvestorDashboardData {
     trend: 'up' | 'down'
     change_percentage: number
   }[]
+  performanceData: any[]
+  lastUpdated: string
+  dataSource: string
 }
 
 export function InvestorCarbonDashboard() {
   const [loading, setLoading] = useState(true)
-  const [dashboardData, setDashboardData] = useState<InvestorDashboardData>({
-    totalCarbonProjects: 3,
-    totalAreaHectares: 1250,
-    estimatedCarbonSequestration: 125000,
-    totalInvestment: 7500000000,
-    averageROI: 18.5,
-    projectPerformance: [
-      {
-        name: "Hutan Tropis Kalimantan",
-        status: "ACTIVE",
-        area_hectares: 500,
-        carbon_sequestration: 50000,
-        investment_amount: 3000000000,
-        roi_percentage: 22.5,
-        start_date: "2025-01-01",
-        end_date: "2035-01-01"
-      },
-      {
-        name: "Restorasi Ekosistem Sumatera",
-        status: "ACTIVE",
-        area_hectares: 450,
-        carbon_sequestration: 45000,
-        investment_amount: 2500000000,
-        roi_percentage: 16.8,
-        start_date: "2025-03-01",
-        end_date: "2035-03-01"
-      },
-      {
-        name: "Konservasi Mangrove Jawa",
-        status: "PLANNING",
-        area_hectares: 300,
-        carbon_sequestration: 30000,
-        investment_amount: 2000000000,
-        roi_percentage: 15.2,
-        start_date: "2026-01-01",
-        end_date: "2036-01-01"
+  const [error, setError] = useState<string | null>(null)
+  const [dashboardData, setDashboardData] = useState<InvestorDashboardData | null>(null)
+  const [refreshing, setRefreshing] = useState(false)
+
+  const fetchDashboardData = async (showToast = false) => {
+    try {
+      setError(null)
+      if (showToast) {
+        setRefreshing(true)
       }
-    ],
-    financialSummary: [
-      {
-        period: "Q1 2025",
-        revenue: 1250000000,
-        expenses: 750000000,
-        net_income: 500000000
-      },
-      {
-        period: "Q2 2025",
-        revenue: 1350000000,
-        expenses: 800000000,
-        net_income: 550000000
-      },
-      {
-        period: "Q3 2025",
-        revenue: 1420000000,
-        expenses: 820000000,
-        net_income: 600000000
-      },
-      {
-        period: "Q4 2025",
-        revenue: 1480000000,
-        expenses: 850000000,
-        net_income: 630000000
+
+      const response = await fetch('/api/investor/dashboard-data')
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
       }
-    ],
-    impactMetrics: [
-      {
-        metric: "Carbon Sequestration Rate",
-        value: 100,
-        unit: "tons/ha/year",
-        trend: 'up',
-        change_percentage: 8.5
-      },
-      {
-        metric: "Cost per Ton Carbon",
-        value: 25000,
-        unit: "IDR/ton",
-        trend: 'down',
-        change_percentage: 5.2
-      },
-      {
-        metric: "Community Beneficiaries",
-        value: 1250,
-        unit: "households",
-        trend: 'up',
-        change_percentage: 15.3
-      },
-      {
-        metric: "Biodiversity Index",
-        value: 0.85,
-        unit: "index",
-        trend: 'up',
-        change_percentage: 12.7
+
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch dashboard data')
       }
-    ]
-  })
+
+      setDashboardData(result.data)
+
+      if (showToast) {
+        toast.success("Dashboard data updated", {
+          description: `Data source: ${result.data.dataSource}`
+        })
+      }
+
+    } catch (err: any) {
+      console.error("Error fetching investor dashboard data:", err)
+      setError(err.message || "Failed to load dashboard data")
+      
+      if (showToast) {
+        toast.error("Failed to update dashboard", {
+          description: err.message
+        })
+      }
+
+      // Fallback to showing empty state with error
+      setDashboardData({
+        summary: {
+          totalCarbonProjects: 0,
+          totalAreaHectares: 0,
+          estimatedCarbonSequestration: 0,
+          totalInvestment: 0,
+          averageROI: 0,
+          totalRevenue: 0,
+          totalExpenses: 0,
+          netIncome: 0,
+          activeProjects: 0,
+          completedProjects: 0,
+          excellentProjects: 0,
+          goodProjects: 0
+        },
+        projectPerformance: [],
+        financialSummary: [],
+        impactMetrics: [],
+        performanceData: [],
+        lastUpdated: new Date().toISOString(),
+        dataSource: "error"
+      })
+
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
 
   useEffect(() => {
-    // In production, this would fetch real data from API
-    setTimeout(() => {
-      setLoading(false)
-    }, 1000)
+    fetchDashboardData()
   }, [])
+
+  const handleRefresh = () => {
+    fetchDashboardData(true)
+  }
 
   if (loading) {
     return (
@@ -180,6 +173,78 @@ export function InvestorCarbonDashboard() {
     )
   }
 
+  if (error || !dashboardData) {
+    const isMigrationRequired = dashboardData?.dataSource === 'fallback' || 
+                               dashboardData?.dataSource === 'database_basic' ||
+                               error?.includes('migration')
+    
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-red-500" />
+            Investor Carbon Dashboard - {isMigrationRequired ? 'Migration Required' : 'Error'}
+          </CardTitle>
+          <CardDescription>
+            {error || "Failed to load dashboard data"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <AlertCircle className="mx-auto h-12 w-12 text-red-500" />
+            <h3 className="mt-4 text-lg font-semibold">
+              {isMigrationRequired ? 'Database Migration Required' : 'Unable to load dashboard data'}
+            </h3>
+            <p className="text-muted-foreground mt-2">
+              {error || "Please check your connection and try again."}
+            </p>
+            
+            {isMigrationRequired && (
+              <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200 text-left">
+                <h4 className="font-bold text-amber-800 mb-2">🚨 Database Migration Required</h4>
+                <p className="text-sm text-amber-700 mb-3">
+                  Investor dashboard requires database migration to display real data.
+                  Current data source: <strong>{dashboardData?.dataSource || 'unknown'}</strong>
+                </p>
+                <div className="bg-white p-3 rounded border border-amber-300">
+                  <h5 className="font-medium text-amber-900 mb-2">📋 Migration Instructions:</h5>
+                  <ol className="text-sm text-amber-800 list-decimal pl-5 space-y-1">
+                    <li>Buka <a href="https://supabase.com/dashboard" target="_blank" className="text-blue-600 underline">Supabase Dashboard</a></li>
+                    <li>Pilih project Anda</li>
+                    <li>Buka SQL Editor</li>
+                    <li>Copy seluruh konten dari file: <code className="bg-gray-100 px-1 rounded">supabase/migrations/202602060943_fix_investor_dashboard_mock_data.sql</code></li>
+                    <li>Paste dan klik "Run"</li>
+                    <li>Refresh halaman ini setelah migration selesai</li>
+                  </ol>
+                </div>
+              </div>
+            )}
+            
+            <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+              <Button onClick={handleRefresh} disabled={refreshing}>
+                <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                {refreshing ? 'Refreshing...' : 'Try Again'}
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/dashboard">
+                  Back to Dashboard
+                </Link>
+              </Button>
+              {isMigrationRequired && (
+                <Button variant="outline" onClick={() => window.open('/api/investor/dashboard-data?fallback=true', '_blank')}>
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Test API
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const { summary, projectPerformance, financialSummary, impactMetrics, lastUpdated, dataSource } = dashboardData
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -192,6 +257,24 @@ export function InvestorCarbonDashboard() {
           <p className="text-muted-foreground">
             Transparent reporting for carbon project investors (Read-only access)
           </p>
+          <div className="flex items-center gap-2 mt-1">
+            <Badge variant="outline" className="text-xs">
+              <RefreshCw className="mr-1 h-3 w-3" />
+              Last updated: {new Date(lastUpdated).toLocaleTimeString('id-ID')}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              Source: {dataSource}
+            </Badge>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="h-6 px-2"
+            >
+              <RefreshCw className={`h-3 w-3 ${refreshing ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" asChild>
@@ -218,12 +301,12 @@ export function InvestorCarbonDashboard() {
               <h3 className="font-bold text-blue-800">Investor View - Read Only</h3>
               <p className="text-sm text-blue-600">
                 This dashboard provides read-only access to project performance and financial data. 
-                All data is updated in real-time from the financial system.
+                All data is updated in real-time from the database.
               </p>
             </div>
             <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
               <CheckCircle className="mr-1 h-3 w-3" />
-              Verified Data
+              Real Database Data
             </Badge>
           </div>
         </CardContent>
@@ -238,10 +321,10 @@ export function InvestorCarbonDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-700">
-              Rp {dashboardData.totalInvestment.toLocaleString('id-ID')}
+              Rp {summary.totalInvestment.toLocaleString('id-ID')}
             </div>
             <p className="text-xs text-green-600 mt-1">
-              Across {dashboardData.totalCarbonProjects} carbon projects
+              Across {summary.totalCarbonProjects} carbon projects
             </p>
           </CardContent>
         </Card>
@@ -253,7 +336,7 @@ export function InvestorCarbonDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-700">
-              {dashboardData.estimatedCarbonSequestration.toLocaleString('id-ID')} tons
+              {summary.estimatedCarbonSequestration.toLocaleString('id-ID')} tons
             </div>
             <p className="text-xs text-blue-600 mt-1">
               Estimated over project lifetime
@@ -268,11 +351,11 @@ export function InvestorCarbonDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-amber-700">
-              {dashboardData.averageROI.toFixed(1)}%
+              {summary.averageROI.toFixed(1)}%
             </div>
             <p className="text-xs text-amber-600 mt-1">
               <TrendingUp className="inline h-3 w-3 mr-1" />
-              Above industry average
+              {summary.averageROI > 15 ? 'Above industry average' : 'Industry average'}
             </p>
           </CardContent>
         </Card>
@@ -284,7 +367,7 @@ export function InvestorCarbonDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-700">
-              {dashboardData.totalAreaHectares.toLocaleString('id-ID')} ha
+              {summary.totalAreaHectares.toLocaleString('id-ID')} ha
             </div>
             <p className="text-xs text-purple-600 mt-1">
               Forest area under conservation
@@ -308,7 +391,7 @@ export function InvestorCarbonDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {dashboardData.projectPerformance.map((project, index) => (
+              {projectPerformance.map((project, index) => (
                 <div key={index} className="p-4 border rounded-lg hover:bg-gray-50">
                   <div className="flex justify-between items-start mb-3">
                     <div>
@@ -375,7 +458,7 @@ export function InvestorCarbonDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {dashboardData.financialSummary.map((quarter, index) => (
+              {financialSummary.map((quarter, index) => (
                 <div key={index} className="p-4 border rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="font-medium">{quarter.period}</h4>
@@ -410,7 +493,7 @@ export function InvestorCarbonDashboard() {
               <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                 <h4 className="font-medium mb-3">Revenue Trend</h4>
                 <div className="h-32 flex items-end gap-1">
-                  {dashboardData.financialSummary.map((quarter, index) => (
+                  {financialSummary.map((quarter, index) => (
                     <div key={index} className="flex-1 flex flex-col items-center">
                       <div 
                         className="w-full bg-green-500 rounded-t-lg"
@@ -427,13 +510,13 @@ export function InvestorCarbonDashboard() {
                   <div>
                     <div className="text-muted-foreground">Total Revenue</div>
                     <div className="font-medium">
-                      Rp {dashboardData.financialSummary.reduce((sum, q) => sum + q.revenue, 0).toLocaleString('id-ID')}
+                      Rp {financialSummary.reduce((sum, q) => sum + q.revenue, 0).toLocaleString('id-ID')}
                     </div>
                   </div>
                   <div>
                     <div className="text-muted-foreground">Total Net Income</div>
                     <div className="font-medium text-green-700">
-                      Rp {dashboardData.financialSummary.reduce((sum, q) => sum + q.net_income, 0).toLocaleString('id-ID')}
+                      Rp {financialSummary.reduce((sum, q) => sum + q.net_income, 0).toLocaleString('id-ID')}
                     </div>
                   </div>
                 </div>
@@ -457,7 +540,7 @@ export function InvestorCarbonDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {dashboardData.impactMetrics.map((metric, index) => (
+              {impactMetrics.map((metric, index) => (
                 <div key={index} className="p-4 border rounded-lg">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="font-medium">{metric.metric}</h4>

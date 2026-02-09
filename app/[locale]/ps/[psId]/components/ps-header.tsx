@@ -34,6 +34,8 @@ interface PsHeaderProps {
     luasHa: number
     tahunSk: number
     status: "SEHAT" | "PERLU_PENDAMPINGAN" | "RISIKO"
+    fasilitator?: string | null
+    namaPendamping?: string | null
     lembaga?: {
       nama: string
       ketua: string
@@ -175,6 +177,18 @@ export function PsHeader({ ps }: PsHeaderProps) {
               <div className="w-3 h-3 rounded-full bg-purple-500"></div>
               <span className="text-gray-600">Lokasi: <strong>{ps.kabupaten}</strong></span>
             </div>
+            {ps.fasilitator && (
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                <span className="text-gray-600">Fasilitator: <strong>{ps.fasilitator}</strong></span>
+              </div>
+            )}
+            {ps.namaPendamping && (
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                <span className="text-gray-600">Pendamping: <strong>{ps.namaPendamping}</strong></span>
+              </div>
+            )}
           </div>
         </div>
       </div>

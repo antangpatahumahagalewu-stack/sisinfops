@@ -19,7 +19,7 @@ export default async function CarbonCreditsPage() {
       .from("carbon_credits")
       .select(`
         *,
-        verra_project_registrations (
+        verra_project_registrations!verra_project_registrations_carbon_project_id_fkey (
           verra_project_id,
           carbon_project_id
         )

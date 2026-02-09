@@ -1,0 +1,51 @@
+Traceback (most recent call last):
+  File "/home/sangumang/Documents/sisinfops/run_simple_verra_fix.py", line 135, in main
+    cursor.execute(query)
+psycopg2.errors.UndefinedColumn: column vpr.status does not exist
+LINE 6:                             'status', vpr.status,
+                                              ^
+HINT:  Perhaps you meant to reference the column "cp.status".
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sangumang/Documents/sisinfops/run_simple_verra_fix.py", line 180, in main
+    cursor.execute("""
+psycopg2.errors.InFailedSqlTransaction: current transaction is aborted, commands ignored until end of transaction block
+
+============================================================
+🔧 SIMPLE VERRA COLUMN FIX
+============================================================
+✅ Connected to db.saelrsljpneclsbfdxfy.supabase.co
+📄 Executing simple fix SQL...
+   💬 -- SIMPLE FIX FOR VERRA TABLE COLUMNS
+   💬 -- No PL/pgSQL, just simple SQL statements
+   💬 -- 1. Check if status column exists, if not add it
+   💬 -- 2. Copy data from registration_status to status
+   💬 -- 3. Ensure carbon_project_id exists
+   💬 -- 4. Copy data from project_id to carbon_project_id
+   💬 -- 5. Add sample data if needed
+   💬 -- 6. Show results
+   Found 9 statements
+   ✅ Statement 1 executed
+   ✅ Statement 2 executed
+   ✅ Statement 3 executed
+   ✅ Statement 4 executed
+   ❌ Statement 5 failed: duplicate key value violates unique constraint "verra_project_registrations_registration_code_key"
+   ❌ Statement 6 failed: current transaction is aborted, commands ignored until end of transaction block
+   ❌ Statement 7 failed: current transaction is aborted, commands ignored until end of transaction block
+   ❌ Statement 8 failed: current transaction is aborted, commands ignored until end of transaction block
+   ❌ Statement 9 failed: current transaction is aborted, commands ignored until end of transaction block
+
+🔍 Testing frontend query...
+❌ Frontend query still failing: column vpr.status does not exist
+LINE 6:                             'status', vpr.status,
+                                              ^
+HINT:  Perhaps you meant to reference the column "cp.status".
+
+
+🔧 Debug information:
+❌ Error: current transaction is aborted, commands ignored until end of transaction block
+
+🔌 Database connection closed

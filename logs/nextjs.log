@@ -1,0 +1,14 @@
+
+> app-db@0.1.0 dev
+> next dev
+
+⚠ Port 3000 is in use by an unknown process, using available port 3002 instead.
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://localhost:3002
+- Network:       http://192.168.1.10:3002
+- Environments: .env.local
+
+✓ Starting...
+⨯ Unable to acquire lock at /home/sangumang/Documents/sisinfops/.next/dev/lock, is another instance of next dev running?
+  Suggestion: If you intended to restart next dev, terminate the other process, and then try again.
+[?25h

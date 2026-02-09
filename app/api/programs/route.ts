@@ -24,6 +24,19 @@ const programCreateSchema = z.object({
   perhutanan_sosial_id: z.string().uuid("Perhutanan sosial ID harus UUID").min(1, "Perhutanan sosial wajib dipilih"),
   status: z.enum(["draft", "approved", "active", "completed", "cancelled"])
     .default("draft"),
+  total_budget: z.number()
+    .min(0, "Total anggaran tidak boleh negatif")
+    .max(1000000000000, "Total anggaran terlalu besar")
+    .optional()
+    .nullable()
+    .default(0),
+  budget_status: z.enum(["draft", "submitted_for_review", "under_review", "approved", "rejected", "needs_revision"])
+    .optional()
+    .nullable()
+    .default("draft"),
+  budget_notes: z.string()
+    .optional()
+    .nullable(),
   logical_framework: z.any().optional().nullable(),
 });
 

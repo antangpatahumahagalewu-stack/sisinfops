@@ -8,36 +8,33 @@ import { ClimatePartnerComplianceCard } from "@/components/dashboard/climatepart
 export default async function DashboardPage() {
   const supabase = await createClient()
 
-  // Get dashboard statistics
+  // Get dashboard statistics from new schema
   const { data: psData } = await supabase
     .from("perhutanan_sosial")
-    .select("id, kabupaten_id, luas_ha, rkps_status, peta_status, jumlah_kk")
+    .select("id, kabupaten_id, luas_ha, rkps_status, peta_status, jumlah_kk, skema")
 
   const { data: kabupatenData } = await supabase
     .from("kabupaten")
     .select("id, nama")
 
-  // Get carbon projects statistics
-  const { data: carbonProjects } = await supabase
-    .from("carbon_projects")
-    .select("id, status, luas_total_ha, initial_estimate_tco2e")
-
-  // Calculate statistics
+  // Calculate statistics from perhutanan_sosial table only
   const totalPS = psData?.length || 0
   const totalLuas = psData?.reduce((sum, ps) => sum + (ps.luas_ha || 0), 0) || 0
   const totalRKPSAda = psData?.filter(ps => ps.rkps_status === 'ada').length || 0
   const totalPetaAda = psData?.filter(ps => ps.peta_status === 'ada').length || 0
   const totalKK = psData?.reduce((sum, ps) => sum + (ps.jumlah_kk || 0), 0) || 0
   
-  // Carbon projects stats
-  const totalCarbonProjects = carbonProjects?.length || 0
-  const totalLuasCarbon = carbonProjects?.reduce((sum, cp) => sum + (cp.luas_total_ha || 0), 0) || 0
-  const totalCO2Estimate = carbonProjects?.reduce((sum, cp) => sum + (cp.initial_estimate_tco2e || 0), 0) || 0
-  const activeCarbonProjects = carbonProjects?.filter(cp => cp.status === 'active').length || 0
+  // Calculate skema distribution
+  const skemaCounts: Record<string, number> = {}
+  psData?.forEach(ps => {
+    const skema = ps.skema || 'Unknown'
+    skemaCounts[skema] = (skemaCounts[skema] || 0) + 1
+  })
   
-  // Calculate compliance rate (projects with initial estimate)
-  const compliantCarbonProjects = carbonProjects?.filter(cp => cp.initial_estimate_tco2e && cp.luas_total_ha).length || 0
-  const complianceRate = totalCarbonProjects > 0 ? Math.round((compliantCarbonProjects / totalCarbonProjects) * 100) : 0
+  const topSkema = Object.entries(skemaCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 3)
+    .map(([name, count]) => ({ name, count }))
 
   // Calculate by kabupaten
   const kabupatenStats = kabupatenData?.map(kab => {
@@ -99,13 +96,15 @@ export default async function DashboardPage() {
 
         <Card className="flex flex-col bg-teal-50/50 border-teal-100 py-4 gap-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Carbon Projects</CardTitle>
+            <CardTitle className="text-sm font-medium">Top Skema</CardTitle>
             <TreePine className="h-4 w-4 text-teal-600" />
           </CardHeader>
           <CardContent className="flex-grow">
-            <div className="text-3xl font-bold text-teal-700">{totalCarbonProjects}</div>
+            <div className="text-2xl font-bold text-teal-700">
+              {topSkema.length > 0 ? topSkema[0].name : 'N/A'}
+            </div>
             <p className="text-xs text-teal-600">
-              <span className="font-medium">{activeCarbonProjects}</span> aktif
+              {topSkema.length > 0 ? `${topSkema[0].count} unit` : 'No data'}
             </p>
           </CardContent>
         </Card>
@@ -139,27 +138,29 @@ export default async function DashboardPage() {
 
         <Card className="flex flex-col bg-indigo-50/50 border-indigo-100 py-4 gap-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Compliance Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">RKPS Coverage</CardTitle>
             <Globe className="h-4 w-4 text-indigo-600" />
           </CardHeader>
           <CardContent className="flex-grow">
-            <div className="text-3xl font-bold text-indigo-700">{complianceRate}%</div>
+            <div className="text-3xl font-bold text-indigo-700">
+              {totalPS > 0 ? Math.round((totalRKPSAda / totalPS) * 100) : 0}%
+            </div>
             <p className="text-xs text-indigo-600">
-              <span className="font-medium">{compliantCarbonProjects}</span> of {totalCarbonProjects} projects
+              <span className="font-medium">{totalRKPSAda}</span> of {totalPS} PS units
             </p>
           </CardContent>
         </Card>
 
         <Card className="flex flex-col bg-gradient-to-br from-green-50/80 to-blue-50/80 border-green-200 py-4 gap-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">CO₂ Estimate</CardTitle>
-            <TreePine className="h-4 w-4 text-green-600" />
+            <CardTitle className="text-sm font-medium">Avg KK per PS</CardTitle>
+            <Users className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent className="flex-grow">
             <div className="text-3xl font-bold text-green-700">
-              {totalCO2Estimate > 0 ? totalCO2Estimate.toLocaleString('id-ID') : '0'}
+              {totalPS > 0 ? Math.round(totalKK / totalPS) : '0'}
             </div>
-            <p className="text-xs text-green-600">Ton CO₂e (estimated)</p>
+            <p className="text-xs text-green-600">Rata-rata Kepala Keluarga</p>
           </CardContent>
         </Card>
       </div>

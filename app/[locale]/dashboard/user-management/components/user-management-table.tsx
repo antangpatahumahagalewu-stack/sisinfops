@@ -40,7 +40,7 @@ import {
   Search,
   Filter
 } from "lucide-react"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import EditUserModal from "./edit-user-modal"
 import DeleteUserDialog from "./delete-user-dialog"
 
@@ -106,7 +106,7 @@ export default function UserManagementTable({
     setFilteredUsers(result)
   }, [users, searchTerm, roleFilter, statusFilter])
 
-  // Function to handle user update
+      // Function to handle user update
   const handleUpdateUser = async (updatedUser: User) => {
     setIsLoading(true)
     try {
@@ -133,20 +133,13 @@ export default function UserManagementTable({
         user.id === updatedUser.id ? { ...updatedUser, ...data.user } : user
       ))
 
-      toast({
-        title: "Berhasil",
-        description: `Pengguna ${updatedUser.full_name} berhasil diperbarui.`,
-      })
+      toast.success(`Pengguna ${updatedUser.full_name} berhasil diperbarui.`)
 
       setIsEditModalOpen(false)
       setEditingUser(null)
       router.refresh()
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Gagal memperbarui pengguna.",
-        variant: "destructive"
-      })
+      toast.error(error.message || "Gagal memperbarui pengguna.")
     } finally {
       setIsLoading(false)
     }
@@ -169,20 +162,13 @@ export default function UserManagementTable({
       // Remove from local state
       setUsers(users.filter(user => user.id !== userId))
 
-      toast({
-        title: "Berhasil",
-        description: "Pengguna berhasil dihapus.",
-      })
+      toast.success("Pengguna berhasil dihapus.")
 
       setIsDeleteDialogOpen(false)
       setDeletingUser(null)
       router.refresh()
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Gagal menghapus pengguna.",
-        variant: "destructive"
-      })
+      toast.error(error.message || "Gagal menghapus pengguna.")
     } finally {
       setIsLoading(false)
     }
@@ -213,18 +199,11 @@ export default function UserManagementTable({
         u.id === user.id ? { ...u, is_active: !u.is_active } : u
       ))
 
-      toast({
-        title: "Berhasil",
-        description: `Status pengguna ${user.full_name} berhasil diubah.`,
-      })
+      toast.success(`Status pengguna ${user.full_name} berhasil diubah.`)
 
       router.refresh()
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Gagal mengubah status pengguna.",
-        variant: "destructive"
-      })
+      toast.error(error.message || "Gagal mengubah status pengguna.")
     } finally {
       setIsLoading(false)
     }

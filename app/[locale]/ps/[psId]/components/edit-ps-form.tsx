@@ -77,6 +77,8 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
     luasHa: ps.luasHa,
     tahunSk: ps.tahunSk,
     status: ps.status,
+    fasilitator: ps.fasilitator || "",
+    namaPendamping: ps.namaPendamping || "",
     lembagaNama: ps.lembaga.nama || "",
     lembagaKetua: ps.lembaga.ketua,
     lembagaJumlahAnggota: ps.lembaga.jumlahAnggota,
@@ -334,7 +336,6 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
                 name="namaPs"
                 value={formData.namaPs}
                 onChange={handleChange}
-                required
               />
             </div>
 
@@ -345,7 +346,6 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
                 name="desa"
                 value={formData.desa}
                 onChange={handleChange}
-                required
               />
             </div>
 
@@ -356,7 +356,6 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
                 name="kecamatan"
                 value={formData.kecamatan}
                 onChange={handleChange}
-                required
               />
             </div>
 
@@ -393,7 +392,6 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
                 type="number"
                 value={formData.luasHa}
                 onChange={handleChange}
-                required
                 min="0"
                 step="0.01"
               />
@@ -407,7 +405,6 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
                 type="number"
                 value={formData.tahunSk}
                 onChange={handleChange}
-                required
                 min="1900"
                 max="2100"
               />
@@ -430,6 +427,28 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="fasilitator">Fasilitator (Yayasan/Organisasi)</Label>
+              <Input
+                id="fasilitator"
+                name="fasilitator"
+                value={formData.fasilitator}
+                onChange={handleChange}
+                placeholder="Contoh: Yayasan AMAL"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="namaPendamping">Nama Pendamping (Person)</Label>
+              <Input
+                id="namaPendamping"
+                name="namaPendamping"
+                value={formData.namaPendamping}
+                onChange={handleChange}
+                placeholder="Nama individu pendamping"
+              />
             </div>
           </div>
 

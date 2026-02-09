@@ -7,7 +7,7 @@ import { ArrowLeft, Pencil, FileText, Upload, BarChart } from "lucide-react"
 
 import { PsHeader } from "./ps-header"
 import { PsTabs } from "./ps-tabs"
-import { EditPsForm } from "./edit-ps-form"
+import { ComprehensiveEditForm } from "./comprehensive-edit-form"
 import { PsProfile } from "../types"
 
 interface PsProfileContentProps {
@@ -16,7 +16,7 @@ interface PsProfileContentProps {
 }
 
 export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
-  const [showEditForm, setShowEditForm] = useState(false)
+  const [editMode, setEditMode] = useState<null | 'comprehensive'>(null)
 
   return (
     <div className="bg-gradient-to-b from-gray-50 to-white">
@@ -51,11 +51,12 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Left Column - Header and Tabs */}
           <div className="lg:col-span-3 space-y-3 sm:space-y-4">
-            {showEditForm ? (
-              <EditPsForm 
-                ps={ps} 
-                onSuccess={() => setShowEditForm(false)}
-                onCancel={() => setShowEditForm(false)}
+            {editMode === 'comprehensive' ? (
+              <ComprehensiveEditForm
+                ps={ps}
+                psId={psId}
+                onSuccess={() => setEditMode(null)}
+                onCancel={() => setEditMode(null)}
               />
             ) : (
               <>
@@ -100,10 +101,10 @@ export default function PsProfileContent({ ps, psId }: PsProfileContentProps) {
                 <Button 
                   className="w-full justify-start py-2 text-sm" 
                   variant="outline"
-                  onClick={() => setShowEditForm(!showEditForm)}
+                  onClick={() => setEditMode(editMode === 'comprehensive' ? null : 'comprehensive')}
                 >
                   <Pencil className="mr-2 h-4 w-4" />
-                  {showEditForm ? "Batalkan Edit" : "Edit Data"}
+                  {editMode === 'comprehensive' ? "Batalkan Edit Data" : "Edit Data Lengkap"}
                 </Button>
                 <Button className="w-full justify-start py-2 text-sm" variant="outline">
                   <FileText className="mr-2 h-4 w-4" />

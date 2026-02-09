@@ -1,0 +1,23 @@
+
+> app-db@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.6:3000
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 718ms
+⚠ Cross origin request detected from 192.168.1.6 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+Error fetching carbon projects: {
+  code: 'PGRST205',
+  details: null,
+  hint: null,
+  message: "Could not find the table 'public.carbon_projects' in the schema cache"
+}
+ GET /id/dashboard/pdd-generator 200 in 3.5s (compile: 2.2s, proxy.ts: 105ms, generate-params: 238ms, render: 1142ms)
+ GET /id/login 200 in 681ms (compile: 598ms, proxy.ts: 7ms, generate-params: 222ms, render: 75ms)
+ GET /id/dashboard 200 in 1431ms (compile: 849ms, proxy.ts: 6ms, generate-params: 317ms, render: 576ms)
+ GET /id/login 200 in 121ms (compile: 59ms, proxy.ts: 11ms, generate-params: 50ms, render: 51ms)

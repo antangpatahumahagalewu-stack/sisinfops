@@ -1,0 +1,91 @@
+Traceback (most recent call last):
+  File "/home/sangumang/Documents/sisinfops/run_fix_verra.py", line 154, in run_fix
+    cursor.execute("SELECT status FROM verra_project_registrations LIMIT 3")
+psycopg2.errors.UndefinedColumn: column "status" does not exist
+LINE 1: SELECT status FROM verra_project_registrations LIMIT 3
+               ^
+
+🚀 VERRA COLUMN FIX SCRIPT
+
+This script will fix the column mismatch in verra_project_registrations table.
+Frontend error: 'Error fetching carbon projects: {}'
+Cause: Frontend expects 'status' column but table has 'registration_status'
+============================================================
+============================================================
+🔧 FIXING VERRA TABLE COLUMNS
+============================================================
+
+Problem: Frontend expects 'status' column but table has 'registration_status'
+Solution: Add 'status' column and copy data from 'registration_status'
+============================================================
+✅ Connected to db.saelrsljpneclsbfdxfy.supabase.co
+📄 Reading fix SQL: fix_verra_column.sql
+   💬 -- FIX VERRA_PROJECT_REGISTRATIONS TABLE COLUMNS
+   💬 -- Frontend expects column 'status' but we have 'registration_status'
+   💬 -- Also ensure all required columns exist
+   💬 -- 1. Add status column if it doesn't exist (for frontend compatibility)
+   💬 -- 2. Copy data from registration_status to status
+   💬 -- 3. Also ensure carbon_project_id exists for frontend
+   💬 -- Copy from project_id
+   💬 -- 4. Add sample data for testing
+   💬 -- Get a carbon project ID
+   💬 -- Ensure we have at least one verra registration with status
+   💬 -- Update existing records to have status
+   💬 -- 5. Verify the fix
+   💬 -- Check if columns exist
+   Found 34 SQL statements
+   ✅ Statement 1 executed
+   ❌ Statement 2 failed: unterminated dollar-quoted string at or near "$$ 
+   ❌ Statement 3 failed: syntax error at or near "IF"
+   ❌ Statement 4 failed: unterminated dollar-quoted string at or near "$$;"
+   ❌ Statement 5 failed: column "status" does not exist
+   ❌ Statement 6 failed: unterminated dollar-quoted string at or near "$$ 
+   ✅ Statement 7 executed
+   ❌ Statement 8 failed: syntax error at or near "IF"
+   ❌ Statement 9 failed: unterminated dollar-quoted string at or near "$$;"
+   ❌ Statement 10 failed: unterminated dollar-quoted string at or near "$$
+   ❌ Statement 11 failed: syntax error at or near "SELECT"
+   ❌ Statement 12 failed: syntax error at or near "IF"
+   ❌ Statement 13 failed: column "status" does not exist
+   ❌ Statement 14 failed: syntax error at or near "IF"
+   ❌ Statement 15 failed: unterminated dollar-quoted string at or near "$$;"
+   ❌ Statement 16 failed: unterminated dollar-quoted string at or near "$$
+   ❌ Statement 17 failed: syntax error at or near "has_carbon_project_id_column"
+   ❌ Statement 18 failed: syntax error at or near "verra_count"
+   ❌ Statement 19 failed: syntax error at or near "SELECT"
+   ✅ Statement 20 executed
+   ✅ Statement 21 executed
+   ❌ Statement 22 failed: syntax error at or near "RAISE"
+   ❌ Statement 23 failed: syntax error at or near "RAISE"
+   ❌ Statement 24 failed: syntax error at or near "RAISE"
+   ❌ Statement 25 failed: syntax error at or near "RAISE"
+   ❌ Statement 26 failed: syntax error at or near "RAISE"
+   ❌ Statement 27 failed: syntax error at or near "RAISE"
+   ❌ Statement 28 failed: syntax error at or near "RAISE"
+   ❌ Statement 29 failed: syntax error at or near "RAISE"
+   ❌ Statement 30 failed: syntax error at or near "RAISE"
+   ❌ Statement 31 failed: syntax error at or near "RAISE"
+   ❌ Statement 32 failed: unterminated dollar-quoted string at or near "$$;"
+   ✅ Statement 33 executed
+   ✅ Statement 34 executed
+
+📊 Results: 6 successful, 28 failed
+
+🔍 Verifying fix...
+✅ Columns in verra_project_registrations:
+   • carbon_project_id (uuid)
+   • registration_status (character varying)
+✅ Total records: 1
+❌ Error during fix: column "status" does not exist
+LINE 1: SELECT status FROM verra_project_registrations LIMIT 3
+               ^
+
+🔌 Database connection closed
+
+❌ Fix failed to apply completely
+
+📋 NEXT STEPS:
+1. Restart Next.js dev server
+2. Clear browser cache
+3. Test http://localhost:3001/dashboard/verra-registration
+4. Check browser console for any remaining errors

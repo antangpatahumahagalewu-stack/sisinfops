@@ -139,20 +139,19 @@ export function AddEditCatatanForm({ catatan, psId, onSuccess, onCancel }: AddEd
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="judul">Judul Catatan *</Label>
+            <Label htmlFor="judul">Judul Catatan</Label>
             <Input
               id="judul"
               name="judul"
               value={formData.judul}
               onChange={handleChange}
-              required
               placeholder="Contoh: Monitoring Bulan Januari"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="kategori">Kategori *</Label>
+              <Label htmlFor="kategori">Kategori</Label>
               <Select
                 value={formData.kategori}
                 onValueChange={(value) => handleSelectChange("kategori", value)}
@@ -171,26 +170,24 @@ export function AddEditCatatanForm({ catatan, psId, onSuccess, onCancel }: AddEd
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="tanggal_catatan">Tanggal Catatan *</Label>
+              <Label htmlFor="tanggal_catatan">Tanggal Catatan</Label>
               <Input
                 id="tanggal_catatan"
                 name="tanggal_catatan"
                 type="date"
                 value={formData.tanggal_catatan}
                 onChange={handleChange}
-                required
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="isi">Isi Catatan *</Label>
+            <Label htmlFor="isi">Isi Catatan</Label>
             <textarea
               id="isi"
               name="isi"
               value={formData.isi}
               onChange={handleChange}
-              required
               rows={8}
               className="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               placeholder="Tuliskan catatan lapangan di sini..."

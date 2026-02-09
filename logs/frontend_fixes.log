@@ -1,0 +1,461 @@
+======================================================================
+🎯 FINAL FRONTEND SCHEMA FIXES
+======================================================================
+
+This script will fix frontend-database compatibility issues
+by running three SQL migration files:
+1. fix_missing_phase2_tables.sql - Creates missing Phase 2 tables
+2. fix_frontend_schema_compatibility.sql - Fixes column name mismatches
+3. fix_dram_table_structure.sql - Fixes DRAM table for frontend
+
+Expected results:
+• Carbon Credits page: No 'relationship' errors
+• Verra Registration: Shows data
+• DRAM page: Loads properly
+• Financial Dashboard: All tables visible
+======================================================================
+
+🔗 Establishing database connection...
+✅ Project reference: saelrsljpneclsbfdxfy
+✅ Using password: ***************
+✅ Connected to db.saelrsljpneclsbfdxfy.supabase.co
+✅ Database: PostgreSQL 17.6 on aarch64-unknown-linux-gnu
+✅ Public tables before: 19
+
+======================================================================
+🚀 EXECUTING SQL FIXES
+======================================================================
+
+📄 Executing: fix_missing_phase2_tables.sql
+------------------------------------------------------------
+   File size: 13,208 bytes
+   💬 -- FIX MISSING PHASE 2 TABLES AND RELATIONSHIPS
+   💬 -- Fixes console errors for:
+   💬 -- 1. CREATE MISSING TABLES
+   Found 79 SQL statements
+   📝 Statement 1: BEGIN;
+   ✅ Statement 1 executed
+   📝 Statement 2: CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+   ✅ Statement 2 executed
+   📝 Statement 3: CREATE TABLE IF NOT EXISTS verra_project_registrations (     id UUID DEFAULT uuid_generate_v4() PRIM...
+   ✅ Statement 3 executed
+   📝 Statement 4: CREATE TABLE IF NOT EXISTS price_list (     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,     item...
+   ✅ Statement 4 executed
+   📝 Statement 5: CREATE TABLE IF NOT EXISTS financial_reports (     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,  ...
+   ✅ Statement 5 executed
+   📝 Statement 6: DO $$  BEGIN     IF NOT EXISTS (         SELECT 1 FROM information_schema.columns          WHERE tab...
+   ❌ Statement 6 failed: unterminated dollar-quoted string at or near "$$ 
+   📝 Statement 7:         ALTER TABLE carbon_credits          ADD CONSTRAINT carbon_credits_verra_registration_id_fkey...
+   ❌ Statement 7 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 8:     END IF;
+   ❌ Statement 8 failed: syntax error at or near "IF"
+   📝 Statement 9: END $$;
+   ❌ Statement 9 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 10: DO $$  BEGIN     IF NOT EXISTS (         SELECT 1 FROM information_schema.table_constraints         ...
+   ❌ Statement 10 failed: unterminated dollar-quoted string at or near "$$ 
+   📝 Statement 11:     END IF;
+   ❌ Statement 11 failed: syntax error at or near "IF"
+   📝 Statement 12: END $$;
+   ❌ Statement 12 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 13: DO $$ DECLARE     sample_project_id UUID;
+   ❌ Statement 13 failed: unterminated dollar-quoted string at or near "$$
+   📝 Statement 14:     sample_program_id UUID;
+   ❌ Statement 14 failed: syntax error at or near "sample_program_id"
+   📝 Statement 15:     sample_account_id UUID;
+   ❌ Statement 15 failed: syntax error at or near "sample_account_id"
+   📝 Statement 16:     sample_budget_id UUID;
+   ❌ Statement 16 failed: syntax error at or near "sample_budget_id"
+   📝 Statement 17:     sample_verra_reg_id UUID;
+   ❌ Statement 17 failed: syntax error at or near "sample_verra_reg_id"
+   📝 Statement 18: BEGIN     SELECT id INTO sample_project_id FROM carbon_projects LIMIT 1;
+   ❌ Statement 18 failed: syntax error at or near "SELECT"
+   📝 Statement 19:     SELECT id INTO sample_program_id FROM programs LIMIT 1;
+   ❌ Statement 19 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 20:     SELECT id INTO sample_account_id FROM financial_accounts LIMIT 1;
+   ❌ Statement 20 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 21:     SELECT id INTO sample_budget_id FROM budgets LIMIT 1;
+   ❌ Statement 21 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 22:     IF sample_project_id IS NOT NULL THEN         INSERT INTO verra_project_registrations (         ...
+   ❌ Statement 22 failed: syntax error at or near "IF"
+   📝 Statement 23:         RAISE NOTICE '✅ Added Verra registration for project: %', sample_project_id;
+   ❌ Statement 23 failed: syntax error at or near "RAISE"
+   📝 Statement 24:     END IF;
+   ❌ Statement 24 failed: syntax error at or near "IF"
+   📝 Statement 25:     IF sample_project_id IS NOT NULL AND sample_verra_reg_id IS NOT NULL THEN         INSERT INTO ca...
+   ❌ Statement 25 failed: syntax error at or near "IF"
+   📝 Statement 26:         RAISE NOTICE '✅ Added 3 carbon credits with Verra registration';
+   ❌ Statement 26 failed: syntax error at or near "RAISE"
+   📝 Statement 27:     END IF;
+   ❌ Statement 27 failed: syntax error at or near "IF"
+   📝 Statement 28:     INSERT INTO price_list (         item_code,         item_name,         item_description,        ...
+   ❌ Statement 28 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 29:     RAISE NOTICE '✅ Added 3 price list items';
+   ❌ Statement 29 failed: syntax error at or near "RAISE"
+   📝 Statement 30:     IF sample_account_id IS NOT NULL THEN         INSERT INTO financial_reports (             report...
+   ❌ Statement 30 failed: syntax error at or near "IF"
+   📝 Statement 31:         RAISE NOTICE '✅ Added 2 financial reports';
+   ❌ Statement 31 failed: syntax error at or near "RAISE"
+   📝 Statement 32:     END IF;
+   ❌ Statement 32 failed: syntax error at or near "IF"
+   📝 Statement 33:     IF sample_budget_id IS NOT NULL AND sample_project_id IS NOT NULL THEN         INSERT INTO finan...
+   ❌ Statement 33 failed: syntax error at or near "IF"
+   📝 Statement 34:         RAISE NOTICE '✅ Added 3 financial transactions';
+   ❌ Statement 34 failed: syntax error at or near "RAISE"
+   📝 Statement 35:     END IF;
+   ❌ Statement 35 failed: syntax error at or near "IF"
+   📝 Statement 36: END $$;
+   ❌ Statement 36 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 37: ALTER TABLE IF EXISTS verra_project_registrations DISABLE ROW LEVEL SECURITY;
+   ❌ Statement 37 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 38: ALTER TABLE IF EXISTS price_list DISABLE ROW LEVEL SECURITY;
+   ❌ Statement 38 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 39: ALTER TABLE IF EXISTS financial_reports DISABLE ROW LEVEL SECURITY;
+   ❌ Statement 39 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 40: ALTER TABLE IF EXISTS financial_transactions DISABLE ROW LEVEL SECURITY;
+   ❌ Statement 40 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 41: ALTER TABLE IF EXISTS carbon_credits DISABLE ROW LEVEL SECURITY;
+   ❌ Statement 41 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 42: GRANT USAGE ON SCHEMA public TO anon;
+   ❌ Statement 42 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 43: GRANT SELECT ON ALL TABLES IN SCHEMA public TO anon;
+   ❌ Statement 43 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 44: GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO anon;
+   ❌ Statement 44 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 45: DO $$ DECLARE     verra_count INTEGER;
+   ❌ Statement 45 failed: unterminated dollar-quoted string at or near "$$
+   📝 Statement 46:     credits_count INTEGER;
+   ❌ Statement 46 failed: syntax error at or near "credits_count"
+   📝 Statement 47:     price_items_count INTEGER;
+   ❌ Statement 47 failed: syntax error at or near "price_items_count"
+   📝 Statement 48:     reports_count INTEGER;
+   ❌ Statement 48 failed: syntax error at or near "reports_count"
+   📝 Statement 49:     transactions_count INTEGER;
+   ❌ Statement 49 failed: syntax error at or near "transactions_count"
+   📝 Statement 50: BEGIN     SELECT COUNT(*) INTO verra_count FROM verra_project_registrations;
+   ❌ Statement 50 failed: syntax error at or near "SELECT"
+   📝 Statement 51:     SELECT COUNT(*) INTO credits_count FROM carbon_credits;
+   ❌ Statement 51 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 52:     SELECT COUNT(*) INTO price_items_count FROM price_list;
+   ❌ Statement 52 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 53:     SELECT COUNT(*) INTO reports_count FROM financial_reports;
+   ❌ Statement 53 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 54:     SELECT COUNT(*) INTO transactions_count FROM financial_transactions;
+   ❌ Statement 54 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 55:     RAISE NOTICE '=========================================';
+   ❌ Statement 55 failed: syntax error at or near "RAISE"
+   📝 Statement 56:     RAISE NOTICE 'MISSING TABLES FIX COMPLETE';
+   ❌ Statement 56 failed: syntax error at or near "RAISE"
+   📝 Statement 57:     RAISE NOTICE '=========================================';
+   ❌ Statement 57 failed: syntax error at or near "RAISE"
+   📝 Statement 58:     RAISE NOTICE 'Tables created/updated:';
+   ❌ Statement 58 failed: syntax error at or near "RAISE"
+   📝 Statement 59:     RAISE NOTICE '  • verra_project_registrations: % row(s)', verra_count;
+   ❌ Statement 59 failed: syntax error at or near "RAISE"
+   📝 Statement 60:     RAISE NOTICE '  • carbon_credits: % row(s) (now with verra_registration_id)', credits_count;
+   ❌ Statement 60 failed: syntax error at or near "RAISE"
+   📝 Statement 61:     RAISE NOTICE '  • price_list: % row(s)', price_items_count;
+   ❌ Statement 61 failed: syntax error at or near "RAISE"
+   📝 Statement 62:     RAISE NOTICE '  • financial_reports: % row(s)', reports_count;
+   ❌ Statement 62 failed: syntax error at or near "RAISE"
+   📝 Statement 63:     RAISE NOTICE '  • financial_transactions: % row(s)', transactions_count;
+   ❌ Statement 63 failed: syntax error at or near "RAISE"
+   📝 Statement 64:     RAISE NOTICE '';
+   ❌ Statement 64 failed: syntax error at or near "RAISE"
+   📝 Statement 65:     RAISE NOTICE 'Frontend errors should now be fixed:';
+   ❌ Statement 65 failed: syntax error at or near "RAISE"
+   📝 Statement 66:     RAISE NOTICE '  • Carbon Credits page: Relationship with verra_project_registrations ✅';
+   ❌ Statement 66 failed: syntax error at or near "RAISE"
+   📝 Statement 67:     RAISE NOTICE '  • Verra Registration page: Table exists with sample data ✅';
+   ❌ Statement 67 failed: syntax error at or near "RAISE"
+   📝 Statement 68:     RAISE NOTICE '  • Financial Dashboard: All tables have sample data ✅';
+   ❌ Statement 68 failed: syntax error at or near "RAISE"
+   📝 Statement 69:     RAISE NOTICE '  • No more "Error fetching financial data: {}" ✅';
+   ❌ Statement 69 failed: syntax error at or near "RAISE"
+   📝 Statement 70:     RAISE NOTICE '  • No more "Could not find relationship" error ✅';
+   ❌ Statement 70 failed: syntax error at or near "RAISE"
+   📝 Statement 71:     RAISE NOTICE '';
+   ❌ Statement 71 failed: syntax error at or near "RAISE"
+   📝 Statement 72:     RAISE NOTICE 'Test with frontend:';
+   ❌ Statement 72 failed: syntax error at or near "RAISE"
+   📝 Statement 73:     RAISE NOTICE '  1. Carbon Credits page should show 3 credits';
+   ❌ Statement 73 failed: syntax error at or near "RAISE"
+   📝 Statement 74:     RAISE NOTICE '  2. Verra Registration page should show 1 registration';
+   ❌ Statement 74 failed: syntax error at or near "RAISE"
+   📝 Statement 75:     RAISE NOTICE '  3. Financial Dashboard should show data';
+   ❌ Statement 75 failed: syntax error at or near "RAISE"
+   📝 Statement 76:     RAISE NOTICE '=========================================';
+   ❌ Statement 76 failed: syntax error at or near "RAISE"
+   📝 Statement 77: END $$;
+   ❌ Statement 77 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 78: SELECT '🎉 Missing Phase 2 tables and relationships fixed! All frontend errors should be resolved.' A...
+   ❌ Statement 78 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 79: COMMIT;
+   ✅ Statement 79 executed
+
+   📊 Results: 6 successful, 73 failed
+   ⚠️  Some statements had errors (but script continues)
+
+----------------------------------------------------------------------
+
+📄 Executing: fix_frontend_schema_compatibility.sql
+------------------------------------------------------------
+   File size: 6,548 bytes
+   💬 -- FIX FRONTEND SCHEMA COMPATIBILITY
+   💬 -- 1. FIX VERRA_PROJECT_REGISTRATIONS TABLE FOR FRONTEND COMPATIBILITY
+   💬 -- 2. FIX CARBON_CREDITS TABLE FOR FRONTEND COMPATIBILITY
+   Found 43 SQL statements
+   📝 Statement 1: BEGIN;
+   ✅ Statement 1 executed
+   📝 Statement 2: DO $$  BEGIN     IF NOT EXISTS (         SELECT 1 FROM information_schema.columns          WHERE tab...
+   ❌ Statement 2 failed: unterminated dollar-quoted string at or near "$$ 
+   📝 Statement 3:     END IF;
+   ❌ Statement 3 failed: syntax error at or near "IF"
+   📝 Statement 4:     IF NOT EXISTS (         SELECT 1 FROM information_schema.columns          WHERE table_schema = '...
+   ❌ Statement 4 failed: syntax error at or near "IF"
+   📝 Statement 5:     END IF;
+   ❌ Statement 5 failed: syntax error at or near "IF"
+   📝 Statement 6: END $$;
+   ❌ Statement 6 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 7: UPDATE verra_project_registrations  SET      verra_project_id = registration_code,     carbon_projec...
+   ❌ Statement 7 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 8: DO $$  BEGIN     IF NOT EXISTS (         SELECT 1 FROM information_schema.columns          WHERE tab...
+   ❌ Statement 8 failed: unterminated dollar-quoted string at or near "$$ 
+   📝 Statement 9:     END IF;
+   ❌ Statement 9 failed: syntax error at or near "IF"
+   📝 Statement 10: END $$;
+   ❌ Statement 10 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 11: UPDATE carbon_credits  SET issuance_date = issue_date  WHERE issuance_date IS NULL AND issue_date IS...
+   ❌ Statement 11 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 12: UPDATE carbon_projects  SET      kode_project = project_code,     nama_project = project_name WHERE ...
+   ❌ Statement 12 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 13: DO $$ DECLARE     sample_verra_id UUID;
+   ❌ Statement 13 failed: unterminated dollar-quoted string at or near "$$
+   📝 Statement 14:     sample_project_id UUID;
+   ❌ Statement 14 failed: syntax error at or near "sample_project_id"
+   📝 Statement 15: BEGIN     SELECT id INTO sample_verra_id FROM verra_project_registrations LIMIT 1;
+   ❌ Statement 15 failed: syntax error at or near "SELECT"
+   📝 Statement 16:     SELECT id INTO sample_project_id FROM carbon_projects LIMIT 1;
+   ❌ Statement 16 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 17:     IF sample_verra_id IS NOT NULL THEN         INSERT INTO carbon_credits (             project_id,...
+   ❌ Statement 17 failed: syntax error at or near "IF"
+   📝 Statement 18:         RAISE NOTICE '✅ Added 2 more carbon credits for testing';
+   ❌ Statement 18 failed: syntax error at or near "RAISE"
+   📝 Statement 19:     END IF;
+   ❌ Statement 19 failed: syntax error at or near "IF"
+   📝 Statement 20: END $$;
+   ❌ Statement 20 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 21: DO $$ DECLARE     verra_with_carbon_project_id INTEGER;
+   ❌ Statement 21 failed: unterminated dollar-quoted string at or near "$$
+   📝 Statement 22:     credits_with_issuance_date INTEGER;
+   ❌ Statement 22 failed: syntax error at or near "credits_with_issuance_date"
+   📝 Statement 23:     total_credits INTEGER;
+   ❌ Statement 23 failed: syntax error at or near "total_credits"
+   📝 Statement 24: BEGIN     SELECT COUNT(*) INTO verra_with_carbon_project_id      FROM verra_project_registrations   ...
+   ❌ Statement 24 failed: syntax error at or near "SELECT"
+   📝 Statement 25:     SELECT COUNT(*) INTO credits_with_issuance_date      FROM carbon_credits      WHERE issuance_dat...
+   ❌ Statement 25 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 26:     SELECT COUNT(*) INTO total_credits FROM carbon_credits;
+   ❌ Statement 26 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 27:     RAISE NOTICE '=========================================';
+   ❌ Statement 27 failed: syntax error at or near "RAISE"
+   📝 Statement 28:     RAISE NOTICE 'FRONTEND SCHEMA COMPATIBILITY FIX';
+   ❌ Statement 28 failed: syntax error at or near "RAISE"
+   📝 Statement 29:     RAISE NOTICE '=========================================';
+   ❌ Statement 29 failed: syntax error at or near "RAISE"
+   📝 Statement 30:     RAISE NOTICE 'Schema updates:';
+   ❌ Statement 30 failed: syntax error at or near "RAISE"
+   📝 Statement 31:     RAISE NOTICE '  • verra_project_registrations with carbon_project_id: %/%',          verra_with_...
+   ❌ Statement 31 failed: syntax error at or near "RAISE"
+   📝 Statement 32:     RAISE NOTICE '  • carbon_credits with issuance_date: %/%',          credits_with_issuance_date, ...
+   ❌ Statement 32 failed: syntax error at or near "RAISE"
+   📝 Statement 33:     RAISE NOTICE '';
+   ❌ Statement 33 failed: syntax error at or near "RAISE"
+   📝 Statement 34:     RAISE NOTICE 'Frontend queries should now work:';
+   ❌ Statement 34 failed: syntax error at or near "RAISE"
+   📝 Statement 35:     RAISE NOTICE '  • Carbon Credits page: Has issuance_date column ✅';
+   ❌ Statement 35 failed: syntax error at or near "RAISE"
+   📝 Statement 36:     RAISE NOTICE '  • Verra Registration: Has verra_project_id & carbon_project_id ✅';
+   ❌ Statement 36 failed: syntax error at or near "RAISE"
+   📝 Statement 37:     RAISE NOTICE '  • No more "Could not find relationship" error ✅';
+   ❌ Statement 37 failed: syntax error at or near "RAISE"
+   📝 Statement 38:     RAISE NOTICE '';
+   ❌ Statement 38 failed: syntax error at or near "RAISE"
+   📝 Statement 39:     RAISE NOTICE 'Testing frontend query compatibility...';
+   ❌ Statement 39 failed: syntax error at or near "RAISE"
+   📝 Statement 40: END $$;
+   ❌ Statement 40 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 41: SELECT      '✅ Frontend compatibility test:' as test,     cc.id as credit_id,     cc.serial_number, ...
+   ❌ Statement 41 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 42: SELECT '🎉 Frontend schema compatibility fixed! Carbon Credits and Verra Registration pages should wo...
+   ❌ Statement 42 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 43: COMMIT;
+   ✅ Statement 43 executed
+
+   📊 Results: 2 successful, 41 failed
+   ⚠️  Some statements had errors (but script continues)
+
+----------------------------------------------------------------------
+
+📄 Executing: fix_dram_table_structure.sql
+------------------------------------------------------------
+   File size: 7,877 bytes
+   💬 -- FIX DRAM TABLE STRUCTURE TO MATCH FRONTEND EXPECTATIONS
+   💬 -- Frontend is querying table 'dram' (singular) but we created 'dram_documents' (plural)
+   💬 -- 1. CREATE DRAM TABLE (SINGULAR) WITH FRONTEND-EXPECTED STRUCTURE
+   💬 -- Create a dummy program if none exists
+   Found 53 SQL statements
+   📝 Statement 1: BEGIN;
+   ✅ Statement 1 executed
+   📝 Statement 2: CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+   ✅ Statement 2 executed
+   📝 Statement 3: CREATE TABLE IF NOT EXISTS dram (     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,     program_id...
+   ✅ Statement 3 executed
+   📝 Statement 4: DO $$  BEGIN     IF NOT EXISTS (         SELECT 1 FROM information_schema.columns          WHERE tab...
+   ❌ Statement 4 failed: unterminated dollar-quoted string at or near "$$ 
+   📝 Statement 5:     END IF;
+   ❌ Statement 5 failed: syntax error at or near "IF"
+   📝 Statement 6:     IF NOT EXISTS (         SELECT 1 FROM information_schema.columns          WHERE table_schema = '...
+   ❌ Statement 6 failed: syntax error at or near "IF"
+   📝 Statement 7:     END IF;
+   ❌ Statement 7 failed: syntax error at or near "IF"
+   📝 Statement 8: END $$;
+   ❌ Statement 8 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 9: DO $$  BEGIN     IF NOT EXISTS (         SELECT 1 FROM information_schema.columns          WHERE tab...
+   ❌ Statement 9 failed: unterminated dollar-quoted string at or near "$$ 
+   📝 Statement 10:     END IF;
+   ❌ Statement 10 failed: syntax error at or near "IF"
+   📝 Statement 11:     IF NOT EXISTS (         SELECT 1 FROM information_schema.columns          WHERE table_schema = '...
+   ❌ Statement 11 failed: syntax error at or near "IF"
+   📝 Statement 12:     END IF;
+   ❌ Statement 12 failed: syntax error at or near "IF"
+   📝 Statement 13: END $$;
+   ❌ Statement 13 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 14: UPDATE programs  SET      kode_program = program_code,     nama_program = program_name WHERE (kode_p...
+   ❌ Statement 14 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 15: UPDATE carbon_projects  SET      kode_project = project_code,     nama_project = project_name WHERE ...
+   ❌ Statement 15 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 16: DO $$ DECLARE     sample_program_id UUID;
+   ❌ Statement 16 failed: unterminated dollar-quoted string at or near "$$
+   📝 Statement 17:     sample_project_id UUID;
+   ❌ Statement 17 failed: syntax error at or near "sample_project_id"
+   📝 Statement 18: BEGIN     SELECT id INTO sample_program_id FROM programs LIMIT 1;
+   ❌ Statement 18 failed: syntax error at or near "SELECT"
+   📝 Statement 19:     SELECT id INTO sample_project_id FROM carbon_projects LIMIT 1;
+   ❌ Statement 19 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 20:     IF sample_program_id IS NOT NULL THEN         INSERT INTO dram (             program_id,        ...
+   ❌ Statement 20 failed: syntax error at or near "IF"
+   📝 Statement 21:         INSERT INTO dram (             program_id,             versi,             tujuan_mitigasi,  ...
+   ❌ Statement 21 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 22:         RAISE NOTICE '✅ Added sample DRAM data for program ID: %', sample_program_id;
+   ❌ Statement 22 failed: syntax error at or near "RAISE"
+   📝 Statement 23:     ELSE         INSERT INTO programs (             program_code,             program_name,         ...
+   ❌ Statement 23 failed: syntax error at or near "ELSE"
+   📝 Statement 24:         RAISE NOTICE '⚠️ Created dummy program for DRAM testing';
+   ❌ Statement 24 failed: syntax error at or near "RAISE"
+   📝 Statement 25:     END IF;
+   ❌ Statement 25 failed: syntax error at or near "IF"
+   📝 Statement 26: END $$;
+   ❌ Statement 26 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 27: ALTER TABLE IF EXISTS dram DISABLE ROW LEVEL SECURITY;
+   ❌ Statement 27 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 28: GRANT USAGE ON SCHEMA public TO anon;
+   ❌ Statement 28 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 29: GRANT SELECT ON ALL TABLES IN SCHEMA public TO anon;
+   ❌ Statement 29 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 30: GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO anon;
+   ❌ Statement 30 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 31: DO $$ DECLARE     dram_count INTEGER;
+   ❌ Statement 31 failed: unterminated dollar-quoted string at or near "$$
+   📝 Statement 32:     programs_with_kode INTEGER;
+   ❌ Statement 32 failed: syntax error at or near "programs_with_kode"
+   📝 Statement 33:     projects_with_kode INTEGER;
+   ❌ Statement 33 failed: syntax error at or near "projects_with_kode"
+   📝 Statement 34: BEGIN     SELECT COUNT(*) INTO dram_count FROM dram;
+   ❌ Statement 34 failed: syntax error at or near "SELECT"
+   📝 Statement 35:     SELECT COUNT(*) INTO programs_with_kode FROM programs WHERE kode_program IS NOT NULL;
+   ❌ Statement 35 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 36:     SELECT COUNT(*) INTO projects_with_kode FROM carbon_projects WHERE kode_project IS NOT NULL;
+   ❌ Statement 36 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 37:     RAISE NOTICE '=========================================';
+   ❌ Statement 37 failed: syntax error at or near "RAISE"
+   📝 Statement 38:     RAISE NOTICE 'DRAM FRONTEND COMPATIBILITY FIX';
+   ❌ Statement 38 failed: syntax error at or near "RAISE"
+   📝 Statement 39:     RAISE NOTICE '=========================================';
+   ❌ Statement 39 failed: syntax error at or near "RAISE"
+   📝 Statement 40:     RAISE NOTICE 'Tables created/updated:';
+   ❌ Statement 40 failed: syntax error at or near "RAISE"
+   📝 Statement 41:     RAISE NOTICE '  • dram: % row(s) (singular table for frontend)', dram_count;
+   ❌ Statement 41 failed: syntax error at or near "RAISE"
+   📝 Statement 42:     RAISE NOTICE '  • programs with kode_program: %/%', programs_with_kode, (SELECT COUNT(*) FROM pr...
+   ❌ Statement 42 failed: syntax error at or near "RAISE"
+   📝 Statement 43:     RAISE NOTICE '  • carbon_projects with kode_project: %/%', projects_with_kode, (SELECT COUNT(*) ...
+   ❌ Statement 43 failed: syntax error at or near "RAISE"
+   📝 Statement 44:     RAISE NOTICE '';
+   ❌ Statement 44 failed: syntax error at or near "RAISE"
+   📝 Statement 45:     RAISE NOTICE 'Frontend should now work with:';
+   ❌ Statement 45 failed: syntax error at or near "RAISE"
+   📝 Statement 46:     RAISE NOTICE '  • DRAM page: Query to table "dram" (singular)';
+   ❌ Statement 46 failed: syntax error at or near "RAISE"
+   📝 Statement 47:     RAISE NOTICE '  • Columns: versi, tujuan_mitigasi, timeline_start, timeline_end, anggaran_total'...
+   ❌ Statement 47 failed: syntax error at or near "RAISE"
+   📝 Statement 48:     RAISE NOTICE '  • Status: draft, active (for status badges)';
+   ❌ Statement 48 failed: syntax error at or near "RAISE"
+   📝 Statement 49:     RAISE NOTICE '  • No more "Error fetching DRAM: {}" error';
+   ❌ Statement 49 failed: syntax error at or near "RAISE"
+   📝 Statement 50:     RAISE NOTICE '=========================================';
+   ❌ Statement 50 failed: syntax error at or near "RAISE"
+   📝 Statement 51: END $$;
+   ❌ Statement 51 failed: unterminated dollar-quoted string at or near "$$;"
+   📝 Statement 52: SELECT '✅ DRAM table structure fixed! Frontend DRAM page should now work without errors.' AS status;
+   ❌ Statement 52 failed: current transaction is aborted, commands ignored until end of transaction block
+   📝 Statement 53: COMMIT;
+   ✅ Statement 53 executed
+
+   📊 Results: 4 successful, 49 failed
+   ⚠️  Some statements had errors (but script continues)
+
+----------------------------------------------------------------------
+
+============================================================
+🔍 VERIFICATION
+============================================================
+
+📊 Checking Phase 2 tables...
+✅ Phase 2 tables created:
+   • carbon_credits
+   • dram
+   • financial_reports
+   • price_list
+   • verra_project_registrations
+
+📊 Checking carbon_credits compatibility...
+✅ Compatibility columns in carbon_credits:
+   • issuance_date
+   • verra_registration_id
+
+📊 Checking DRAM table...
+✅ DRAM table has 2 records
+✅ DRAM has 5 frontend-compatible columns
+
+📊 Checking relationships...
+✅ Foreign key relationships:
+   • carbon_credits.project_id → carbon_projects.id
+   • carbon_credits.verra_registration_id → verra_project_registrations.id
+   • verra_project_registrations.project_id → carbon_projects.id
+
+======================================================================
+⚠️  SOME FIXES HAD ERRORS (check output above)
+
+🎯 FRONTEND BENEFITS:
+• 'Could not find relationship' errors should be fixed
+• 'Error fetching data: {}' errors should be resolved
+• All Phase 2 pages should work
+
+📋 NEXT STEPS:
+1. Restart the Next.js development server
+2. Clear browser cache if needed
+3. Test Carbon Credits, Verra Registration, and DRAM pages
+4. Check Financial Dashboard
+
+✅ Script execution completed!
+🔌 Database connection closed

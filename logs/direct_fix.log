@@ -1,0 +1,39 @@
+============================================================
+🎯 DIRECT FIX FOR VERRA TABLE
+============================================================
+✅ Connected to db.saelrsljpneclsbfdxfy.supabase.co
+
+📊 Checking current table structure...
+✅ Table has 16 columns
+   • 'status' column exists: False
+   • 'registration_status' column exists: True
+
+➕ Adding 'status' column...
+✅ Added 'status' column
+
+📋 Copying data from registration_status to status...
+   Found 1 rows to update
+✅ Updated 1 rows
+
+🔍 Verifying fix...
+✅ Total rows: 1
+✅ Rows with 'status': 1
+✅ Rows with 'registration_status': 1
+
+🔍 Testing frontend query...
+✅ Frontend query successful! Found 3 results
+
+📋 Sample result:
+   • Project code: CP-001
+   • Project name: Katingan Forest Protection
+   • Verra data: [{'status': None, 'verra_project_id': None, 'registration_date': None}]
+
+🎉 SUCCESS! Frontend query now works!
+
+🔌 Database connection closed
+
+📋 NEXT STEPS:
+1. Restart Next.js server: npm run dev
+2. Clear browser cache
+3. Visit: http://localhost:3001/dashboard/verra-registration
+4. Check browser console for any remaining errors

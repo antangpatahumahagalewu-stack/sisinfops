@@ -50,8 +50,8 @@ import {
   SheetContent,
   SheetTrigger,
   SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet"
+  SheetDescription} from "@/components/ui/sheet"
+import { Badge } from "@/components/ui/badge"
 
 interface SidebarProps {
   role: Role
@@ -59,56 +59,62 @@ interface SidebarProps {
   onMobileOpenChange?: (open: boolean) => void
 }
 
-const menuItems = [
-  // A. DATA DASAR / BASELINE
+  const menuItems = [
+  // A. DATA DASAR / BASELINE (Phase 1 - READY)
   {
     title: "Dashboard",
     href: "/dashboard",
     translationKey: "dashboard",
     icon: LayoutDashboard,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[],
-    group: "foundation"
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "foundation",
+    phase: 1
   },
   {
     title: "Data PS",
     href: "/dashboard/data",
     translationKey: "dataPS",
     icon: Database,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[],
-    group: "foundation"
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "foundation",
+    phase: 1
   },
   {
     title: "Data Potensi",
     href: "/dashboard/potensi",
     translationKey: "potensi",
     icon: Trees,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[],
-    group: "foundation"
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "foundation",
+    phase: 1
   },
   {
     title: "Per Kabupaten",
     href: "/dashboard/kabupaten",
     translationKey: "kabupaten",
     icon: Map,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[],
-    group: "foundation"
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "foundation",
+    phase: 1
   },
   {
     title: "Statistik",
     href: "/dashboard/statistics",
     translationKey: "statistics",
     icon: BarChart3,
-    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[],
-    group: "foundation"
+    roles: ["admin", "monev", "viewer", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "foundation",
+    phase: 1
   },
-// B. PROYEK KARBON
+// B. PROYEK KARBON (Phase 2)
   {
     title: "Carbon Projects",
     href: "/dashboard/carbon-projects",
     translationKey: "carbonProjects",
     icon: FolderTree,
     roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
-    group: "development"
+    group: "development",
+    phase: 2
   },
   {
     title: "Investor Dashboard",
@@ -116,7 +122,8 @@ const menuItems = [
     translationKey: "investorDashboard",
     icon: TrendingUp,
     roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
-    group: "development"
+    group: "development",
+    phase: 2
   },
   {
     title: "Due Diligence Toolkit",
@@ -124,7 +131,8 @@ const menuItems = [
     translationKey: "dueDiligenceToolkit",
     icon: Shield,
     roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
-    group: "development"
+    group: "development",
+    phase: 2
   },
   {
     title: "Verra Registration",
@@ -132,7 +140,8 @@ const menuItems = [
     translationKey: "verraRegistration",
     icon: FileCheck,
     roles: ["admin", "carbon_specialist"] as Role[],
-    group: "development"
+    group: "development",
+    phase: 2
   },
   {
     title: "Program Kerja",
@@ -140,7 +149,8 @@ const menuItems = [
     translationKey: "programs",
     icon: Target,
     roles: ["admin", "program_planner", "carbon_specialist"] as Role[],
-    group: "development"
+    group: "development",
+    phase: 2
   },
   {
     title: "DRAM Management",
@@ -148,7 +158,8 @@ const menuItems = [
     translationKey: "dram",
     icon: FileText,
     roles: ["admin", "program_planner"] as Role[],
-    group: "development"
+    group: "development",
+    phase: 2
   },
   {
     title: "PDD Generator",
@@ -156,7 +167,8 @@ const menuItems = [
     translationKey: "pddGenerator",
     icon: FileCode,
     roles: ["admin", "carbon_specialist"] as Role[],
-    group: "development"
+    group: "development",
+    phase: 2
   },
   {
     title: "VVB Management",
@@ -164,7 +176,8 @@ const menuItems = [
     translationKey: "vvbManagement",
     icon: ShieldCheck,
     roles: ["admin", "carbon_specialist"] as Role[],
-    group: "development"
+    group: "development",
+    phase: 2
   },
   {
     title: "Carbon Credits",
@@ -172,16 +185,18 @@ const menuItems = [
     translationKey: "carbonCredits",
     icon: Coins,
     roles: ["admin", "carbon_specialist"] as Role[],
-    group: "development"
+    group: "development",
+    phase: 2
   },
-  // C. IMPLEMENTASI & MRV
+  // C. IMPLEMENTASI & MRV (Phase 2)
   {
     title: "Dashboard Program",
     href: "/dashboard/program-dashboard",
     translationKey: "dashboardProgram",
     icon: BarChart3,
-    roles: ["admin", "program_planner", "program_implementer", "carbon_specialist", "monev_officer"] as Role[],
-    group: "implementation"
+    roles: ["admin", "program_planner", "program_implementer", "carbon_specialist"] as Role[],
+    group: "implementation",
+    phase: 2
   },
   {
     title: "Implementasi Program",
@@ -189,24 +204,27 @@ const menuItems = [
     translationKey: "implementasi",
     icon: CalendarCheck,
     roles: ["admin", "program_implementer", "program_planner"] as Role[],
-    group: "implementation"
+    group: "implementation",
+    phase: 2
   },
   {
     title: "Monitoring & Evaluasi",
     href: "/dashboard/monev",
     translationKey: "monev",
     icon: Eye,
-    roles: ["admin", "monev_officer", "program_planner", "carbon_specialist"] as Role[],
-    group: "implementation"
+    roles: ["admin", "monev", "program_planner", "carbon_specialist"] as Role[],
+    group: "implementation",
+    phase: 2
   },
-  // D. SOSIAL-EKONOMI & SAFEGUARD
+  // D. SOSIAL-EKONOMI & SAFEGUARD (Phase 2)
   {
     title: "Pemberdayaan Ekonomi",
     href: "/dashboard/pemberdayaan-ekonomi",
     translationKey: "pemberdayaanEkonomi",
     icon: CircleDollarSign,
     roles: ["admin", "program_planner", "program_implementer"] as Role[],
-    group: "socioeconomic"
+    group: "socioeconomic",
+    phase: 2
   },
   {
     title: "Stakeholder & FPIC",
@@ -214,25 +232,28 @@ const menuItems = [
     translationKey: "stakeholders",
     icon: Users2,
     roles: ["admin", "carbon_specialist", "program_planner"] as Role[],
-    group: "socioeconomic"
+    group: "socioeconomic",
+    phase: 2
   },
-  // E. LEGAL & TATA KELOLA
+  // E. LEGAL & TATA KELOLA (Phase 2)
   {
     title: "Legal & Carbon Rights",
     href: "/dashboard/legal",
     translationKey: "legal",
     icon: Gavel,
     roles: ["admin", "carbon_specialist"] as Role[],
-    group: "legal"
+    group: "legal",
+    phase: 2
   },
-  // F. FINANCE (GRUP BARU)
+  // F. FINANCE (Phase 2)
   {
     title: "Dashboard Keuangan",
     href: "/dashboard/finance",
     translationKey: "financialDashboard",
     icon: LayoutDashboard,
-    roles: ["admin", "finance_manager", "finance_operational", "finance_project_carbon", "finance_project_implementation", "finance_project_social", "investor", "carbon_specialist", "program_planner", "monev_officer"] as Role[],
-    group: "finance"
+    roles: ["admin", "finance_manager", "finance_operational", "finance_project_carbon", "finance_project_implementation", "finance_project_social", "investor", "carbon_specialist", "program_planner"] as Role[],
+    group: "finance",
+    phase: 2
   },
   {
     title: "Operasional Kantor",
@@ -240,7 +261,8 @@ const menuItems = [
     translationKey: "operasionalKantor",
     icon: Building,
     roles: ["admin", "finance_manager", "finance_operational"] as Role[],
-    group: "finance"
+    group: "finance",
+    phase: 2
   },
   {
     title: "Proyek & Program",
@@ -248,7 +270,8 @@ const menuItems = [
     translationKey: "proyekProgram",
     icon: TreePine,
     roles: ["admin", "finance_manager", "finance_project_carbon", "finance_project_implementation", "finance_project_social", "program_planner", "carbon_specialist"] as Role[],
-    group: "finance"
+    group: "finance",
+    phase: 2
   },
   {
     title: "Transaksi",
@@ -256,7 +279,8 @@ const menuItems = [
     translationKey: "transactions",
     icon: Receipt,
     roles: ["admin", "finance_manager", "finance_operational", "finance_project_carbon", "finance_project_implementation", "finance_project_social"] as Role[],
-    group: "finance"
+    group: "finance",
+    phase: 2
   },
   {
     title: "Anggaran",
@@ -264,7 +288,8 @@ const menuItems = [
     translationKey: "budgets",
     icon: Wallet,
     roles: ["admin", "finance_manager", "finance_operational"] as Role[],
-    group: "finance"
+    group: "finance",
+    phase: 2
   },
   {
     title: "Master Price List",
@@ -272,7 +297,8 @@ const menuItems = [
     translationKey: "masterPriceList",
     icon: Tag,
     roles: ["admin", "finance_manager", "finance_operational", "program_planner"] as Role[],
-    group: "finance"
+    group: "finance",
+    phase: 2
   },
   {
     title: "Laporan Keuangan",
@@ -280,7 +306,8 @@ const menuItems = [
     translationKey: "financialReports",
     icon: FileText,
     roles: ["admin", "finance_manager", "finance_operational", "finance_project_carbon", "finance_project_implementation", "finance_project_social", "investor", "program_planner", "carbon_specialist"] as Role[],
-    group: "finance"
+    group: "finance",
+    phase: 2
   },
   {
     title: "Kontrol & Kepatuhan",
@@ -288,16 +315,18 @@ const menuItems = [
     translationKey: "financialControls",
     icon: ShieldCheck,
     roles: ["admin", "finance_manager"] as Role[],
-    group: "finance"
+    group: "finance",
+    phase: 2
   },
-  // G. SISTEM & ADMINISTRASI (TANPA MENU KEUANGAN)
+  // G. SISTEM & ADMINISTRASI (Phase 1 - READY)
   {
     title: "Upload Excel",
     href: "/dashboard/upload",
     translationKey: "uploadExcel",
     icon: Upload,
     roles: ["admin", "monev"] as Role[],
-    group: "system"
+    group: "system",
+    phase: 1
   },
   {
     title: "Manajemen Pengguna",
@@ -305,7 +334,8 @@ const menuItems = [
     translationKey: "users",
     icon: Users,
     roles: ["admin"] as Role[],
-    group: "system"
+    group: "system",
+    phase: 1
   },
   {
     title: "Log Aktivitas",
@@ -313,7 +343,8 @@ const menuItems = [
     translationKey: "activityLog",
     icon: History,
     roles: ["admin"] as Role[],
-    group: "system"
+    group: "system",
+    phase: 1
   },
   {
     title: "Pengaturan",
@@ -321,7 +352,8 @@ const menuItems = [
     translationKey: "settings",
     icon: Settings,
     roles: ["admin"] as Role[],
-    group: "system"
+    group: "system",
+    phase: 1
   },
 ]
 
@@ -392,10 +424,13 @@ export default function DashboardSidebar({ role, mobileOpen, onMobileOpenChange 
                     "w-full justify-start gap-1.5 relative text-sm",
                     collapsed && "justify-center px-1.5"
                   )}
-                  title={collapsed ? `${groupLabels[groupId]} - ${t(item.translationKey)}` : undefined}
                 >
                   <item.icon className="h-3.5 w-3.5" />
-                  {!collapsed && <span className="text-sm">{t(item.translationKey)}</span>}
+                  {!collapsed && (
+                    <div className="flex items-center justify-between flex-1">
+                      <span className="text-sm">{t(item.translationKey)}</span>
+                    </div>
+                  )}
                 </Button>
               </Link>
             )
