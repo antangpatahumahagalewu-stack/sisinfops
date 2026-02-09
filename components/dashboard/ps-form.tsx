@@ -19,12 +19,10 @@ interface PSFormProps {
 }
 
 const skemaOptions = [
-  { value: "HD", label: "HD (Hutan Desa)" },
+  { value: "HKM", label: "HKm (Hutan Kemasyarakatan)" },
   { value: "HTR", label: "HTR (Hutan Tanaman Rakyat)" },
-  { value: "HKM", label: "HKM (Hutan Kemasyarakatan)" },
   { value: "HA", label: "HA (Hutan Adat)" },
-  { value: "IUPHHK", label: "IUPHHK (Izin Usaha Pemanfaatan Hasil Hutan Kayu)" },
-  { value: "IUPHKm", label: "IUPHKm (Izin Usaha Pemanfaatan Hasil Hutan Bukan Kayu)" },
+  { value: "LPHD", label: "LPHD (Lembaga Pengelola Hutan Desa)" },
 ]
 
 const statusOptions = [
@@ -43,7 +41,7 @@ export function PSForm({ kabupatenOptions, userRole, successRedirectUrl, cancelR
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    skema: "HD",
+    skema: "HKM",
     pemegang_izin: "",
     desa: "",
     kecamatan: "",
@@ -155,7 +153,7 @@ export function PSForm({ kabupatenOptions, userRole, successRedirectUrl, cancelR
 
       // Reset form
       setFormData({
-        skema: "HD",
+        skema: "HKM",
         pemegang_izin: "",
         desa: "",
         kecamatan: "",

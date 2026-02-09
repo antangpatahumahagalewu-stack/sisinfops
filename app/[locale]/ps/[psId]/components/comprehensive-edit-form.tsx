@@ -322,7 +322,7 @@ export function ComprehensiveEditForm({ ps, psId, onSuccess, onCancel }: Compreh
     }
   }
 
-  const skemaOptions = ["Hutan Desa", "Hutan Kemasyarakatan", "Hutan Tanaman Rakyat", "Hutan Adat", "Kemitraan Kehutanan", "LPHD"]
+  const skemaOptions = ["HKm", "HTR", "Hutan Adat", "LPHD"]
   const statusOptions: { value: PsStatus; label: string }[] = [
     { value: "SEHAT", label: "Sehat" },
     { value: "PERLU_PENDAMPINGAN", label: "Perlu Pendampingan" },

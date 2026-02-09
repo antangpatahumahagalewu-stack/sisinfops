@@ -305,7 +305,7 @@ export function EditPsForm({ ps, onSuccess, onCancel }: EditPsFormProps) {
     { value: "RISIKO", label: "Risiko" },
   ]
 
-  const skemaOptions = ["Hutan Desa", "Hutan Kemasyarakatan", "Hutan Tanaman Rakyat", "Hutan Adat", "Kemitraan Kehutanan", "LPHD"]
+  const skemaOptions = ["HKm", "HTR", "Hutan Adat", "LPHD"]
 
   const lembagaInfo = getLembagaInfo(formData.skema)
 

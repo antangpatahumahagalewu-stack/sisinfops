@@ -22,14 +22,10 @@ interface EditPSFormProps {
 }
 
 const skemaOptions = [
-  { value: "HD", label: "HD (Hutan Desa)" },
+  { value: "HKM", label: "HKm (Hutan Kemasyarakatan)" },
   { value: "HTR", label: "HTR (Hutan Tanaman Rakyat)" },
-  { value: "HKM", label: "HKM (Hutan Kemasyarakatan)" },
   { value: "HA", label: "HA (Hutan Adat)" },
-  { value: "IUPHHK", label: "IUPHHK (Izin Usaha Pemanfaatan Hasil Hutan Kayu)" },
-  { value: "IUPHKm", label: "IUPHKm (Izin Usaha Pemanfaatan Hasil Hutan Bukan Kayu)" },
   { value: "LPHD", label: "LPHD (Lembaga Pengelola Hutan Desa)" },
-  { value: "POTENSI", label: "Potensi" },
 ]
 
 const statusOptions = [
@@ -48,7 +44,7 @@ export function EditPSForm({ psData, kabupatenOptions, userRole, onSuccess, onCa
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    skema: psData?.skema || "HD",
+    skema: psData?.skema || "HKM",
     pemegang_izin: psData?.pemegang_izin || "",
     desa: psData?.desa || "",
     kecamatan: psData?.kecamatan || "",
@@ -72,7 +68,7 @@ export function EditPSForm({ psData, kabupatenOptions, userRole, onSuccess, onCa
   useEffect(() => {
     if (psData) {
       setFormData({
-        skema: psData?.skema || "HD",
+        skema: psData?.skema || "HKM",
         pemegang_izin: psData?.pemegang_izin || "",
         desa: psData?.desa || "",
         kecamatan: psData?.kecamatan || "",
