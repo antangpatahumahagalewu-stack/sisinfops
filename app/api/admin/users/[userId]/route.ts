@@ -4,9 +4,10 @@ import { NextRequest, NextResponse } from "next/server"
 // GET: Get user by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+    const { userId } = await params
     const supabase = await createClient()
     
     // Check if user is admin
@@ -30,8 +31,6 @@ export async function GET(
     if (profile.role !== 'admin') {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 })
     }
-    
-    const userId = params.userId
     
     // Get user profile with auth info
     const { data: userProfile, error: userError } = await supabase
@@ -81,9 +80,10 @@ export async function GET(
 // PUT: Update user (including role change - promote/demote)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+    const { userId } = await params
     const supabase = await createClient()
     
     // Check if user is admin
@@ -107,8 +107,6 @@ export async function PUT(
     if (currentProfile.role !== 'admin') {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 })
     }
-    
-    const userId = params.userId
     const body = await request.json()
     
     // Validate required fields
@@ -206,9 +204,10 @@ export async function PUT(
 // DELETE: Delete user
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+    const { userId } = await params
     const supabase = await createClient()
     
     // Check if user is admin
@@ -232,8 +231,6 @@ export async function DELETE(
     if (currentProfile.role !== 'admin') {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 })
     }
-    
-    const userId = params.userId
     
     // Prevent self-deletion
     if (userId === currentUser.id) {

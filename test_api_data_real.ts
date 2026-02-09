@@ -20,7 +20,7 @@ async function testAPIEndpoints() {
       console.log('✅ Koneksi ke Supabase berhasil');
     }
   } catch (error) {
-    console.log('❌ Error koneksi ke Supabase:', error.message);
+    console.log('❌ Error koneksi ke Supabase:', error instanceof Error ? error.message : String(error));
   }
   
   // Test 2: Cek tabel financial_transactions
@@ -58,7 +58,7 @@ async function testAPIEndpoints() {
       }
     }
   } catch (error) {
-    console.log('❌ Error test financial_transactions:', error.message);
+    console.log('❌ Error test financial_transactions:', error instanceof Error ? error.message : String(error));
   }
   
   // Test 3: Cek tabel budgets
@@ -83,7 +83,7 @@ async function testAPIEndpoints() {
       }
     }
   } catch (error) {
-    console.log('❌ Error test budgets:', error.message);
+    console.log('❌ Error test budgets:', error instanceof Error ? error.message : String(error));
   }
   
   // Test 4: Cek tabel price_list
@@ -108,7 +108,7 @@ async function testAPIEndpoints() {
       }
     }
   } catch (error) {
-    console.log('❌ Error test price_list:', error.message);
+    console.log('❌ Error test price_list:', error instanceof Error ? error.message : String(error));
   }
   
   // Test 5: Cek tabel accounting_ledgers
@@ -133,7 +133,7 @@ async function testAPIEndpoints() {
       }
     }
   } catch (error) {
-    console.log('❌ Error test accounting_ledgers:', error.message);
+    console.log('❌ Error test accounting_ledgers:', error instanceof Error ? error.message : String(error));
   }
   
   // Test 6: Test API endpoint /api/finance/transactions
@@ -156,7 +156,7 @@ async function testAPIEndpoints() {
       console.log(`⚠️  API transactions response: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.log('❌ Error test API transactions:', error.message);
+    console.log('❌ Error test API transactions:', error instanceof Error ? error.message : String(error));
   }
   
   // Test 7: Test API endpoint /api/finance/ledgers/balances
@@ -183,7 +183,7 @@ async function testAPIEndpoints() {
       console.log(`⚠️  API ledgers/balances response: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.log('❌ Error test API ledgers/balances:', error.message);
+    console.log('❌ Error test API ledgers/balances:', error instanceof Error ? error.message : String(error));
   }
   
   console.log('\n🎉 Test selesai!');
