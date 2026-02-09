@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { id } = await params;
+    const { id } = await context.params;
 
     // Check authentication
     const { data: { session } } = await supabase.auth.getSession();
@@ -91,11 +91,11 @@ export async function DELETE(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { id } = await params;
+    const { id } = await context.params;
 
     // Check authentication
     const { data: { session } } = await supabase.auth.getSession();
@@ -145,11 +145,11 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { id } = await params;
+    const { id } = await context.params;
 
     // Check authentication
     const { data: { session } } = await supabase.auth.getSession();

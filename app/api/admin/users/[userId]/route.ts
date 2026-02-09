@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from "next/server"
 // GET: Get user by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  context: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = await params
+    const { userId } = await context.params
     const supabase = await createClient()
     
     // Check if user is admin
@@ -80,10 +80,10 @@ export async function GET(
 // PUT: Update user (including role change - promote/demote)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  context: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = await params
+    const { userId } = await context.params
     const supabase = await createClient()
     
     // Check if user is admin
@@ -204,10 +204,10 @@ export async function PUT(
 // DELETE: Delete user
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  context: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = await params
+    const { userId } = await context.params
     const supabase = await createClient()
     
     // Check if user is admin
