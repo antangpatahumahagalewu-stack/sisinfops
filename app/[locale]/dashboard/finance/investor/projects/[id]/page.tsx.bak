@@ -1,0 +1,831 @@
+import { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
+import { notFound, redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
+import { 
+  TreePine, DollarSign, Map, Calendar, FileText, TrendingUp, Target, 
+  Users, Globe, BarChart3, Download, Share2, Edit, ArrowLeft 
+} from "lucide-react"
+import Link from "next/link"
+
+interface ProjectData {
+  id: string;
+  kode_project: string;
+  nama_project: string;
+  status: string;
+  luas_total_ha: number;
+  standar_karbon: string;
+  metodologi: string;
+  tanggal_mulai: string | null;
+  project_type: string;
+  estimated_credits: number;
+  issued_credits: number;
+  verification_status: string;
+  project_description: string;
+  created_at: string;
+  updated_at: string;
+  kabupaten?: string; // Optional, might not exist in database
+}
+
+interface FinancialData {
+  total_investment: number;
+  spent_amount: number;
+  remaining_amount: number;
+  average_per_ha: number;
+}
+
+interface CarbonData {
+  total_area_ha: number;
+  estimated_co2_storage: number;
+  standard: string;
+  verification_status: string;
+  area_description: string;
+}
+
+// Mapping dari ID numerik di URL ke UUID di database
+const PROJECT_ID_MAPPING: Record<string, string> = {
+  "1": "17a97b56-a525-4c65-b627-2e1e9e3ce343", // Pulang Pisau
+  "2": "db56f3d7-60c8-42a6-aff1-2220b51b32de", // Gunung Mas  
+  "3": "61f9898e-224a-4841-9cd3-102f8c387943", // Kapuas
+  "4": "a71ef98b-4213-41cc-8616-f450aae8889d", // Katingan
+};
+
+// Mapping nama kabupaten berdasarkan project
+const KABUPATEN_MAPPING: Record<string, string> = {
+  "17a97b56-a525-4c65-b627-2e1e9e3ce343": "Pulang Pisau",
+  "db56f3d7-60c8-42a6-aff1-2220b51b32de": "Gunung Mas",
+  "61f9898e-224a-4841-9cd3-102f8c387943": "Kapuas",
+  "a71ef98b-4213-41cc-8616-f450aae8889d": "Katingan",
+};
+
+async function getCarbonProject(id: string): Promise<ProjectData | null> {
+  const supabase = await createClient()
+  
+  // Convert numeric ID to UUID if needed
+  const projectId = PROJECT_ID_MAPPING[id] || id
+  
+  const { data, error } = await supabase
+    .from("carbon_projects")
+    .select("*")
+    .eq("id", projectId)
+    .single()
+
+  if (error || !data) {
+    console.error("Error fetching carbon project:", error)
+    return null
+  }
+
+  return data as ProjectData
+}
+
+async function getFinancialData(projectId: string): Promise<FinancialData> {
+  // Convert numeric ID to UUID if needed
+  const dbId = PROJECT_ID_MAPPING[projectId] || projectId
+  
+  // Get area data directly from database
+  let area = 0;
+  try {
+    // Use the new database-driven area data function
+    const areaData = await getAreaDataFromDatabase();
+    const projectAreaData = areaData[dbId];
+    
+    if (projectAreaData) {
+      area = projectAreaData.total_area_ha;
+    } else {
+      // If not found in view, try to query carbon_projects table directly
+      const supabase = await createClient();
+      const { data: project } = await supabase
+        .from("carbon_projects")
+        .select("luas_total_ha, ps_id")
+        .eq("id", dbId)
+        .single();
+      
+      if (project?.luas_total_ha) {
+        area = project.luas_total_ha;
+      } else if (project?.ps_id) {
+        // Calculate from perhutanan_sosial
+        const { data: ps } = await supabase
+          .from("perhutanan_sosial")
+          .select("luas_ha")
+          .eq("id", project.ps_id)
+          .single();
+        
+        area = ps?.luas_ha || 0;
+      }
+    }
+  } catch (error) {
+    console.error('Error getting area data for financial calculation:', error);
+    // Last resort: use fallback function
+    try {
+      const fallbackData = await getAreaDataFallback();
+      area = fallbackData[dbId]?.total_area_ha || 0;
+    } catch (fallbackError) {
+      console.error('Even fallback failed:', fallbackError);
+      area = 0;
+    }
+  }
+  
+  const average_per_ha = 5684603 // Rata-rata Rp 5.684.603 per ha
+  const total_investment = Math.round(area * average_per_ha)
+  const spent_amount = Math.round(total_investment * 0.6) // 60% spent
+  const remaining_amount = total_investment - spent_amount
+
+  return {
+    total_investment,
+    spent_amount,
+    remaining_amount,
+    average_per_ha
+  }
+}
+
+async function getAreaDataFromDatabase(): Promise<Record<string, { total_area_ha: number, area_description: string }>> {
+  try {
+    // Primary: Use the existing API that we know works
+    // This API already queries the v_carbon_projects_kabupaten_luas view internally
+    const response = await fetch('http://localhost:3002/api/dashboard/kabupaten-carbon-luas', {
+      cache: 'no-store' // Ensure fresh data
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API responded with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error('API returned unsuccessful response');
+    }
+    
+    const kabupatenData = data.data?.kabupaten_with_carbon_projects || [];
+    
+    const areaMap: Record<string, { total_area_ha: number, area_description: string }> = {};
+    
+    // Process each kabupaten with carbon projects
+    kabupatenData.forEach((kab: any) => {
+      // Find matching project ID based on kabupaten name
+      const cleanKabupatenName = kab.nama.replace('Kabupaten ', '').trim();
+      
+      // Find project ID that matches this kabupaten
+      const projectId = Object.keys(PROJECT_ID_MAPPING).find(
+        key => {
+          const uuid = PROJECT_ID_MAPPING[key];
+          return KABUPATEN_MAPPING[uuid] === cleanKabupatenName;
+        }
+      );
+      
+      if (projectId) {
+        const uuid = PROJECT_ID_MAPPING[projectId];
+        if (uuid) {
+          // Special handling for Pulang Pisau project (ID 1) - gabungan dua wilayah
+          if (cleanKabupatenName === 'Pulang Pisau') {
+            areaMap[uuid] = {
+              total_area_ha: kab.luas_total_ha,
+              area_description: `${kab.luas_total_ha.toLocaleString('id-ID')} ha (gabungan Kabupaten Pulang Pisau dan Kotamadya Palangka Raya)`
+            };
+          } else {
+            areaMap[uuid] = {
+              total_area_ha: kab.luas_total_ha,
+              area_description: `${kab.luas_total_ha.toLocaleString('id-ID')} ha`
+            };
+          }
+        }
+      }
+    });
+    
+    console.log('Successfully fetched area data from API:', Object.keys(areaMap).length, 'projects');
+    return areaMap;
+  } catch (error) {
+    console.error('Error fetching area data from API:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : 'Unknown',
+      fullError: error
+    });
+    // Fallback to querying database tables directly
+    try {
+      console.log('Attempting database fallback...');
+      return await getAreaDataFallback();
+    } catch (fallbackError) {
+      console.error('Database fallback also failed:', {
+        message: fallbackError instanceof Error ? fallbackError.message : 'Unknown error',
+        stack: fallbackError instanceof Error ? fallbackError.stack : undefined,
+        name: fallbackError instanceof Error ? fallbackError.name : 'Unknown',
+        fullError: fallbackError
+      });
+      throw fallbackError;
+    }
+  }
+}
+
+async function getAreaDataFallback(): Promise<Record<string, { total_area_ha: number, area_description: string }>> {
+  try {
+    const supabase = await createClient();
+    
+    // Get all carbon projects with their ps_id
+    const { data: carbonProjects, error: cpError } = await supabase
+      .from("carbon_projects")
+      .select("id, ps_id, kabupaten");
+    
+    if (cpError) {
+      console.error("Error fetching carbon projects for fallback:", cpError);
+      throw cpError;
+    }
+    
+    const areaMap: Record<string, { total_area_ha: number, area_description: string }> = {};
+    
+    // For each carbon project, calculate area from perhutanan_sosial
+    for (const cp of carbonProjects || []) {
+      let total_area_ha = 0;
+      let area_description = "";
+      
+      if (cp.ps_id) {
+        // Get area from perhutanan_sosial
+        const { data: psData } = await supabase
+          .from("perhutanan_sosial")
+          .select("luas_ha, kabupaten_id")
+          .eq("id", cp.ps_id)
+          .single();
+        
+        total_area_ha = psData?.luas_ha || 0;
+        area_description = `${total_area_ha.toLocaleString('id-ID')} ha`;
+      }
+      
+      // Special handling for Pulang Pisau
+      if (cp.id === "17a97b56-a525-4c65-b627-2e1e9e3ce343") {
+        // Pulang Pisau is a combination of multiple PS areas
+        // We'll use a simplified calculation
+        total_area_ha = 27876; // From database view logic
+        area_description = "27,876 ha (gabungan Kabupaten Pulang Pisau dan Kotamadya Palangka Raya)";
+      }
+      
+      if (total_area_ha > 0) {
+        areaMap[cp.id] = {
+          total_area_ha,
+          area_description
+        };
+      }
+    }
+    
+    return areaMap;
+  } catch (error) {
+    console.error('Error in getAreaDataFallback:', error);
+    // Ultimate fallback to hardcoded values (should rarely happen)
+    return {
+      "17a97b56-a525-4c65-b627-2e1e9e3ce343": { // Pulang Pisau - gabungan dua wilayah
+        total_area_ha: 27876,
+        area_description: "27,876 ha (gabungan Kabupaten Pulang Pisau dan Kotamadya Palangka Raya)"
+      },
+      "db56f3d7-60c8-42a6-aff1-2220b51b32de": { // Gunung Mas
+        total_area_ha: 72800.99,
+        area_description: "72,800.99 ha"
+      },
+      "61f9898e-224a-4841-9cd3-102f8c387943": { // Kapuas
+        total_area_ha: 56771,
+        area_description: "56,771 ha"
+      },
+      "a71ef98b-4213-41cc-8616-f450aae8889d": { // Katingan
+        total_area_ha: 29239,
+        area_description: "29,239 ha"
+      }
+    };
+  }
+}
+
+// Deprecated: keeping for backward compatibility
+async function getAreaData(): Promise<Record<string, { total_area_ha: number, area_description: string }>> {
+  return await getAreaDataFromDatabase();
+}
+
+async function getCarbonData(project: ProjectData): Promise<CarbonData> {
+  // Get kabupaten from mapping
+  const kabupatenName = KABUPATEN_MAPPING[project.id] || "Tidak diketahui"
+  
+  // Get area data from API or fallback
+  const areaData = await getAreaData();
+  const projectAreaData = areaData[project.id];
+  
+  let total_area_ha = 0;
+  let area_description = "";
+  
+  if (projectAreaData) {
+    total_area_ha = projectAreaData.total_area_ha;
+    area_description = projectAreaData.area_description;
+  } else {
+    // Fallback to database value if available
+    total_area_ha = project.luas_total_ha || 0;
+    area_description = `${total_area_ha.toLocaleString('id-ID')} ha`;
+  }
+
+  // Convert estimated_credits to CO2 storage (1 credit = 1 ton CO2)
+  const estimated_co2_storage = project.estimated_credits || 0
+
+  return {
+    total_area_ha,
+    estimated_co2_storage,
+    standard: project.standar_karbon || "VCS",
+    verification_status: project.verification_status || "verified",
+    area_description
+  }
+}
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ locale: string; id: string }>
+}): Promise<Metadata> {
+  const { locale, id } = await params
+  const t = await getTranslations({ locale, namespace: 'dashboard' })
+  
+  const project = await getCarbonProject(id)
+  
+  return {
+    title: project ? `${project.nama_project} - Investor Dashboard` : "Project Not Found",
+    description: project ? `Detail investasi dan keuangan untuk ${project.nama_project}` : "Project tidak ditemukan",
+  }
+}
+
+export default async function InvestorProjectDetailPage({
+  params
+}: {
+  params: Promise<{ locale: string; id: string }>
+}) {
+  const { locale, id } = await params
+  const supabase = await createClient()
+  
+  // Check authentication
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) {
+    redirect(`/${locale}/login?redirect=/dashboard/finance/investor/projects/${id}`)
+  }
+
+  // Fetch project data
+  const project = await getCarbonProject(id)
+  if (!project) {
+    notFound()
+  }
+
+  // Fetch additional data
+  const financialData = await getFinancialData(id)
+  const carbonData = await getCarbonData(project)
+
+  // Helper functions
+  const getKabupatenName = (): string => {
+    return KABUPATEN_MAPPING[project.id] || project.kabupaten || "Tidak diketahui"
+  }
+
+  // Status badge color
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      'active': 'bg-green-100 text-green-800',
+      'draft': 'bg-gray-100 text-gray-800',
+      'approved': 'bg-blue-100 text-blue-800',
+      'completed': 'bg-purple-100 text-purple-800',
+      'suspended': 'bg-yellow-100 text-yellow-800'
+    }
+    return colors[status] || colors.draft
+  }
+
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    if (amount >= 1000000000) {
+      return `Rp ${(amount / 1000000000).toFixed(2)} M`
+    } else if (amount >= 1000000) {
+      return `Rp ${(amount / 1000000).toFixed(2)} Jt`
+    } else {
+      return `Rp ${amount.toLocaleString('id-ID')}`
+    }
+  }
+
+  // Format large numbers
+  const formatNumber = (num: number) => {
+    return num.toLocaleString('id-ID')
+  }
+
+  // Calculate progress percentage
+  const progressPercentage = financialData.total_investment > 0 
+    ? Math.round((financialData.spent_amount / financialData.total_investment) * 100)
+    : 0
+
+  // Get kabupaten name for display
+  const kabupatenName = getKabupatenName()
+
+  return (
+    <div className="container mx-auto p-4 md:p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-start gap-3">
+          <Button variant="outline" size="sm" asChild className="mt-1">
+            <Link href={`/${locale}/dashboard/finance/investor`}>
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Kembali
+            </Link>
+          </Button>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{project.nama_project}</h1>
+              <Badge className={getStatusColor(project.status)}>
+                {project.status.toUpperCase()}
+              </Badge>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <TreePine className="h-4 w-4" />
+                <span>{project.kode_project}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Map className="h-4 w-4" />
+                <span>{project.kabupaten || "Belum ditentukan"}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                <span>
+                  {project.tanggal_mulai 
+                    ? new Date(project.tanggal_mulai).toLocaleDateString('id-ID')
+                    : "Belum dimulai"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+          <Button variant="outline" size="sm">
+            <Share2 className="h-4 w-4 mr-2" />
+            Share
+          </Button>
+          <Button size="sm">
+            <Edit className="h-4 w-4 mr-2" />
+            Edit
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-green-600" />
+              Total Investasi
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(financialData.total_investment)}</div>
+            <p className="text-xs text-muted-foreground">
+              Rata²: {formatCurrency(financialData.average_per_ha)}/ha
+            </p>
+            <div className="mt-2">
+              <div className="flex justify-between text-xs">
+                <span>Terkeluarkan: {formatCurrency(financialData.spent_amount)}</span>
+                <span>{progressPercentage}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                <div 
+                  className="bg-green-600 h-1.5 rounded-full" 
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Map className="h-4 w-4 text-blue-600" />
+              Luas Area
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatNumber(carbonData.total_area_ha)} ha</div>
+            <p className="text-xs text-muted-foreground">
+              {carbonData.area_description || (id === "1" ? "Gabungan Kabupaten Pulang Pisau dan Kotamadya Palangka Raya" : "Total area project")}
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">
+                Kabupaten {project.kabupaten || "Tidak diketahui"}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Target className="h-4 w-4 text-purple-600" />
+              Estimasi Karbon
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatNumber(carbonData.estimated_co2_storage)}</div>
+            <p className="text-xs text-muted-foreground">Ton CO₂e</p>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="text-xs px-2 py-1 bg-purple-50 text-purple-700 rounded">
+                {carbonData.standard}
+              </div>
+              <div className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded">
+                {carbonData.verification_status}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-orange-600" />
+              Progress Project
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{progressPercentage}%</div>
+            <p className="text-xs text-muted-foreground">
+              {project.tanggal_mulai 
+                ? `Dimulai: ${new Date(project.tanggal_mulai).toLocaleDateString('id-ID')}`
+                : "Belum dimulai"}
+            </p>
+            <div className="mt-2">
+              <div className="flex justify-between text-xs">
+                <span>Timeline</span>
+                <span>Tidak ada tanggal selesai</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="finance" className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4" />
+            Keuangan
+          </TabsTrigger>
+          <TabsTrigger value="carbon" className="flex items-center gap-2">
+            <TreePine className="h-4 w-4" />
+            Karbon
+          </TabsTrigger>
+          <TabsTrigger value="documents" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Dokumen
+          </TabsTrigger>
+          <TabsTrigger value="timeline" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            Timeline
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Project Description</CardTitle>
+                <CardDescription>
+                  Deskripsi lengkap project karbon
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm">
+                  {project.project_description || "Belum ada deskripsi project yang tersedia."}
+                </p>
+                <div className="mt-4 space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Metodologi:</span>
+                    <span className="text-sm">{project.metodologi || "Tidak tersedia"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Standar Karbon:</span>
+                    <span className="text-sm">{project.standar_karbon || "Tidak tersedia"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">Lokasi:</span>
+                    <span className="text-sm">{project.kabupaten || "Tidak tersedia"}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Financial Snapshot</CardTitle>
+                <CardDescription>
+                  Ringkasan keuangan project
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">Alokasi Dana</span>
+                      <span className="text-sm">{progressPercentage}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-green-600 h-2 rounded-full" 
+                        style={{ width: `${progressPercentage}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      <span>Terkeluarkan: {formatCurrency(financialData.spent_amount)}</span>
+                      <span>Tersisa: {formatCurrency(financialData.remaining_amount)}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                      <div className="text-xs text-blue-700">Total Investasi</div>
+                      <div className="font-bold text-blue-900">{formatCurrency(financialData.total_investment)}</div>
+                    </div>
+                    <div className="bg-green-50 p-3 rounded-lg">
+                      <div className="text-xs text-green-700">Rata² per ha</div>
+                      <div className="font-bold text-green-900">{formatCurrency(financialData.average_per_ha)}</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>
+                Akses cepat ke fitur project management
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 md:grid-cols-4">
+                <Button asChild variant="outline" className="justify-start h-auto py-3">
+                  <Link href={`/${locale}/dashboard/finance/transactions?project_id=${id}`}>
+                    <div className="text-left">
+                      <div className="font-medium">Lihat Transaksi</div>
+                      <div className="text-xs text-muted-foreground">Transaksi keuangan project</div>
+                    </div>
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="justify-start h-auto py-3">
+                  <Link href={`/${locale}/dashboard/carbon-projects/${id}`}>
+                    <div className="text-left">
+                      <div className="font-medium">Detail Karbon</div>
+                      <div className="text-xs text-muted-foreground">Data monitoring karbon</div>
+                    </div>
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="justify-start h-auto py-3">
+                  <Link href={`/${locale}/dashboard/finance/reports?project_id=${id}`}>
+                    <div className="text-left">
+                      <div className="font-medium">Generate Laporan</div>
+                      <div className="text-xs text-muted-foreground">Laporan keuangan</div>
+                    </div>
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="justify-start h-auto py-3">
+                  <Link href={`/${locale}/dashboard/finance/budgets?project_id=${id}`}>
+                    <div className="text-left">
+                      <div className="font-medium">Kelola Anggaran</div>
+                      <div className="text-xs text-muted-foreground">Anggaran project</div>
+                    </div>
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Finance Tab - Placeholder */}
+        <TabsContent value="finance">
+          <Card>
+            <CardHeader>
+              <CardTitle>Detail Keuangan</CardTitle>
+              <CardDescription>
+                Data keuangan lengkap untuk project ini
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <DollarSign className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-semibold">Halaman Keuangan dalam Pengembangan</h3>
+                <p className="text-muted-foreground mt-2">
+                  Fitur detail keuangan sedang dalam pengembangan.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Carbon Tab - Placeholder */}
+        <TabsContent value="carbon">
+          <Card>
+            <CardHeader>
+              <CardTitle>Data Karbon</CardTitle>
+              <CardDescription>
+                Monitoring dan analisis data karbon
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <TreePine className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-semibold">Halaman Karbon dalam Pengembangan</h3>
+                <p className="text-muted-foreground mt-2">
+                  Fitur monitoring karbon sedang dalam pengembangan.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Documents Tab - Placeholder */}
+        <TabsContent value="documents">
+          <Card>
+            <CardHeader>
+              <CardTitle>Dokumen Project</CardTitle>
+              <CardDescription>
+                Dokumen dan file terkait project
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-semibold">Halaman Dokumen dalam Pengembangan</h3>
+                <p className="text-muted-foreground mt-2">
+                  Fitur manajemen dokumen sedang dalam pengembangan.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Timeline Tab - Placeholder */}
+        <TabsContent value="timeline">
+          <Card>
+            <CardHeader>
+              <CardTitle>Timeline Project</CardTitle>
+              <CardDescription>
+                Jadwal dan timeline implementasi
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <Calendar className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-semibold">Halaman Timeline dalam Pengembangan</h3>
+                <p className="text-muted-foreground mt-2">
+                  Fitur timeline project sedang dalam pengembangan.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Footer Info */}
+      <Card className="bg-blue-50/50 border-blue-200">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-4">
+            <div className="bg-blue-100 p-3 rounded-lg">
+              <TreePine className="h-6 w-6 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold">Investor Project Dashboard</h3>
+              <p className="text-sm text-muted-foreground mt-2">
+                Halaman ini menyediakan detail lengkap tentang project karbon untuk investor.
+                Semua data keuangan, progress, dan monitoring tersedia dalam satu dashboard terintegrasi.
+              </p>
+              <div className="grid md:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Data yang Tersedia</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Detail investasi dan anggaran</li>
+                    <li>• Progress implementasi project</li>
+                    <li>• Data penyerapan karbon</li>
+                    <li>• Timeline dan jadwal</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Fitur yang Akan Datang</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Chart dan visualisasi interaktif</li>
+                    <li>• Export laporan otomatis</li>
+                    <li>• Notifikasi real-time</li>
+                    <li>• Integrasi dengan Verra registry</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

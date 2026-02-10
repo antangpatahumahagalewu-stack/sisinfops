@@ -1,10 +1,41 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 
-// Helper function to calculate summary from raw projects
-function calculateSummaryFromProjects(projects: any[]) {
+// Helper function to map project name to kabupaten
+function mapProjectToKabupaten(projectName: string): string | null {
+  const name = projectName || '';
+  
+  if (name.includes('Gunung Mas')) {
+    return 'Kabupaten Gunung Mas';
+  } else if (name.includes('Pulang Pisau')) {
+    return 'Kabupaten Pulang Pisau';
+  } else if (name.includes('Kapuas')) {
+    return 'Kabupaten Kapuas';
+  } else if (name.includes('Katingan')) {
+    return 'Kabupaten Katingan';
+  } else if (name.includes('Kotawaringin')) {
+    return 'Kabupaten Kotawaringin Timur';
+  }
+  
+  return null;
+}
+
+// Helper function to calculate summary from raw projects with kabupaten luas
+function calculateSummaryFromProjects(projects: any[], kabupatenLuasMap: Record<string, number>) {
   const totalCarbonProjects = projects.length
-  const totalAreaHectares = projects.reduce((sum, p) => sum + (p.luas_total_ha || 0), 0)
+  
+  // Calculate total area based on kabupaten mapping
+  let totalAreaHectares = 0
+  const projectKabupatenMap: Record<string, boolean> = {}
+  
+  projects.forEach(project => {
+    const kabupatenName = mapProjectToKabupaten(project.nama_project || project.name || '')
+    if (kabupatenName && kabupatenLuasMap[kabupatenName]) {
+      totalAreaHectares += kabupatenLuasMap[kabupatenName]
+      projectKabupatenMap[kabupatenName] = true
+    }
+  })
+  
   const estimatedCarbonSequestration = projects.reduce((sum, p) => sum + (p.carbon_sequestration_estimated || 0), 0)
   const totalInvestment = projects.reduce((sum, p) => sum + (p.investment_amount || 0), 0)
   const averageROI = projects.length > 0 
@@ -110,6 +141,20 @@ export async function GET(request: NextRequest) {
     let projectsData: any[] = []
     let performanceData: any[] = []
 
+    // First, get kabupaten data for luas mapping
+    const { data: kabupatenData, error: kabError } = await supabase
+      .from("kabupaten")
+      .select("nama, luas_total_ha")
+      .order("nama")
+    
+    const kabupatenLuasMap: Record<string, number> = {}
+    
+    if (!kabError && kabupatenData) {
+      kabupatenData.forEach(kab => {
+        kabupatenLuasMap[kab.nama] = kab.luas_total_ha || 0
+      })
+    }
+
     try {
       // Try to use views first (if migration has been run)
       const { data: summaryViewData, error: summaryError } = await supabase
@@ -155,7 +200,7 @@ export async function GET(request: NextRequest) {
         }
 
         projectsData = rawProjects || []
-        summaryData = calculateSummaryFromProjects(projectsData)
+        summaryData = calculateSummaryFromProjects(projectsData, kabupatenLuasMap)
       }
 
     } catch (viewError: any) {
@@ -166,21 +211,27 @@ export async function GET(request: NextRequest) {
       try {
         const { data: rawProjects } = await supabase
           .from("carbon_projects")
-          .select("id, kode_project, nama_project, status, luas_total_ha")
+          .select("id, kode_project, nama_project, status")
           .order("created_at", { ascending: false })
           .limit(5)
 
         if (rawProjects && rawProjects.length > 0) {
-          projectsData = rawProjects.map(p => ({
-            ...p,
-            carbon_sequestration_estimated: p.luas_total_ha * 100,
-            investment_amount: p.luas_total_ha * 5000000,
-            roi_percentage: p.status === 'active' ? 15 + Math.random() * 10 : 10 + Math.random() * 5,
-            tanggal_mulai: new Date().toISOString().split('T')[0],
-            tanggal_selesai: new Date(new Date().getFullYear() + 10, 0, 1).toISOString().split('T')[0]
-          }))
+          projectsData = rawProjects.map(p => {
+            // Determine area based on kabupaten mapping
+            const kabupatenName = mapProjectToKabupaten(p.nama_project || '')
+            const kabupatenLuas = kabupatenName ? kabupatenLuasMap[kabupatenName] || 0 : 0
+            
+            return {
+              ...p,
+              carbon_sequestration_estimated: kabupatenLuas * 100,
+              investment_amount: kabupatenLuas * 5000000,
+              roi_percentage: p.status === 'active' ? 15 + Math.random() * 10 : 10 + Math.random() * 5,
+              tanggal_mulai: new Date().toISOString().split('T')[0],
+              tanggal_selesai: new Date(new Date().getFullYear() + 10, 0, 1).toISOString().split('T')[0]
+            }
+          })
           
-          summaryData = calculateSummaryFromProjects(projectsData)
+          summaryData = calculateSummaryFromProjects(projectsData, kabupatenLuasMap)
           dataSource = "database_basic"
         }
       } catch (basicError) {
@@ -284,22 +335,27 @@ export async function GET(request: NextRequest) {
       }
     ]
 
-    // Format project performance data
-    const projectPerformance = projectsData.map((project: any) => ({
-      name: project.nama_project || `Project ${project.kode_project || project.id}`,
-      status: (project.status || 'draft').toUpperCase(),
-      area_hectares: project.luas_total_ha || 0,
-      carbon_sequestration: project.carbon_sequestration_estimated || 0,
-      investment_amount: project.investment_amount || 0,
-      roi_percentage: project.roi_percentage || 0,
-      start_date: project.tanggal_mulai || new Date().toISOString().split('T')[0],
-      end_date: project.tanggal_selesai || 
-        new Date(new Date(project.tanggal_mulai || new Date()).getFullYear() + 10, 0, 1)
-          .toISOString().split('T')[0],
-      kode_project: project.kode_project || `PRJ-${project.id}`,
-      performance_rating: project.performance_rating || 'average',
-      credits_issued: project.credits_issued || 0
-    }))
+    // Format project performance data with correct kabupaten luas
+    const projectPerformance = projectsData.map((project: any) => {
+      const kabupatenName = mapProjectToKabupaten(project.nama_project || '')
+      const kabupatenLuas = kabupatenName ? kabupatenLuasMap[kabupatenName] || 0 : 0
+      
+      return {
+        name: project.nama_project || `Project ${project.kode_project || project.id}`,
+        status: (project.status || 'draft').toUpperCase(),
+        area_hectares: kabupatenLuas,
+        carbon_sequestration: project.carbon_sequestration_estimated || 0,
+        investment_amount: project.investment_amount || 0,
+        roi_percentage: project.roi_percentage || 0,
+        start_date: project.tanggal_mulai || new Date().toISOString().split('T')[0],
+        end_date: project.tanggal_selesai || 
+          new Date(new Date(project.tanggal_mulai || new Date()).getFullYear() + 10, 0, 1)
+            .toISOString().split('T')[0],
+        kode_project: project.kode_project || `PRJ-${project.id}`,
+        performance_rating: project.performance_rating || 'average',
+        credits_issued: project.credits_issued || 0
+      }
+    })
 
     // Update summary with actual financial data
     const finalSummary = {

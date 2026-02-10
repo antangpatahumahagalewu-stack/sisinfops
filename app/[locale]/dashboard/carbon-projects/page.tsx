@@ -5,11 +5,59 @@ import { TreePine, Plus, Eye, Edit, Trash2, ArrowUpRight, CheckCircle, XCircle }
 import Link from "next/link"
 import { canManageCarbonProjects } from "@/lib/auth/rbac"
 
+interface KabupatenCarbonLuasData {
+  total_luas_ha: number;
+  total_kabupaten_with_carbon: number;
+}
+
+async function getKabupatenCarbonLuas(): Promise<KabupatenCarbonLuasData> {
+  try {
+    // Server-side fetch requires absolute URL
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const url = `${baseUrl}/api/dashboard/kabupaten-carbon-luas`;
+    
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+    
+    if (!response.ok) {
+      console.error("Failed to fetch kabupaten carbon luas data, status:", response.status)
+      return {
+        total_luas_ha: 0,
+        total_kabupaten_with_carbon: 0
+      }
+    }
+    
+    const data = await response.json()
+    if (data.success) {
+      return {
+        total_luas_ha: data.data.total_luas_ha,
+        total_kabupaten_with_carbon: data.data.total_kabupaten_with_carbon
+      }
+    }
+    
+    console.error("API returned unsuccessful response:", data)
+    return {
+      total_luas_ha: 0,
+      total_kabupaten_with_carbon: 0
+    }
+  } catch (error) {
+    console.error("Error fetching kabupaten carbon luas:", error)
+    return {
+      total_luas_ha: 0,
+      total_kabupaten_with_carbon: 0
+    }
+  }
+}
+
 export default async function CarbonProjectsPage() {
   const supabase = await createClient()
   const canManage = await canManageCarbonProjects()
 
-  // Fetch carbon projects
+  // Fetch carbon projects (simple query without nested joins)
   const { data: carbonProjects, error } = await supabase
     .from("carbon_projects")
     .select("*")
@@ -17,7 +65,23 @@ export default async function CarbonProjectsPage() {
 
   if (error) {
     console.error("Error fetching carbon projects:", error)
+    // Return empty array to prevent further errors
   }
+
+  // Get kabupaten carbon luas data from API (only for total stats)
+  const kabupatenData = await getKabupatenCarbonLuas()
+  const {
+    total_luas_ha: totalLuasKabupaten,
+    total_kabupaten_with_carbon: totalKabupatenWithCarbon
+  } = kabupatenData
+
+  // Process carbon projects - use luas_total_ha from carbon_projects table
+  const processedCarbonProjects = carbonProjects?.map(project => ({
+    ...project,
+    // Use luas_total_ha directly from carbon_projects table
+    // This is the primary source for project area
+    project_luas_ha: project.luas_total_ha || 0
+  })) || []
 
   // Status badge component
   const StatusBadge = ({ status }: { status: string }) => {
@@ -74,9 +138,9 @@ export default async function CarbonProjectsPage() {
             <TreePine className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{carbonProjects?.length || 0}</div>
+            <div className="text-2xl font-bold">{processedCarbonProjects.length || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {carbonProjects?.filter(p => p.status === 'active').length || 0} aktif
+              {processedCarbonProjects.filter(p => p.status === 'active').length || 0} aktif
             </p>
           </CardContent>
         </Card>
@@ -88,7 +152,7 @@ export default async function CarbonProjectsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {Array.from(new Set(carbonProjects?.map(p => p.standar_karbon).filter(Boolean))).length}
+              {Array.from(new Set(processedCarbonProjects.map(p => p.standar_karbon).filter(Boolean))).length}
             </div>
             <p className="text-xs text-muted-foreground">Jenis standar berbeda</p>
           </CardContent>
@@ -101,9 +165,11 @@ export default async function CarbonProjectsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {carbonProjects?.reduce((sum, p) => sum + (p.luas_total_ha || 0), 0).toLocaleString('id-ID')}
+              {totalLuasKabupaten.toLocaleString('id-ID')}
             </div>
-            <p className="text-xs text-muted-foreground">Hektar</p>
+            <p className="text-xs text-muted-foreground">
+              {totalKabupatenWithCarbon || 0} kabupaten dengan carbon projects
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -117,22 +183,22 @@ export default async function CarbonProjectsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {carbonProjects && carbonProjects.length > 0 ? (
+          {processedCarbonProjects && processedCarbonProjects.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
                     <th className="text-left py-3 px-4 font-medium">Kode Project</th>
                     <th className="text-left py-3 px-4 font-medium">Nama Project</th>
+                    <th className="text-left py-3 px-4 font-medium">Luas Project (Ha)</th>
                     <th className="text-left py-3 px-4 font-medium">Standar</th>
-                    <th className="text-left py-3 px-4 font-medium">Luas (Ha)</th>
                     <th className="text-left py-3 px-4 font-medium">Status</th>
                     <th className="text-left py-3 px-4 font-medium">Tanggal Mulai</th>
                     <th className="text-left py-3 px-4 font-medium">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {carbonProjects.map((project) => (
+                  {processedCarbonProjects.map((project) => (
                     <tr key={project.id} className="border-b hover:bg-muted/50">
                       <td className="py-3 px-4 font-medium">{project.kode_project}</td>
                       <td className="py-3 px-4">
@@ -144,11 +210,19 @@ export default async function CarbonProjectsPage() {
                         </div>
                       </td>
                       <td className="py-3 px-4">
+                        {project.project_luas_ha ? (
+                          <span className="font-medium">
+                            {project.project_luas_ha.toLocaleString('id-ID')}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">-</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
                         <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
                           {project.standar_karbon}
                         </span>
                       </td>
-                      <td className="py-3 px-4">{project.luas_total_ha?.toLocaleString('id-ID')}</td>
                       <td className="py-3 px-4">
                         <StatusBadge status={project.status} />
                       </td>
