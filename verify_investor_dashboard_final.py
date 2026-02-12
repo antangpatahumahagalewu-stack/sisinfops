@@ -213,3 +213,4 @@ def main():
     print("- Dashboard URL: http://localhost:3000/id/dashboard/investor")
 
 if __name__ == "__main__":
+    main()

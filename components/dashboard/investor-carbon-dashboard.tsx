@@ -55,6 +55,8 @@ interface InvestorDashboardData {
     kode_project: string
     performance_rating: string
     credits_issued: number
+    project_id?: string
+    uuid?: string
   }[]
   financialSummary: {
     period: string
@@ -433,10 +435,17 @@ export function InvestorCarbonDashboard() {
                   </div>
                   <div className="mt-3 pt-3 border-t">
                     <Button size="sm" variant="ghost" className="w-full" asChild>
-                      <Link href={`/dashboard/finance/investor/projects/${index + 1}`}>
-                        <Eye className="mr-2 h-3 w-3" />
-                        View Project Details
-                      </Link>
+                      {project.project_id || project.uuid ? (
+                        <Link href={`/dashboard/carbon-projects/${project.project_id || project.uuid}?view=investor`}>
+                          <Eye className="mr-2 h-3 w-3" />
+                          View Project Details
+                        </Link>
+                      ) : (
+                        <Link href={`/dashboard/finance/investor/projects/${index + 1}`}>
+                          <Eye className="mr-2 h-3 w-3" />
+                          View Project Details (Legacy)
+                        </Link>
+                      )}
                     </Button>
                   </div>
                 </div>

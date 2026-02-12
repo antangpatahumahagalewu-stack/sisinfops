@@ -361,9 +361,9 @@ export default async function StatisticsPage({
           <CardContent>
             <div className="space-y-4">
               {Object.entries(jenisHutanStats)
-                .sort(([, a], [, b]) => b.count - a.count)
+                .sort(([, a], [, b]) => b.luas - a.luas)
                 .map(([jenis, stats]) => {
-                  const percentage = totalPS > 0 ? (stats.count / totalPS) * 100 : 0
+                  const percentage = totalLuas > 0 ? (stats.luas / totalLuas) * 100 : 0
                   return (
                     <div key={jenis} className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -413,11 +413,11 @@ export default async function StatisticsPage({
               </thead>
               <tbody>
                 {jenisHutanByKabupaten.map((kab) => {
-                  const mineralPercentage = kab.total.count > 0 
-                    ? ((kab.mineral.count / kab.total.count) * 100).toFixed(1) 
+                  const mineralPercentage = kab.total.luas > 0 
+                    ? ((kab.mineral.luas / kab.total.luas) * 100).toFixed(1) 
                     : '0.0'
-                  const gambutPercentage = kab.total.count > 0 
-                    ? ((kab.gambut.count / kab.total.count) * 100).toFixed(1) 
+                  const gambutPercentage = kab.total.luas > 0 
+                    ? ((kab.gambut.luas / kab.total.luas) * 100).toFixed(1) 
                     : '0.0'
                   
                   return (

@@ -101,6 +101,20 @@ function getFallbackData() {
 
 export async function GET(request: NextRequest) {
   try {
+    // Get query parameters first
+    const { searchParams } = new URL(request.url)
+    const refresh = searchParams.get("refresh") === "true"
+    const forceFallback = searchParams.get("fallback") === "true"
+
+    // If force fallback requested, return fallback data immediately (no auth required)
+    if (forceFallback) {
+      return NextResponse.json({
+        success: true,
+        data: getFallbackData(),
+        message: "Using fallback data as requested"
+      })
+    }
+
     const supabase = await createClient()
     
     // Check authentication
@@ -120,20 +134,6 @@ export async function GET(request: NextRequest) {
     const allowedRoles = ["admin", "carbon_specialist", "program_planner", "investor"]
     if (!profile || !allowedRoles.includes(profile.role)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-    }
-
-    // Get query parameters
-    const { searchParams } = new URL(request.url)
-    const refresh = searchParams.get("refresh") === "true"
-    const forceFallback = searchParams.get("fallback") === "true"
-
-    // If force fallback requested, return fallback data immediately
-    if (forceFallback) {
-      return NextResponse.json({
-        success: true,
-        data: getFallbackData(),
-        message: "Using fallback data as requested"
-      })
     }
 
     let dataSource = "database"
@@ -156,51 +156,99 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      // Try to use views first (if migration has been run)
-      const { data: summaryViewData, error: summaryError } = await supabase
-        .from("v_investor_dashboard_summary")
+      // Try to use NEW actual carbon sequestration view first (most recent migration)
+      const { data: carbonSequestrationSummary, error: carbonSummaryError } = await supabase
+        .from("v_carbon_sequestration_summary")
         .select("*")
         .single()
 
-      if (!summaryError && summaryViewData) {
-        // Views exist - use them
-        summaryData = summaryViewData
+      if (!carbonSummaryError && carbonSequestrationSummary) {
+        // New actual carbon sequestration view exists - use it
+        dataSource = "database_views_actual_carbon"
         
-        const { data: projectsViewData } = await supabase
-          .from("v_investor_dashboard_data")
+        // Get project details from the actual view
+        const { data: actualProjectsData, error: actualProjectsError } = await supabase
+          .from("v_carbon_sequestration_actual")
           .select("*")
-          .order("last_investor_update", { ascending: false })
-          
-        projectsData = projectsViewData || []
-        
-        const { data: performanceViewData } = await supabase
-          .from("mv_investor_performance_metrics")
-          .select("*")
-          .order("total_investment", { ascending: false })
-          
-        performanceData = performanceViewData || []
-        
-        dataSource = "database_views"
-        
-      } else {
-        // Views don't exist yet - fallback to direct queries
-        console.log("Database views not found, falling back to direct queries")
-        dataSource = "database_direct"
-        
-        // Get projects directly from carbon_projects
-        const { data: rawProjects, error: projectsError } = await supabase
-          .from("carbon_projects")
-          .select("*")
-          .order("created_at", { ascending: false })
+          .order("actual_carbon_sequestration_tons", { ascending: false })
           .limit(10)
 
-        if (projectsError) {
-          console.error("Error fetching projects directly:", projectsError)
-          throw new Error("Failed to fetch projects")
+        if (!actualProjectsError && actualProjectsData) {
+          projectsData = actualProjectsData || []
+          
+          // Create summary from actual data
+          summaryData = {
+            totalCarbonProjects: carbonSequestrationSummary.total_projects_with_credits || 0,
+            totalAreaHectares: 0, // Will be calculated below
+            estimatedCarbonSequestration: carbonSequestrationSummary.total_actual_sequestration_tons || 0,
+            totalInvestment: 0, // Will try to get from financial data
+            averageROI: 15, // Default, will be calculated
+            totalRevenue: 0,
+            totalExpenses: 0,
+            netIncome: 0,
+            activeProjects: carbonSequestrationSummary.active_trading_projects || 0,
+            completedProjects: 0,
+            excellentProjects: 0,
+            goodProjects: 0
+          }
+          
+          console.log("Using actual carbon sequestration view with", projectsData.length, "projects")
         }
+        
+      } else {
+        // Try to use updated investor dashboard summary view
+        const { data: summaryViewData, error: summaryError } = await supabase
+          .from("v_investor_dashboard_summary")
+          .select("*")
+          .single()
 
-        projectsData = rawProjects || []
-        summaryData = calculateSummaryFromProjects(projectsData, kabupatenLuasMap)
+        if (!summaryError && summaryViewData) {
+          // Updated investor view exists - use it
+          dataSource = "database_views_updated_investor"
+          summaryData = {
+            totalCarbonProjects: summaryViewData.total_carbon_projects || 0,
+            totalAreaHectares: 0, // Will be calculated
+            estimatedCarbonSequestration: summaryViewData.total_carbon_credits_tons || 0,
+            totalInvestment: 0, // Placeholder
+            averageROI: summaryViewData.average_roi_percentage || 15,
+            totalRevenue: 0,
+            totalExpenses: 0,
+            netIncome: 0,
+            activeProjects: summaryViewData.verified_active_projects || 0,
+            completedProjects: 0,
+            excellentProjects: 0,
+            goodProjects: 0
+          }
+          
+          // Get project data
+          const { data: projectsViewData } = await supabase
+            .from("v_carbon_sequestration_actual")
+            .select("*")
+            .order("actual_carbon_sequestration_tons", { ascending: false })
+            .limit(10)
+            
+          projectsData = projectsViewData || []
+          
+        } else {
+          // Views don't exist yet - fallback to direct queries
+          console.log("Database views not found, falling back to direct queries")
+          dataSource = "database_direct"
+          
+          // Get projects directly from carbon_projects
+          const { data: rawProjects, error: projectsError } = await supabase
+            .from("carbon_projects")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(10)
+
+          if (projectsError) {
+            console.error("Error fetching projects directly:", projectsError)
+            throw new Error("Failed to fetch projects")
+          }
+
+          projectsData = rawProjects || []
+          summaryData = calculateSummaryFromProjects(projectsData, kabupatenLuasMap)
+        }
       }
 
     } catch (viewError: any) {
@@ -335,27 +383,61 @@ export async function GET(request: NextRequest) {
       }
     ]
 
-    // Format project performance data with correct kabupaten luas
+    // Format project performance data - handle different data structures
     const projectPerformance = projectsData.map((project: any) => {
-      const kabupatenName = mapProjectToKabupaten(project.nama_project || '')
+      // Handle different data structures from different views
+      const projectName = project.project_name || project.nama_project || `Project ${project.project_code || project.kode_project || project.id}`
+      const projectStatus = (project.project_status || project.status || 'draft').toUpperCase()
+      
+      // Get carbon sequestration from actual data if available
+      const carbonSequestration = project.actual_carbon_sequestration_tons || 
+                                project.carbon_sequestration_estimated || 
+                                0
+      
+      // Get kabupaten luas if available
+      const kabupatenName = mapProjectToKabupaten(projectName)
       const kabupatenLuas = kabupatenName ? kabupatenLuasMap[kabupatenName] || 0 : 0
       
+      // Calculate ROI based on actual transaction data if available
+      let roiPercentage = project.roi_percentage_estimate || project.roi_percentage || 0
+      if (project.total_transaction_value && project.total_transaction_value > 0) {
+        // Simplified ROI calculation: (transaction value - estimated investment) / investment
+        const estimatedInvestment = kabupatenLuas * 5000000 // Rp 5 juta per ha
+        if (estimatedInvestment > 0) {
+          roiPercentage = ((project.total_transaction_value - estimatedInvestment) / estimatedInvestment * 100)
+        }
+      }
+      
       return {
-        name: project.nama_project || `Project ${project.kode_project || project.id}`,
-        status: (project.status || 'draft').toUpperCase(),
+        name: projectName,
+        status: projectStatus,
         area_hectares: kabupatenLuas,
-        carbon_sequestration: project.carbon_sequestration_estimated || 0,
-        investment_amount: project.investment_amount || 0,
-        roi_percentage: project.roi_percentage || 0,
-        start_date: project.tanggal_mulai || new Date().toISOString().split('T')[0],
-        end_date: project.tanggal_selesai || 
-          new Date(new Date(project.tanggal_mulai || new Date()).getFullYear() + 10, 0, 1)
-            .toISOString().split('T')[0],
-        kode_project: project.kode_project || `PRJ-${project.id}`,
+        carbon_sequestration: carbonSequestration,
+        investment_amount: project.investment_amount || (kabupatenLuas * 5000000),
+        roi_percentage: roiPercentage,
+        start_date: project.crediting_period_start || project.tanggal_mulai || new Date().toISOString().split('T')[0],
+        end_date: project.crediting_period_end || project.tanggal_selesai || 
+          new Date(new Date().getFullYear() + 10, 0, 1).toISOString().split('T')[0],
+        kode_project: project.project_code || project.kode_project || `PRJ-${project.id}`,
         performance_rating: project.performance_rating || 'average',
-        credits_issued: project.credits_issued || 0
+        credits_issued: project.issued_credits_tons || project.credits_issued || 0,
+        project_id: project.project_id || project.id || null,
+        uuid: project.project_id || project.id || null
       }
     })
+
+    // Calculate total investment if not already set
+    if (!summaryData.totalInvestment || summaryData.totalInvestment === 0) {
+      summaryData.totalInvestment = projectPerformance.reduce((sum, p) => sum + p.investment_amount, 0)
+    }
+    
+    // Calculate average ROI if not already set
+    if (!summaryData.averageROI || summaryData.averageROI === 0) {
+      const validROIs = projectPerformance.filter(p => p.roi_percentage > 0)
+      summaryData.averageROI = validROIs.length > 0 
+        ? validROIs.reduce((sum, p) => sum + p.roi_percentage, 0) / validROIs.length
+        : 15 // Default ROI
+    }
 
     // Update summary with actual financial data
     const finalSummary = {
@@ -377,10 +459,12 @@ export async function GET(request: NextRequest) {
         dataSource,
         migrationRequired: dataSource === 'fallback' || dataSource === 'database_basic'
       },
-      message: dataSource === 'database_views' 
-        ? "Using optimized database views" 
+      message: dataSource === 'database_views_actual_carbon'
+        ? "Using actual carbon sequestration data from verified carbon credits"
+        : dataSource === 'database_views_updated_investor'
+        ? "Using updated investor dashboard with actual carbon data"
         : dataSource === 'database_direct'
-        ? "Using direct database queries"
+        ? "Using direct database queries with estimated data"
         : dataSource === 'database_basic'
         ? "Using basic project data - migration recommended"
         : "Using fallback data - database migration required"
