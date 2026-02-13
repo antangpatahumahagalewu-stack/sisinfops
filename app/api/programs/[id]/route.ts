@@ -18,17 +18,30 @@ export async function DELETE(
       );
     }
 
+    console.log('DELETE program request from user:', session.user.id, 'for program:', id);
+
     // Get user profile for role check
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role, full_name")
       .eq("id", session.user.id)
       .single();
 
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError);
+      return NextResponse.json(
+        { error: "User profile not found" },
+        { status: 403 }
+      );
+    }
+
+    console.log('User profile found:', profile);
+
     // Only admin can delete programs
     if (!profile || profile.role !== 'admin') {
+      console.log('User is not admin, role:', profile?.role);
       return NextResponse.json(
-        { error: "Forbidden: Only admin can delete programs" },
+        { error: "Forbidden: Only admin can delete programs. Your role: " + (profile?.role || 'none') },
         { status: 403 }
       );
     }
@@ -111,10 +124,10 @@ export async function GET(
       .from("programs")
       .select(`
         *,
-        carbon_projects:kode_project,nama_project,
-        perhutanan_sosial:pemegang_izin,desa,
+        carbon_projects(kode_project,nama_project),
+        perhutanan_sosial(pemegang_izin,desa),
         program_aksi_mitigasi (
-          master_aksi_mitigasi:kode,nama_aksi,kelompok,deskripsi
+          master_aksi_mitigasi(kode,nama_aksi,kelompok,deskripsi)
         )
       `)
       .eq("id", id)

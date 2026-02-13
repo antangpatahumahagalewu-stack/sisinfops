@@ -1,0 +1,636 @@
+{
+  "timestamp": "2026-02-13T01:45:34.886Z",
+  "total_items": 90,
+  "updates": [
+    {
+      "id": "4d51b986-3e22-420c-990c-efda8b36f4b3",
+      "original_name": "Item Tambahan 411",
+      "new_name": "Pengelolaan Air Hujan - Sumur Bor",
+      "item_code": "EXT-411",
+      "category": "pengelolaan_air"
+    },
+    {
+      "id": "c25ca0c1-a27c-4cb4-b862-b283952e3116",
+      "original_name": "Item Tambahan 412",
+      "new_name": "Pestisida Organik - Pestisida Alami",
+      "item_code": "EXT-412",
+      "category": "pengendalian_hama"
+    },
+    {
+      "id": "dae191b7-18c7-4604-9702-78695a4b1f72",
+      "original_name": "Item Tambahan 413",
+      "new_name": "Penyerapan Karbon - Per Ton CO2",
+      "item_code": "EXT-413",
+      "category": "pengurangan_emisi"
+    },
+    {
+      "id": "aaea0b1c-13b6-46ca-abeb-87c892f2f020",
+      "original_name": "Item Tambahan 414",
+      "new_name": "Distribusi Peralatan - Truk 6 Roda",
+      "item_code": "EXT-414",
+      "category": "transport_logistik"
+    },
+    {
+      "id": "546c7093-837d-436c-a082-ee8d5dd6ac5a",
+      "original_name": "Item Tambahan 415",
+      "new_name": "Akomodasi Tim Lapangan - Penginapan 1 Bulan",
+      "item_code": "EXT-415",
+      "category": "akomodasi_konsumsi"
+    },
+    {
+      "id": "61764307-8c6e-4c0a-8011-9b7effad537b",
+      "original_name": "Item Tambahan 416",
+      "new_name": "Training Teknis - 3 Hari Training",
+      "item_code": "EXT-416",
+      "category": "jasa_pelatihan"
+    },
+    {
+      "id": "bf050343-ac36-4c35-b0d7-b616644472bd",
+      "original_name": "Item Tambahan 417",
+      "new_name": "Honorarium Teknisi - Konsultan Lingkungan",
+      "item_code": "EXT-417",
+      "category": "honorarium_tenaga_ahli"
+    },
+    {
+      "id": "3b9d707c-098d-4a65-9770-ff66c496f897",
+      "original_name": "Item Tambahan 418",
+      "new_name": "Remunerasi Karyawan - Tenaga Lapangan",
+      "item_code": "EXT-418",
+      "category": "gaji_staff"
+    },
+    {
+      "id": "d024e63a-25f4-418b-ae23-92cc37997d81",
+      "original_name": "Item Tambahan 419",
+      "new_name": "Insentif Masyarakat Lokal - Program Pelatihan",
+      "item_code": "EXT-419",
+      "category": "insentif_masyarakat"
+    },
+    {
+      "id": "93ef39e3-8c4f-4b38-997a-c86e2a5d7334",
+      "original_name": "Item Tambahan 420",
+      "new_name": "Dana Operasi Harian - ATK",
+      "item_code": "EXT-420",
+      "category": "tunjangan_operasional"
+    },
+    {
+      "id": "a538b128-1853-41f5-89f5-5ec48672e254",
+      "original_name": "Item Tambahan 421",
+      "new_name": "Fasilitas Komunitas - Pelatihan Kerja",
+      "item_code": "EXT-421",
+      "category": "benefit_tambahan"
+    },
+    {
+      "id": "c59cc4c2-4dc4-4d1e-90dd-8de685c52b42",
+      "original_name": "Item Tambahan 422",
+      "new_name": "Supervisi Proyek - Supervisi Tahap 1",
+      "item_code": "EXT-422",
+      "category": "manajemen_proyek"
+    },
+    {
+      "id": "9aaa6b4a-5bb2-4b4f-9844-6cb9b3ef98c8",
+      "original_name": "Item Tambahan 423",
+      "new_name": "Pemeliharaan Fasilitas - Peralatan",
+      "item_code": "EXT-423",
+      "category": "pemeliharaan"
+    },
+    {
+      "id": "e4dc7151-3b16-46e2-b03d-ca38dac36b91",
+      "original_name": "Item Tambahan 424",
+      "new_name": "Verifikasi Karbon - Audit Berkala",
+      "item_code": "EXT-424",
+      "category": "sertifikasi_verifikasi"
+    },
+    {
+      "id": "597dd9bb-5eab-425e-a2d0-5b7b6cbbc04b",
+      "original_name": "Item Tambahan 425",
+      "new_name": "Publikasi Hasil - Publikasi Lokal",
+      "item_code": "EXT-425",
+      "category": "pemasaran"
+    },
+    {
+      "id": "079a4060-a211-433a-b902-7195ee5c95c0",
+      "original_name": "Item Tambahan 426",
+      "new_name": "Jasa Konsultasi Manajemen - Audit Lingkungan",
+      "item_code": "EXT-426",
+      "category": "jasa_konsultasi"
+    },
+    {
+      "id": "e896b72e-026f-48c5-ba8a-f08ebb1d81fc",
+      "original_name": "Item Tambahan 427",
+      "new_name": "Survei Lapangan - Survey Sosial",
+      "item_code": "EXT-427",
+      "category": "survei_penelitian"
+    },
+    {
+      "id": "6dd26434-36d9-4645-bc7a-69f4136025ad",
+      "original_name": "Item Tambahan 428",
+      "new_name": "Laporan Keuangan - Laporan Bulanan",
+      "item_code": "EXT-428",
+      "category": "dokumentasi_pelaporan"
+    },
+    {
+      "id": "08b98e80-f885-4ae7-a3bc-b87ffcb648ee",
+      "original_name": "Item Tambahan 429",
+      "new_name": "Pupuk Organik - Jabon",
+      "item_code": "EXT-429",
+      "category": "material_tanaman"
+    },
+    {
+      "id": "a92be182-9d20-4ac0-a012-1771db6fdc77",
+      "original_name": "Item Tambahan 430",
+      "new_name": "Infrastruktur Lapangan - Pos Jaga",
+      "item_code": "EXT-430",
+      "category": "infrastruktur"
+    },
+    {
+      "id": "4db47bf2-76e0-41e9-9213-73fba666eeae",
+      "original_name": "Item Tambahan 431",
+      "new_name": "Alat Monitoring Lingkungan - Soil Moisture Sensor",
+      "item_code": "EXT-431",
+      "category": "peralatan_monitoring"
+    },
+    {
+      "id": "1248e52e-d6ec-422f-8c49-ff08a5d81112",
+      "original_name": "Item Tambahan 432",
+      "new_name": "Aplikasi Monitoring - Custom Development",
+      "item_code": "EXT-432",
+      "category": "teknologi_software"
+    },
+    {
+      "id": "c0ff36bd-050d-4d9f-ba3d-76ec09aeb9b3",
+      "original_name": "Item Tambahan 433",
+      "new_name": "Alat Pemadam Kebakaran - Sistem Deteksi",
+      "item_code": "EXT-433",
+      "category": "mitigasi_kebakaran"
+    },
+    {
+      "id": "bc8da8af-df78-4642-a6c6-c14933df73f7",
+      "original_name": "Item Tambahan 434",
+      "new_name": "Resiliensi Iklim - Sistem Peringatan",
+      "item_code": "EXT-434",
+      "category": "adaptasi_iklim"
+    },
+    {
+      "id": "79a1bdd4-5474-4cd7-b5b5-297105b36e41",
+      "original_name": "Item Tambahan 435",
+      "new_name": "Restorasi Lahan Kritis - Kontrol Erosi",
+      "item_code": "EXT-435",
+      "category": "restorasi_ekosistem"
+    },
+    {
+      "id": "013f611c-5220-48df-97b6-32bdeaad4490",
+      "original_name": "Item Tambahan 436",
+      "new_name": "Konservasi Air - Sistem Irigasi Tetes",
+      "item_code": "EXT-436",
+      "category": "pengelolaan_air"
+    },
+    {
+      "id": "e3bd4851-32af-42af-85e8-96876e9a856f",
+      "original_name": "Item Tambahan 437",
+      "new_name": "Kontrol Hama Tanaman - Alat Perangkap",
+      "item_code": "EXT-437",
+      "category": "pengendalian_hama"
+    },
+    {
+      "id": "3cc2ab03-aabb-4bec-a76c-c6506037b05e",
+      "original_name": "Item Tambahan 438",
+      "new_name": "Reduksi Emisi GRK - Penanaman Pohon",
+      "item_code": "EXT-438",
+      "category": "pengurangan_emisi"
+    },
+    {
+      "id": "df65b705-c05f-459b-ad93-b1f33a8c1865",
+      "original_name": "Item Tambahan 439",
+      "new_name": "Transportasi Material - Kendaraan Operasional",
+      "item_code": "EXT-439",
+      "category": "transport_logistik"
+    },
+    {
+      "id": "18f3f3e6-805c-4ea1-a645-773a994ca24e",
+      "original_name": "Item Tambahan 440",
+      "new_name": "Konsumsi Kerja - Logistik Lapangan",
+      "item_code": "EXT-440",
+      "category": "akomodasi_konsumsi"
+    },
+    {
+      "id": "d636896e-0ac9-49f1-abf8-b653bb6e5dff",
+      "original_name": "Item Tambahan 441",
+      "new_name": "Workshop Kehutanan - Pelatihan Teknis",
+      "item_code": "EXT-441",
+      "category": "jasa_pelatihan"
+    },
+    {
+      "id": "f3c93588-db41-452e-b020-57e8837a4752",
+      "original_name": "Item Tambahan 442",
+      "new_name": "Fee Ahli Restorasi - Ahli Restorasi",
+      "item_code": "EXT-442",
+      "category": "honorarium_tenaga_ahli"
+    },
+    {
+      "id": "321f7c57-0f50-49f8-877b-620a11db3fc8",
+      "original_name": "Item Tambahan 443",
+      "new_name": "Gaji Tenaga Kerja - Staf Administrasi",
+      "item_code": "EXT-443",
+      "category": "gaji_staff"
+    },
+    {
+      "id": "27bd8128-df11-4e4f-824e-49cb5dede52f",
+      "original_name": "Item Tambahan 444",
+      "new_name": "Kompensasi Warga - Paket Sembako",
+      "item_code": "EXT-444",
+      "category": "insentif_masyarakat"
+    },
+    {
+      "id": "c11a37eb-3453-4f96-8b80-6547defd33c1",
+      "original_name": "Item Tambahan 445",
+      "new_name": "Kebutuhan Operasional - Bensin Kendaraan",
+      "item_code": "EXT-445",
+      "category": "tunjangan_operasional"
+    },
+    {
+      "id": "d6439c32-8a9a-4654-9a9c-31088c48980c",
+      "original_name": "Item Tambahan 446",
+      "new_name": "Bantuan Pengembangan - Sumur Bersih",
+      "item_code": "EXT-446",
+      "category": "benefit_tambahan"
+    },
+    {
+      "id": "8a01eccb-6b31-4d97-b00c-431228ff9987",
+      "original_name": "Item Tambahan 447",
+      "new_name": "Biaya Manajemen Proyek - Koordinasi Mingguan",
+      "item_code": "EXT-447",
+      "category": "manajemen_proyek"
+    },
+    {
+      "id": "d3c836e0-2c19-413b-ac7d-bd12ada5c905",
+      "original_name": "Item Tambahan 448",
+      "new_name": "Maintenance Alat - Kendaraan",
+      "item_code": "EXT-448",
+      "category": "pemeliharaan"
+    },
+    {
+      "id": "56d7f0fd-a877-4f71-9018-3a177cb0f8f0",
+      "original_name": "Item Tambahan 449",
+      "new_name": "Audit Lingkungan - Sertifikasi FSC",
+      "item_code": "EXT-449",
+      "category": "sertifikasi_verifikasi"
+    },
+    {
+      "id": "eeeb0f57-571c-44db-8279-b56d604633eb",
+      "original_name": "Item Tambahan 450",
+      "new_name": "Kampanye Sosial - Website Proyek",
+      "item_code": "EXT-450",
+      "category": "pemasaran"
+    },
+    {
+      "id": "0f00fef2-a4f9-44c0-aa1a-e54b7cbb065f",
+      "original_name": "Item Tambahan 451",
+      "new_name": "Jasa Konsultasi Kehutanan - Evaluasi Tahunan",
+      "item_code": "EXT-451",
+      "category": "jasa_konsultasi"
+    },
+    {
+      "id": "ba568ce4-233e-456a-b462-e18bdc45b416",
+      "original_name": "Item Tambahan 452",
+      "new_name": "Penelitian Ekosistem - Analisis Tanah",
+      "item_code": "EXT-452",
+      "category": "survei_penelitian"
+    },
+    {
+      "id": "c53cb88f-be52-4aae-bc47-88136d4a3c4d",
+      "original_name": "Item Tambahan 453",
+      "new_name": "Dokumentasi Lapangan - Laporan Akhir",
+      "item_code": "EXT-453",
+      "category": "dokumentasi_pelaporan"
+    },
+    {
+      "id": "1dca133d-696f-4a9a-a604-cae92ecf4983",
+      "original_name": "Item Tambahan 454",
+      "new_name": "Media Tanam - Sengon Solomon",
+      "item_code": "EXT-454",
+      "category": "material_tanaman"
+    },
+    {
+      "id": "be4cc56e-5afa-4ca3-a164-6764f24229fd",
+      "original_name": "Item Tambahan 455",
+      "new_name": "Pembangunan Infrastruktur - Kantor Lapangan",
+      "item_code": "EXT-455",
+      "category": "infrastruktur"
+    },
+    {
+      "id": "80e67b2b-bd88-4736-b8dc-fa1d1cc4cd95",
+      "original_name": "Item Tambahan 456",
+      "new_name": "Peralatan Pengukuran - Water Quality Meter",
+      "item_code": "EXT-456",
+      "category": "peralatan_monitoring"
+    },
+    {
+      "id": "70808e21-0781-4698-8960-b956322a2a00",
+      "original_name": "Item Tambahan 457",
+      "new_name": "Sistem Database - Maintenance",
+      "item_code": "EXT-457",
+      "category": "teknologi_software"
+    },
+    {
+      "id": "18fc1fa8-5762-4d8f-be33-a12b13643620",
+      "original_name": "Item Tambahan 458",
+      "new_name": "Mitigasi Kebakaran - Training Masyarakat",
+      "item_code": "EXT-458",
+      "category": "mitigasi_kebakaran"
+    },
+    {
+      "id": "9e2eca41-7e2b-43ce-a986-452a622f3e3c",
+      "original_name": "Item Tambahan 459",
+      "new_name": "Program Adaptasi Iklim - Program Komunitas",
+      "item_code": "EXT-459",
+      "category": "adaptasi_iklim"
+    },
+    {
+      "id": "fd15919e-23a6-40d3-bd70-f94a59b67f5f",
+      "original_name": "Item Tambahan 460",
+      "new_name": "Rehabilitasi Hutan - Per Hektar",
+      "item_code": "EXT-460",
+      "category": "restorasi_ekosistem"
+    },
+    {
+      "id": "adf75031-a784-4f64-87b9-0e9633c73d13",
+      "original_name": "Item Tambahan 461",
+      "new_name": "Sistem Irigasi - Sumur Bor",
+      "item_code": "EXT-461",
+      "category": "pengelolaan_air"
+    },
+    {
+      "id": "2b99788d-9ea7-44ab-ba2d-f954b027db12",
+      "original_name": "Item Tambahan 462",
+      "new_name": "Pengelolaan OPT - Pestisida Alami",
+      "item_code": "EXT-462",
+      "category": "pengendalian_hama"
+    },
+    {
+      "id": "8e87bfe5-e7a1-4977-b2ee-5b908c06633b",
+      "original_name": "Item Tambahan 463",
+      "new_name": "Program Pengurangan Emisi - Program Karbon",
+      "item_code": "EXT-463",
+      "category": "pengurangan_emisi"
+    },
+    {
+      "id": "6e325136-ed74-4251-8ea3-b938cd7ae675",
+      "original_name": "Item Tambahan 464",
+      "new_name": "Logistik Proyek - Pickup Double Cabin",
+      "item_code": "EXT-464",
+      "category": "transport_logistik"
+    },
+    {
+      "id": "98098348-469f-427f-a91a-756565e352ac",
+      "original_name": "Item Tambahan 465",
+      "new_name": "Penginapan Staf - Penginapan 1 Bulan",
+      "item_code": "EXT-465",
+      "category": "akomodasi_konsumsi"
+    },
+    {
+      "id": "092283c9-9e1a-44fd-b330-052a3150a9b6",
+      "original_name": "Item Tambahan 466",
+      "new_name": "Pelatihan Pengelolaan - 3 Hari Training",
+      "item_code": "EXT-466",
+      "category": "jasa_pelatihan"
+    },
+    {
+      "id": "00213104-f022-4059-9869-ce8a9e86b09e",
+      "original_name": "Item Tambahan 467",
+      "new_name": "Honorarium Ahli Kehutanan - Teknisi Spesialis",
+      "item_code": "EXT-467",
+      "category": "honorarium_tenaga_ahli"
+    },
+    {
+      "id": "88cc6387-4b50-4ab0-9354-679ab6cd814b",
+      "original_name": "Item Tambahan 468",
+      "new_name": "Honorarium Staf - Koordinator Proyek",
+      "item_code": "EXT-468",
+      "category": "gaji_staff"
+    },
+    {
+      "id": "72db3e0d-ca18-4068-8915-c9aa1936c603",
+      "original_name": "Item Tambahan 469",
+      "new_name": "Bantuan Sosial - Program Pelatihan",
+      "item_code": "EXT-469",
+      "category": "insentif_masyarakat"
+    },
+    {
+      "id": "d78dc024-59ea-4933-b224-bf9a13c447a3",
+      "original_name": "Item Tambahan 470",
+      "new_name": "Biaya Rutin - ATK",
+      "item_code": "EXT-470",
+      "category": "tunjangan_operasional"
+    },
+    {
+      "id": "c0968454-2297-40b3-b6d2-0644e82e1d19",
+      "original_name": "Item Tambahan 471",
+      "new_name": "Manfaat Tambahan Proyek - Bantuan Pendidikan",
+      "item_code": "EXT-471",
+      "category": "benefit_tambahan"
+    },
+    {
+      "id": "c0f4372a-2440-4f70-b68e-965dc1ab4b9f",
+      "original_name": "Item Tambahan 472",
+      "new_name": "Pengelolaan Proyek - Manajemen Risiko",
+      "item_code": "EXT-472",
+      "category": "manajemen_proyek"
+    },
+    {
+      "id": "b4795a8c-9a00-4a14-84cd-a7b395b77195",
+      "original_name": "Item Tambahan 473",
+      "new_name": "Perawatan Infrastruktur - Peralatan",
+      "item_code": "EXT-473",
+      "category": "pemeliharaan"
+    },
+    {
+      "id": "4e8df91d-3a27-4fc7-9ae9-f49b514ed8e2",
+      "original_name": "Item Tambahan 474",
+      "new_name": "Sertifikasi Berkelanjutan - Audit Berkala",
+      "item_code": "EXT-474",
+      "category": "sertifikasi_verifikasi"
+    },
+    {
+      "id": "8ba2a1d0-a758-43d7-a9c3-32f26ec84b99",
+      "original_name": "Item Tambahan 475",
+      "new_name": "Biaya Pemasaran - Brosur Digital",
+      "item_code": "EXT-475",
+      "category": "pemasaran"
+    },
+    {
+      "id": "e6fc50e6-cfd8-4ef8-8503-958c8c7c8b0c",
+      "original_name": "Item Tambahan 476",
+      "new_name": "Konsultasi Lingkungan - 8 Jam Sesi",
+      "item_code": "EXT-476",
+      "category": "jasa_konsultasi"
+    },
+    {
+      "id": "ca073e8d-ff58-4131-91f0-13327f94d85a",
+      "original_name": "Item Tambahan 477",
+      "new_name": "Survei Sosial - Survey Sosial",
+      "item_code": "EXT-477",
+      "category": "survei_penelitian"
+    },
+    {
+      "id": "9a66c0e8-7970-464d-8521-e8ac00952150",
+      "original_name": "Item Tambahan 478",
+      "new_name": "Laporan Teknis - Laporan Bulanan",
+      "item_code": "EXT-478",
+      "category": "dokumentasi_pelaporan"
+    },
+    {
+      "id": "ea01f64b-7738-4adf-9b13-a75647822104",
+      "original_name": "Item Tambahan 479",
+      "new_name": "Bibit Pohon - Akasia",
+      "item_code": "EXT-479",
+      "category": "material_tanaman"
+    },
+    {
+      "id": "84cfcb00-69d9-4e1e-be46-0ffbb6adebf0",
+      "original_name": "Item Tambahan 480",
+      "new_name": "Fasilitas Proyek - Gudang Penyimpanan",
+      "item_code": "EXT-480",
+      "category": "infrastruktur"
+    },
+    {
+      "id": "43d48ecb-78b7-4a33-9b83-4740f2181906",
+      "original_name": "Item Tambahan 481",
+      "new_name": "Sensor Kualitas Air - Soil Moisture Sensor",
+      "item_code": "EXT-481",
+      "category": "peralatan_monitoring"
+    },
+    {
+      "id": "e7c008d8-5068-4d74-9201-b39d876f32ae",
+      "original_name": "Item Tambahan 482",
+      "new_name": "Teknologi Informasi - Custom Development",
+      "item_code": "EXT-482",
+      "category": "teknologi_software"
+    },
+    {
+      "id": "a9aeee34-6842-449f-aad4-d9c0505603d7",
+      "original_name": "Item Tambahan 483",
+      "new_name": "Pencegahan Kebakaran Hutan - Pembuatan Firebreak",
+      "item_code": "EXT-483",
+      "category": "mitigasi_kebakaran"
+    },
+    {
+      "id": "61a53b6a-8730-4693-8273-e79c05bab16c",
+      "original_name": "Item Tambahan 484",
+      "new_name": "Mitigasi Perubahan Iklim - Infrastruktur Adaptif",
+      "item_code": "EXT-484",
+      "category": "adaptasi_iklim"
+    },
+    {
+      "id": "f34fdedb-1035-44d3-8926-bda3178c8822",
+      "original_name": "Item Tambahan 485",
+      "new_name": "Pemulihan Ekosistem - Kontrol Erosi",
+      "item_code": "EXT-485",
+      "category": "restorasi_ekosistem"
+    },
+    {
+      "id": "45bfd684-5310-4378-867a-f6c38f52ba88",
+      "original_name": "Item Tambahan 486",
+      "new_name": "Pengelolaan Sumber Air - Sistem Irigasi Tetes",
+      "item_code": "EXT-486",
+      "category": "pengelolaan_air"
+    },
+    {
+      "id": "0c9c3842-c613-4274-87e0-247de51d0610",
+      "original_name": "Item Tambahan 487",
+      "new_name": "Pengendalian Hama Terpadu - Monitoring Hama",
+      "item_code": "EXT-487",
+      "category": "pengendalian_hama"
+    },
+    {
+      "id": "04c3c65a-d696-4d4c-8a5e-97863b914f5c",
+      "original_name": "Item Tambahan 488",
+      "new_name": "Kompensasi Karbon - Teknologi Rendah Emisi",
+      "item_code": "EXT-488",
+      "category": "pengurangan_emisi"
+    },
+    {
+      "id": "f89d9379-63f8-4e79-b7b2-0bad7c6dcd25",
+      "original_name": "Item Tambahan 489",
+      "new_name": "Angkutan Barang - Kendaraan Operasional",
+      "item_code": "EXT-489",
+      "category": "transport_logistik"
+    },
+    {
+      "id": "9a09c732-f06e-45fa-8165-712d927edb5d",
+      "original_name": "Item Tambahan 490",
+      "new_name": "Kebutuhan Logistik - Logistik Lapangan",
+      "item_code": "EXT-490",
+      "category": "akomodasi_konsumsi"
+    },
+    {
+      "id": "f0617ffb-b38d-44ee-949e-dc7186952aea",
+      "original_name": "Item Tambahan 491",
+      "new_name": "Pelatihan Masyarakat - Untuk 20 Peserta",
+      "item_code": "EXT-491",
+      "category": "jasa_pelatihan"
+    },
+    {
+      "id": "23af17c7-84d0-481f-b2de-85345b91fe62",
+      "original_name": "Item Tambahan 492",
+      "new_name": "Fee Konsultan Lingkungan - Ahli Kehutanan",
+      "item_code": "EXT-492",
+      "category": "honorarium_tenaga_ahli"
+    },
+    {
+      "id": "1f76369f-c773-46d8-9f63-91fe79b4a3ca",
+      "original_name": "Item Tambahan 493",
+      "new_name": "Upah Pekerja - Staf Administrasi",
+      "item_code": "EXT-493",
+      "category": "gaji_staff"
+    },
+    {
+      "id": "3db11110-ce03-4927-87c6-cfc7dfef8966",
+      "original_name": "Item Tambahan 494",
+      "new_name": "Program Pemberdayaan - Paket Sembako",
+      "item_code": "EXT-494",
+      "category": "insentif_masyarakat"
+    },
+    {
+      "id": "dd46687a-7c2f-499f-9f8f-9b9c6af349c2",
+      "original_name": "Item Tambahan 495",
+      "new_name": "Biaya Operasional - Komunikasi",
+      "item_code": "EXT-495",
+      "category": "tunjangan_operasional"
+    },
+    {
+      "id": "268fbb37-3993-40ab-a977-c62f216cb8ca",
+      "original_name": "Item Tambahan 496",
+      "new_name": "Program Sosial - Pustaka Desa",
+      "item_code": "EXT-496",
+      "category": "benefit_tambahan"
+    },
+    {
+      "id": "a9ba9603-26e8-4b46-b742-02ee0bc1c7cf",
+      "original_name": "Item Tambahan 497",
+      "new_name": "Koordinasi Lapangan - Koordinasi Mingguan",
+      "item_code": "EXT-497",
+      "category": "manajemen_proyek"
+    },
+    {
+      "id": "feb7c152-966d-408d-ad86-9bc67d9034e4",
+      "original_name": "Item Tambahan 498",
+      "new_name": "Biaya Perawatan - Kendaraan",
+      "item_code": "EXT-498",
+      "category": "pemeliharaan"
+    },
+    {
+      "id": "b37abde0-72e9-44b6-9f70-20f6d7c426c7",
+      "original_name": "Item Tambahan 499",
+      "new_name": "Sertifikasi Kehutanan - Verifikasi Carbon Credit",
+      "item_code": "EXT-499",
+      "category": "sertifikasi_verifikasi"
+    },
+    {
+      "id": "fe52cee6-8f05-4db5-82d6-32d0dfafdd55",
+      "original_name": "Item Tambahan 500",
+      "new_name": "Promosi Proyek - Media Sosial",
+      "item_code": "EXT-500",
+      "category": "pemasaran"
+    }
+  ]
+}

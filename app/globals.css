@@ -128,3 +128,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Override Next.js portal positioning (remove left/top: 0px) */
+nextjs-portal {
+  left: unset;
+  top: unset;
+}

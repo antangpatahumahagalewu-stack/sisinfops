@@ -52,17 +52,51 @@ interface PriceListItem {
   approved_by?: { full_name: string }
 }
 
+interface PaginationData {
+  page: number
+  pageSize: number
+  total: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPrevPage: boolean
+}
+
 interface PriceListPageClientProps {
   initialData: PriceListItem[]
+  initialPagination: PaginationData
   canManage: boolean
   locale: string
 }
 
 // Updated categories based on actual database values from check_price_list.js
+// From test output: Found 26 unique categories
 const CATEGORIES = [
-  "material",
-  "jasa_konsultasi", 
-  "jasa_pelatihan"
+  "MATERIAL",
+  "adaptasi_iklim",
+  "akomodasi_konsumsi", 
+  "benefit_tambahan",
+  "dokumentasi_pelaporan",
+  "gaji_staff",
+  "honorarium_tenaga_ahli",
+  "infrastruktur",
+  "insentif_masyarakat",
+  "jasa_konsultasi",
+  "jasa_pelatihan",
+  "manajemen_proyek",
+  "material_tanaman",
+  "mitigasi_kebakaran",
+  "pemasaran",
+  "pemeliharaan",
+  "pengelolaan_air",
+  "pengendalian_hama",
+  "pengurangan_emisi",
+  "peralatan_monitoring",
+  "restorasi_ekosistem",
+  "sertifikasi_verifikasi",
+  "survei_penelitian",
+  "teknologi_software",
+  "transport_logistik",
+  "tunjangan_operasional"
 ]
 
 const APPROVAL_STATUSES = [
@@ -72,7 +106,7 @@ const APPROVAL_STATUSES = [
   "REJECTED"
 ]
 
-export default function PriceListPageClient({ initialData, canManage, locale }: PriceListPageClientProps) {
+export default function PriceListPageClient({ initialData, initialPagination, canManage, locale }: PriceListPageClientProps) {
   const router = useRouter()
   const [items, setItems] = useState<PriceListItem[]>(initialData)
   const [filteredItems, setFilteredItems] = useState<PriceListItem[]>(initialData)
@@ -88,6 +122,11 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
     message: string
     visible: boolean
   }>({ type: 'info', message: '', visible: false })
+  
+  // Pagination state
+  const [pagination, setPagination] = useState<PaginationData>(initialPagination)
+  const [fetchingData, setFetchingData] = useState(false)
+  const [pageSizeOptions] = useState([10, 25, 50, 100])
 
   // Form state - menggunakan hanya kolom yang ada di database
   const [formData, setFormData] = useState({
@@ -103,7 +142,103 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
     is_active: true
   })
 
-  // Filter items whenever filters or search term change
+  // Function to fetch data with pagination and filters
+  // Initialize with initialData
+  useEffect(() => {
+    if (initialData.length > 0 && items.length === 0) {
+      console.log(`✅ Using initial data: ${initialData.length} items`)
+      setItems(initialData)
+      // Set pagination based on initial data
+      setPagination({
+        page: 1,
+        pageSize: 25, // Default pageSize from server
+        total: initialPagination.total,
+        totalPages: initialPagination.totalPages,
+        hasNextPage: initialPagination.hasNextPage,
+        hasPrevPage: false
+      })
+    }
+  }, [initialData, initialPagination])
+
+  const fetchData = async (page: number = pagination.page, pageSize: number = pagination.pageSize) => {
+    setFetchingData(true)
+    try {
+      // Build query parameters
+      const params = new URLSearchParams()
+      params.append('page', page.toString())
+      params.append('pageSize', pageSize.toString())
+      
+      if (searchTerm) params.append('search', searchTerm)
+      if (categoryFilter !== 'all') params.append('category', categoryFilter)
+      if (activeFilter !== 'all') params.append('is_active', activeFilter === 'active' ? 'true' : 'false')
+      if (statusFilter !== 'all') params.append('approval_status', statusFilter)
+
+      const response = await fetch(`/api/finance/price-list?${params.toString()}`, {
+        credentials: 'include', // Include cookies for authentication
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      
+      if (response.status === 401) {
+        console.warn("⚠️  API authentication failed (401), continuing with current data")
+        // Don't redirect, just log the error and continue with existing data
+        if (items.length === 0 && initialData.length > 0) {
+          console.log("⚠️  Using initial data due to API auth failure")
+          setItems(initialData)
+        }
+        return
+      }
+      
+      if (response.ok) {
+        const data = await response.json()
+        setItems(data.data || [])
+        setPagination(data.pagination || {
+          page,
+          pageSize,
+          total: data.data?.length || 0,
+          totalPages: Math.ceil((data.data?.length || 0) / pageSize),
+          hasNextPage: false,
+          hasPrevPage: false
+        })
+        console.log(`✅ API fetched ${data.data?.length || 0} items (page ${page}, total: ${data.pagination?.total || data.data?.length || 0})`)
+      } else {
+        const errorText = await response.text()
+        console.error("❌ API failed:", errorText)
+        
+        // Fallback: use existing data or initial data
+        if (items.length === 0 && initialData.length > 0) {
+          console.log("⚠️  Using initial data as fallback")
+          setItems(initialData)
+        }
+      }
+    } catch (error) {
+      console.error("❌ Network error:", error)
+      
+      // Fallback on network error
+      if (items.length === 0 && initialData.length > 0) {
+        console.log("⚠️  Network error, using initial data")
+        setItems(initialData)
+      }
+    } finally {
+      setFetchingData(false)
+    }
+  }
+
+  // Fetch data when pagination or filters change (but not on first load)
+  useEffect(() => {
+    // Only fetch via API if not on page 1 with initial data
+    // OR if filters have changed
+    const hasFiltersChanged = searchTerm || categoryFilter !== 'all' || 
+                              activeFilter !== 'all' || statusFilter !== 'all'
+    
+    if (pagination.page !== 1 || hasFiltersChanged) {
+      console.log(`🔄 Fetching data: page=${pagination.page}, filters=${hasFiltersChanged}`)
+      fetchData(pagination.page, pagination.pageSize)
+    }
+  }, [searchTerm, categoryFilter, activeFilter, statusFilter, pagination.page])
+
+  // Filter items for client-side search within current page
   useEffect(() => {
     let result = items
     
@@ -186,7 +321,50 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
     setEditingItem(null)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleEdit = (item: PriceListItem) => {
+    setEditingItem(item)
+    setFormData({
+      item_code: item.item_code,
+      item_name: item.item_name,
+      item_description: item.item_description || "",
+      category: item.category || "material",
+      unit: item.unit,
+      unit_price: item.unit_price,
+      currency: item.currency,
+      valid_from: item.valid_from ? item.valid_from.split('T')[0] : new Date().toISOString().split('T')[0],
+      valid_until: item.valid_until ? item.valid_until.split('T')[0] : "",
+      is_active: item.is_active
+    })
+    setOpenDialog(true)
+  }
+
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: currency
+    }).format(amount)
+  }
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Tidak ditentukan"
+    return new Date(dateString).toLocaleDateString('id-ID')
+  }
+
+  // Pagination handlers
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > pagination.totalPages) return
+    setPagination(prev => ({ ...prev, page: newPage }))
+    fetchData(newPage, pagination.pageSize)
+  }
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPagination(prev => ({ ...prev, pageSize: newSize, page: 1 }))
+    fetchData(1, newSize)
+  }
+
+  // Update handleSubmit to use fetchData after success
+  const handleSubmitUpdated = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
@@ -227,7 +405,6 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
       }
 
       // Build payload dengan mapping column yang sesuai dengan database
-      // Hanya gunakan kolom yang benar-benar ada di database
       const payload: any = {
         item_code: formData.item_code.trim(),
         item_name: formData.item_name.trim(),
@@ -239,7 +416,6 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
         is_active: formData.is_active
       }
       
-      // Map tanggal validitas menggunakan nama kolom yang benar
       if (formData.valid_from) {
         payload.valid_from = new Date(formData.valid_from).toISOString()
       }
@@ -247,9 +423,6 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
       if (formData.valid_until) {
         payload.valid_until = new Date(formData.valid_until).toISOString()
       }
-      
-      // Jangan sertakan kolom yang tidak ada di database (version, approval_status)
-      // Kolom tersebut mungkin belum tersedia di tabel price_list
 
       console.log("📤 Update payload:", payload)
 
@@ -275,7 +448,6 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
         if (!response.ok) {
           const errorData = await response.json()
           console.error("❌ API Update failed:", errorData)
-          // Extract error message from API response
           const errorMessage = errorData.error || errorData.details || response.statusText
           throw new Error(`Gagal update: ${errorMessage}`)
         }
@@ -302,7 +474,6 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
         if (!response.ok) {
           const errorData = await response.json()
           console.error("❌ API Insert failed:", errorData)
-          // Extract error message from API response
           const errorMessage = errorData.error || errorData.details || response.statusText
           throw new Error(`Gagal insert: ${errorMessage}`)
         }
@@ -312,41 +483,8 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
         result = responseData.data
       }
 
-      // Refresh data dari API setelah sukses
-      console.log("🔄 Refreshing data from API...")
-      try {
-        const response = await fetch('/api/finance/price-list?limit=50')
-        
-        if (response.ok) {
-          const data = await response.json()
-          console.log(`✅ Fetched ${data.data?.length || 0} items from API`)
-          setItems(data.data || [])
-        } else {
-          console.error("❌ Fetch error after update:", await response.text())
-          // Update local state with result sebagai fallback
-          if (editingItem) {
-            setItems(prev => prev.map(item => item.id === editingItem.id ? 
-              { ...result, profiles: { full_name: session.user.email?.split('@')[0] || 'User' } } : item))
-          } else {
-            setItems(prev => [...prev, { 
-              ...result, 
-              profiles: { full_name: session.user.email?.split('@')[0] || 'User' }
-            }])
-          }
-        }
-      } catch (fetchError) {
-        console.error("❌ Error refreshing list:", fetchError)
-        // Update local state as fallback
-        if (editingItem) {
-          setItems(prev => prev.map(item => item.id === editingItem.id ? 
-            { ...result, profiles: { full_name: session.user.email?.split('@')[0] || 'User' } } : item))
-        } else {
-          setItems(prev => [...prev, { 
-            ...result, 
-            profiles: { full_name: session.user.email?.split('@')[0] || 'User' }
-          }])
-        }
-      }
+      // Refresh data using fetchData
+      await fetchData(pagination.page, pagination.pageSize)
 
       setOpenDialog(false)
       resetForm()
@@ -371,7 +509,8 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
     }
   }
 
-  const handleDelete = async (id: string) => {
+  // Update handleDelete to use fetchData after success
+  const handleDeleteUpdated = async (id: string) => {
     if (!confirm("Apakah Anda yakin ingin menghapus item ini?")) return
 
     try {
@@ -402,22 +541,8 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
       const responseData = await response.json()
       console.log("✅ API Delete successful:", responseData.message)
       
-      // Refresh data from API after successful delete
-      try {
-        const refreshResponse = await fetch('/api/finance/price-list?limit=50')
-        
-        if (refreshResponse.ok) {
-          const data = await refreshResponse.json()
-          console.log(`✅ Refreshed ${data.data?.length || 0} items from API`)
-          setItems(data.data || [])
-        } else {
-          // If refresh fails, remove from local state
-          setItems(prev => prev.filter(item => item.id !== id))
-        }
-      } catch (fetchError) {
-        console.error("❌ Error refreshing list after delete:", fetchError)
-        setItems(prev => prev.filter(item => item.id !== id))
-      }
+      // Refresh data using fetchData
+      await fetchData(pagination.page, pagination.pageSize)
 
       setNotification({
         type: 'success',
@@ -439,34 +564,9 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
     }
   }
 
-  const handleEdit = (item: PriceListItem) => {
-    setEditingItem(item)
-    setFormData({
-      item_code: item.item_code,
-      item_name: item.item_name,
-      item_description: item.item_description || "",
-      category: item.category || "material",
-      unit: item.unit,
-      unit_price: item.unit_price,
-      currency: item.currency,
-      valid_from: item.valid_from ? item.valid_from.split('T')[0] : new Date().toISOString().split('T')[0],
-      valid_until: item.valid_until ? item.valid_until.split('T')[0] : "",
-      is_active: item.is_active
-    })
-    setOpenDialog(true)
-  }
-
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: currency
-    }).format(amount)
-  }
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Tidak ditentukan"
-    return new Date(dateString).toLocaleDateString('id-ID')
-  }
+  // Replace old handlers with new ones
+  const handleSubmit = handleSubmitUpdated
+  const handleDelete = handleDeleteUpdated
 
   return (
     <div className="space-y-6">
@@ -726,57 +826,13 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
         </CardContent>
       </Card>
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Item</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{items.length}</div>
-            <p className="text-xs text-muted-foreground">Semua item dalam sistem</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Item Aktif</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{items.filter(i => i.is_active).length}</div>
-            <p className="text-xs text-muted-foreground">Sedang berlaku</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Telah Disetujui</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{items.filter(i => i.approval_status === 'APPROVED').length}</div>
-            <p className="text-xs text-muted-foreground">Status APPROVED</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Rata-rata Harga</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(
-                items.reduce((sum, item) => sum + item.unit_price, 0) / (items.length || 1),
-                "IDR"
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground">Per item</p>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Main Table */}
       <Card>
         <CardHeader>
           <CardTitle>Daftar Harga</CardTitle>
           <CardDescription>
-            {filteredItems.length} item ditemukan
+            Menampilkan {filteredItems.length} item dari {pagination.total} total item (halaman {pagination.page} dari {pagination.totalPages})
+            {fetchingData && <span className="ml-2 text-xs text-muted-foreground">Memuat data...</span>}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -798,7 +854,7 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
                 {filteredItems.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                      Tidak ada item yang ditemukan
+                      {fetchingData ? "Memuat data..." : "Tidak ada item yang ditemukan"}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -868,6 +924,84 @@ export default function PriceListPageClient({ initialData, canManage, locale }: 
               </TableBody>
             </Table>
           </div>
+          
+          {/* Pagination Controls */}
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  Baris per halaman:
+                </span>
+                <Select
+                  value={pagination.pageSize.toString()}
+                  onValueChange={(value) => handlePageSizeChange(parseInt(value))}
+                >
+                  <SelectTrigger className="h-8 w-[70px]">
+                    <SelectValue placeholder={pagination.pageSize.toString()} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pageSizeOptions.map(size => (
+                      <SelectItem key={size} value={size.toString()}>
+                        {size}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(pagination.page - 1)}
+                  disabled={!pagination.hasPrevPage || fetchingData}
+                >
+                  Previous
+                </Button>
+                
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (pagination.totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (pagination.page <= 3) {
+                      pageNum = i + 1;
+                    } else if (pagination.page >= pagination.totalPages - 2) {
+                      pageNum = pagination.totalPages - 4 + i;
+                    } else {
+                      pageNum = pagination.page - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={pagination.page === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(pageNum)}
+                        disabled={fetchingData}
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(pagination.page + 1)}
+                  disabled={!pagination.hasNextPage || fetchingData}
+                >
+                  Next
+                </Button>
+              </div>
+              
+              <div className="text-sm text-muted-foreground">
+                {pagination.total === 0 ? 'Tidak ada data' : 
+                  `Menampilkan ${((pagination.page - 1) * pagination.pageSize) + 1} - ${Math.min(pagination.page * pagination.pageSize, pagination.total)} dari ${pagination.total} item`}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -1,0 +1,103 @@
+{
+  "timestamp": "2026-02-13T13:22:44.518016",
+  "created_count": 12,
+  "total_planned": 12,
+  "programs": [
+    {
+      "id": "8861142a-7d73-406b-a796-fcc6f80a6ded",
+      "kode": "PRG-GMS-KAR-01",
+      "nama": "Program KARBON Gunung Mas Forest Carbon Project",
+      "project": "PRJ-GMS-2026",
+      "type": "KARBON",
+      "budget": 100000000
+    },
+    {
+      "id": "426a0553-3688-408d-bf0f-72b4180ba4ed",
+      "kode": "PRG-GMS-KAP-02",
+      "nama": "Program KAPASITAS Gunung Mas Forest Carbon Project",
+      "project": "PRJ-GMS-2026",
+      "type": "KAPASITAS",
+      "budget": 100000000
+    },
+    {
+      "id": "8e7afe53-fb66-4683-8f9f-b3b2a61becbd",
+      "kode": "PRG-GMS-PEM-03",
+      "nama": "Program PEMBERDAYAAN_EKONOMI Gunung Mas Forest Carbon Project",
+      "project": "PRJ-GMS-2026",
+      "type": "PEMBERDAYAAN_EKONOMI",
+      "budget": 100000000
+    },
+    {
+      "id": "fc527f2b-17bc-40d6-823c-d8d7b34a16fe",
+      "kode": "PRG-KPS-KAR-01",
+      "nama": "Program KARBON Kapuas Carbon Initiative Project",
+      "project": "PRJ-KPS-2026",
+      "type": "KARBON",
+      "budget": 100000000
+    },
+    {
+      "id": "af89366b-2c60-4ac3-9108-8080e767a7dc",
+      "kode": "PRG-KPS-KAP-02",
+      "nama": "Program KAPASITAS Kapuas Carbon Initiative Project",
+      "project": "PRJ-KPS-2026",
+      "type": "KAPASITAS",
+      "budget": 100000000
+    },
+    {
+      "id": "40dac261-216b-4fc5-958a-3a5b753e93d2",
+      "kode": "PRG-KPS-PEM-03",
+      "nama": "Program PEMBERDAYAAN_EKONOMI Kapuas Carbon Initiative Project",
+      "project": "PRJ-KPS-2026",
+      "type": "PEMBERDAYAAN_EKONOMI",
+      "budget": 100000000
+    },
+    {
+      "id": "5b3c2232-1682-4f8f-9513-267c66c5e6eb",
+      "kode": "PRG-KTG-KAR-01",
+      "nama": "Program KARBON Katingan Tropical Carbon Program",
+      "project": "PRJ-KTG-2026",
+      "type": "KARBON",
+      "budget": 100000000
+    },
+    {
+      "id": "e88e0c5e-0460-4345-a72c-fc080ce1b197",
+      "kode": "PRG-KTG-KAP-02",
+      "nama": "Program KAPASITAS Katingan Tropical Carbon Program",
+      "project": "PRJ-KTG-2026",
+      "type": "KAPASITAS",
+      "budget": 100000000
+    },
+    {
+      "id": "97f6e0af-7e97-485b-a3b7-0dc98e7a855b",
+      "kode": "PRG-KTG-PEM-03",
+      "nama": "Program PEMBERDAYAAN_EKONOMI Katingan Tropical Carbon Program",
+      "project": "PRJ-KTG-2026",
+      "type": "PEMBERDAYAAN_EKONOMI",
+      "budget": 100000000
+    },
+    {
+      "id": "a177f670-cc29-4ca0-9c44-dd9831cb8275",
+      "kode": "PRG-PLP-KAR-01",
+      "nama": "Program KARBON Pulang Pisau Peatland Carbon Project",
+      "project": "PRJ-PLP-2026",
+      "type": "KARBON",
+      "budget": 100000000
+    },
+    {
+      "id": "72fa4263-b717-49f3-99c6-68f3535d981e",
+      "kode": "PRG-PLP-KAP-02",
+      "nama": "Program KAPASITAS Pulang Pisau Peatland Carbon Project",
+      "project": "PRJ-PLP-2026",
+      "type": "KAPASITAS",
+      "budget": 100000000
+    },
+    {
+      "id": "63b9a66f-049c-4819-946a-c37dca86272e",
+      "kode": "PRG-PLP-PEM-03",
+      "nama": "Program PEMBERDAYAAN_EKONOMI Pulang Pisau Peatland Carbon Project",
+      "project": "PRJ-PLP-2026",
+      "type": "PEMBERDAYAAN_EKONOMI",
+      "budget": 100000000
+    }
+  ]
+}

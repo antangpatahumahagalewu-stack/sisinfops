@@ -267,6 +267,10 @@ export function InvestorCarbonDashboard() {
             <Badge variant="outline" className="text-xs">
               Source: {dataSource}
             </Badge>
+            <Badge className="bg-green-100 text-green-800 text-xs">
+              <CheckCircle className="mr-1 h-3 w-3" />
+              Approved Programs Only
+            </Badge>
             <Button 
               size="sm" 
               variant="ghost" 

@@ -22,7 +22,7 @@ const programCreateSchema = z.object({
   risiko: z.string().optional().nullable(),
   carbon_project_id: z.string().uuid("Carbon project ID harus UUID").optional().nullable(),
   perhutanan_sosial_id: z.string().uuid("Perhutanan sosial ID harus UUID").min(1, "Perhutanan sosial wajib dipilih"),
-  status: z.enum(["draft", "approved", "active", "completed", "cancelled"])
+  status: z.enum(["draft", "submitted_for_review", "under_review", "approved", "rejected", "needs_revision", "active", "completed", "cancelled"])
     .default("draft"),
   total_budget: z.number()
     .min(0, "Total anggaran tidak boleh negatif")
@@ -138,6 +138,7 @@ export async function POST(request: NextRequest) {
 
     // Prepare insert data
     const insertData: any = {
+      // Form fields (new schema)
       kode_program: data.kode_program,
       nama_program: data.nama_program,
       jenis_program: data.jenis_program,
@@ -149,8 +150,15 @@ export async function POST(request: NextRequest) {
       carbon_project_id: data.carbon_project_id || null,
       perhutanan_sosial_id: data.perhutanan_sosial_id,
       status: data.status,
+      total_budget: data.total_budget || 0,
+      budget_status: data.budget_status || 'draft',
+      budget_notes: data.budget_notes || null,
       logical_framework: data.logical_framework || null,
       created_by: session.user.id,
+      // Legacy fields for compatibility
+      program_code: data.kode_program,
+      program_name: data.nama_program,
+      program_type: data.jenis_program,
     };
 
     // Insert into database
@@ -159,8 +167,8 @@ export async function POST(request: NextRequest) {
       .insert(insertData)
       .select(`
         *,
-        carbon_projects:kode_project,nama_project,
-        perhutanan_sosial:pemegang_izin,desa
+        carbon_projects(kode_project,nama_project),
+        perhutanan_sosial(pemegang_izin,desa)
       `)
       .single();
 
@@ -238,8 +246,8 @@ export async function GET(request: NextRequest) {
           .from("programs")
           .select(`
             *,
-            carbon_projects:kode_project,nama_project,
-            perhutanan_sosial:pemegang_izin,desa,
+            carbon_projects(kode_project,nama_project),
+            perhutanan_sosial(pemegang_izin,desa),
             profiles:created_by (full_name, role)
           `, { count: 'exact' });
 

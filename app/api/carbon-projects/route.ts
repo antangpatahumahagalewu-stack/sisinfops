@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
     const transformedData = data?.map(project => ({
       id: project.id,
       kode_project: project.kode_project || project.project_code,
-      nama_project: project.nama_project || project.project_name,
+      nama_project: project.project_name || project.nama_project,
       status: project.status || project.validation_status || 'draft',
       // Map columns for frontend - use available data
       standar_karbon: project.standard || project.standar_karbon || 'VCS',

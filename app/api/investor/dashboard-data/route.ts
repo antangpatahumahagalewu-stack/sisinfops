@@ -20,18 +20,22 @@ function mapProjectToKabupaten(projectName: string): string | null {
   return null;
 }
 
-// Helper function to calculate summary from raw projects with kabupaten luas
+// Helper function to calculate summary from raw projects with actual carbon_projects data
 function calculateSummaryFromProjects(projects: any[], kabupatenLuasMap: Record<string, number>) {
   const totalCarbonProjects = projects.length
   
-  // Calculate total area based on kabupaten mapping
+  // Calculate total area directly from carbon_projects.luas_total_ha (same as carbon-projects page)
   let totalAreaHectares = 0
   const projectKabupatenMap: Record<string, boolean> = {}
   
   projects.forEach(project => {
-    const kabupatenName = mapProjectToKabupaten(project.nama_project || project.name || '')
-    if (kabupatenName && kabupatenLuasMap[kabupatenName]) {
-      totalAreaHectares += kabupatenLuasMap[kabupatenName]
+    // Use luas_total_ha directly from carbon_projects table
+    const projectLuas = project.luas_total_ha || 0
+    totalAreaHectares += projectLuas
+    
+    // Track unique kabupaten
+    const kabupatenName = project.kabupaten || mapProjectToKabupaten(project.nama_project || project.name || '')
+    if (kabupatenName) {
       projectKabupatenMap[kabupatenName] = true
     }
   })
@@ -235,9 +239,25 @@ export async function GET(request: NextRequest) {
           dataSource = "database_direct"
           
           // Get projects directly from carbon_projects
+          // Only show carbon projects that have programs with status 'approved'
           const { data: rawProjects, error: projectsError } = await supabase
             .from("carbon_projects")
-            .select("*")
+            .select(`
+              id, 
+              kode_project, 
+              nama_project, 
+              kabupaten, 
+              luas_total_ha, 
+              status, 
+              carbon_sequestration_estimated, 
+              investment_amount, 
+              roi_percentage,
+              programs!carbon_project_id (
+                id,
+                status
+              )
+            `)
+            .eq("programs.status", "approved")  // Only projects with approved programs
             .order("created_at", { ascending: false })
             .limit(10)
 
@@ -246,8 +266,15 @@ export async function GET(request: NextRequest) {
             throw new Error("Failed to fetch projects")
           }
 
-          projectsData = rawProjects || []
+          // Filter out projects that don't have approved programs (should be handled by query but just in case)
+          const filteredProjects = (rawProjects || []).filter(project => 
+            project.programs && project.programs.length > 0
+          )
+          
+          projectsData = filteredProjects || []
           summaryData = calculateSummaryFromProjects(projectsData, kabupatenLuasMap)
+          
+          console.log(`Filtered to ${projectsData.length} projects with approved programs`)
         }
       }
 
@@ -259,20 +286,19 @@ export async function GET(request: NextRequest) {
       try {
         const { data: rawProjects } = await supabase
           .from("carbon_projects")
-          .select("id, kode_project, nama_project, status")
+          .select("id, kode_project, nama_project, kabupaten, luas_total_ha, status")
           .order("created_at", { ascending: false })
           .limit(5)
 
         if (rawProjects && rawProjects.length > 0) {
           projectsData = rawProjects.map(p => {
-            // Determine area based on kabupaten mapping
-            const kabupatenName = mapProjectToKabupaten(p.nama_project || '')
-            const kabupatenLuas = kabupatenName ? kabupatenLuasMap[kabupatenName] || 0 : 0
+            // Use actual luas_total_ha from carbon_projects
+            const projectLuas = p.luas_total_ha || 0
             
             return {
               ...p,
-              carbon_sequestration_estimated: kabupatenLuas * 100,
-              investment_amount: kabupatenLuas * 5000000,
+              carbon_sequestration_estimated: projectLuas * 100,
+              investment_amount: projectLuas * 5000000,
               roi_percentage: p.status === 'active' ? 15 + Math.random() * 10 : 10 + Math.random() * 5,
               tanggal_mulai: new Date().toISOString().split('T')[0],
               tanggal_selesai: new Date(new Date().getFullYear() + 10, 0, 1).toISOString().split('T')[0]
@@ -394,15 +420,18 @@ export async function GET(request: NextRequest) {
                                 project.carbon_sequestration_estimated || 
                                 0
       
-      // Get kabupaten luas if available
+      // Get kabupaten luas if available - but use actual luas_total_ha from carbon_projects
       const kabupatenName = mapProjectToKabupaten(projectName)
       const kabupatenLuas = kabupatenName ? kabupatenLuasMap[kabupatenName] || 0 : 0
+      
+      // Use actual luas_total_ha from carbon_projects table for calculations
+      const projectLuas = project.luas_total_ha || kabupatenLuas
       
       // Calculate ROI based on actual transaction data if available
       let roiPercentage = project.roi_percentage_estimate || project.roi_percentage || 0
       if (project.total_transaction_value && project.total_transaction_value > 0) {
         // Simplified ROI calculation: (transaction value - estimated investment) / investment
-        const estimatedInvestment = kabupatenLuas * 5000000 // Rp 5 juta per ha
+        const estimatedInvestment = projectLuas * 5000000 // Rp 5 juta per ha
         if (estimatedInvestment > 0) {
           roiPercentage = ((project.total_transaction_value - estimatedInvestment) / estimatedInvestment * 100)
         }
@@ -411,9 +440,9 @@ export async function GET(request: NextRequest) {
       return {
         name: projectName,
         status: projectStatus,
-        area_hectares: kabupatenLuas,
+        area_hectares: projectLuas,
         carbon_sequestration: carbonSequestration,
-        investment_amount: project.investment_amount || (kabupatenLuas * 5000000),
+        investment_amount: project.investment_amount || (projectLuas * 5000000),
         roi_percentage: roiPercentage,
         start_date: project.crediting_period_start || project.tanggal_mulai || new Date().toISOString().split('T')[0],
         end_date: project.crediting_period_end || project.tanggal_selesai || 
@@ -464,7 +493,7 @@ export async function GET(request: NextRequest) {
         : dataSource === 'database_views_updated_investor'
         ? "Using updated investor dashboard with actual carbon data"
         : dataSource === 'database_direct'
-        ? "Using direct database queries with estimated data"
+        ? "Using direct database queries with actual carbon_projects data"
         : dataSource === 'database_basic'
         ? "Using basic project data - migration recommended"
         : "Using fallback data - database migration required"

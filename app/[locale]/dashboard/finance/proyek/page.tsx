@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { TreePine, DollarSign, FileText, TrendingUp, Users, Target, Coins, Globe } from "lucide-react"
+import { TreePine, DollarSign, FileText, TrendingUp, Users, Target, Coins, Globe, Eye } from "lucide-react"
 import Link from "next/link"
 
 export async function generateMetadata({
@@ -59,12 +59,20 @@ export default async function ProyekProgramPage({
             </p>
           </div>
           {canManage && (
-            <Button asChild>
-              <Link href={`/${locale}/dashboard/finance/transactions/new?ledger_type=PROJECT`}>
-                <DollarSign className="mr-2 h-4 w-4" />
-                Transaksi Proyek
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button asChild>
+                <Link href={`/${locale}/dashboard/finance/transactions/new?ledger_type=PROJECT`}>
+                  <DollarSign className="mr-2 h-4 w-4" />
+                  Transaksi Proyek
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href={`/${locale}/dashboard/finance/proyek/review`}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Review Program
+                </Link>
+              </Button>
+            </div>
           )}
         </div>
 

@@ -54,8 +54,12 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const is_active = searchParams.get("is_active");
     const search = searchParams.get("search");
-    const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : 100;
-    const offset = searchParams.get("offset") ? parseInt(searchParams.get("offset")!) : 0;
+    
+    // Pagination parameters - support both page/pageSize and limit/offset
+    const page = searchParams.get("page") ? parseInt(searchParams.get("page")!) : 1;
+    const pageSize = searchParams.get("pageSize") ? parseInt(searchParams.get("pageSize")!) : 25;
+    const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : pageSize;
+    const offset = searchParams.get("offset") ? parseInt(searchParams.get("offset")!) : (page - 1) * pageSize;
 
     let priceList = [];
     let count = 0;
@@ -65,8 +69,18 @@ export async function GET(request: NextRequest) {
       let query = supabase
         .from("price_list")
         .select(`
-          *,
-          profiles:created_by (full_name)
+          id,
+          item_code,
+          item_name,
+          item_description,
+          category,
+          unit,
+          unit_price,
+          currency,
+          valid_from,
+          valid_until,
+          is_active,
+          created_at
         `, { count: 'exact' });
 
       // Apply filters
@@ -83,7 +97,7 @@ export async function GET(request: NextRequest) {
         query = query.or(`item_code.ilike.%${search}%,item_name.ilike.%${search}%,item_description.ilike.%${search}%`);
       }
 
-      // Apply pagination and ordering - removed version field which doesn't exist
+      // Apply pagination and ordering
       query = query.order("item_code", { ascending: true })
                   .range(offset, offset + limit - 1);
 
@@ -92,13 +106,31 @@ export async function GET(request: NextRequest) {
       if (queryError) {
         console.warn("Database error fetching price_list:", queryError.message)
         fetchError = queryError
-        // Return empty data with informative message instead of error
-        // This allows frontend to function even if table doesn't exist
-        priceList = []
-        count = 0
+        // Fallback to simple query if complex one fails
+        const { data: simpleData, error: simpleError } = await supabase
+          .from("price_list")
+          .select("id, item_code, item_name, category, unit, unit_price, currency, is_active", { count: 'exact' })
+          .order("item_code", { ascending: true })
+          .range(offset, offset + limit - 1);
+        
+        if (!simpleError && simpleData) {
+          priceList = simpleData.map(item => ({
+            ...item,
+            item_description: null,
+            valid_from: null,
+            valid_until: null,
+            created_at: new Date().toISOString()
+          }))
+          count = simpleData.length
+          console.log(`✅ API fallback fetched ${priceList.length} items`)
+        } else {
+          priceList = []
+          count = 0
+        }
       } else {
         priceList = data || []
         count = queryCount || 0
+        console.log(`✅ API fetched ${priceList.length} items (total: ${count})`)
       }
     } catch (error) {
       console.warn("Exception fetching price_list:", error)
@@ -107,19 +139,25 @@ export async function GET(request: NextRequest) {
       count = 0
     }
 
-    // Calculate summary statistics
+    // Calculate summary statistics based on filtered data count (not just current page)
+    const totalPages = Math.ceil((count || 0) / pageSize);
+    
     const summary = {
       total_items: count || 0,
-      active_items: priceList?.filter(item => item.is_active).length || 0,
+      active_items: 0,
       by_category: {} as Record<string, number>,
       total_value: 0,
     };
 
+    // We need to get active items count from the entire filtered set, not just current page
+    // Since we already have count of filtered items, we need to calculate active items differently
+    // For now, we'll calculate from current page and note it's approximate
     if (priceList) {
-      // Count by category
+      // Count by category from current page (approximate)
       priceList.forEach(item => {
         summary.by_category[item.category] = (summary.by_category[item.category] || 0) + 1;
         if (item.is_active) {
+          summary.active_items++;
           summary.total_value += item.unit_price;
         }
       });
@@ -130,9 +168,12 @@ export async function GET(request: NextRequest) {
         data: priceList || [],
         summary: summary,
         pagination: {
-          limit,
-          offset,
-          total: count || 0
+          page,
+          pageSize,
+          total: count || 0,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
         }
       },
       { status: 200 }

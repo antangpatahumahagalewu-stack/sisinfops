@@ -16,14 +16,6 @@ interface PageProps {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-// Mapping untuk mendapatkan nama kabupaten dari project ID
-const KABUPATEN_MAPPING: Record<string, string> = {
-  "17a97b56-a525-4c65-b627-2e1e9e3ce343": "Pulang Pisau",
-  "db56f3d7-60c8-42a6-aff1-2220b51b32de": "Gunung Mas",
-  "61f9898e-224a-4841-9cd3-102f8c387943": "Kapuas",
-  "a71ef98b-4213-41cc-8616-f450aae8889d": "Katingan",
-}
-
 // Helper function untuk format currency
 function formatCurrency(amount: number): string {
   if (amount >= 1000000000) {
@@ -105,35 +97,100 @@ export default async function CarbonProjectDetailPage({ params, searchParams }: 
     )
   }
 
-  // Financial data calculations
+  // Financial data calculations - NOW BASED ON ACTUAL PROGRAM DATA
   async function getFinancialData(): Promise<{
     total_investment: number;
     spent_amount: number;
     remaining_amount: number;
     average_per_ha: number;
+    progress_percentage: number;
   }> {
-    // Calculate financial data based on project area
-    const area = project.luas_total_ha || 0
-    const average_per_ha = 5684603 // Rata-rata Rp 5.684.603 per ha
-    const total_investment = Math.round(area * average_per_ha)
-    const spent_amount = Math.round(total_investment * 0.6) // 60% spent
-    const remaining_amount = total_investment - spent_amount
-
-    return {
-      total_investment,
-      spent_amount,
-      remaining_amount,
-      average_per_ha
+    try {
+      // Get financial data from view v_carbon_project_financials (real program data)
+      const { data: financialView, error } = await supabase
+        .from("v_carbon_project_financials")
+        .select("*")
+        .eq("carbon_project_id", id)
+        .single()
+      
+      if (error || !financialView) {
+        console.warn('Could not fetch financial view, falling back to program aggregation:', error?.message)
+        
+        // Fallback: calculate from programs table
+        const { data: programsData } = await supabase
+          .from("programs")
+          .select("total_budget, spent_budget")
+          .eq("carbon_project_id", id)
+        
+        let total_investment = 0
+        let spent_amount = 0
+        
+        if (programsData && programsData.length > 0) {
+          total_investment = programsData.reduce((sum, p) => sum + (p.total_budget || 0), 0)
+          spent_amount = programsData.reduce((sum, p) => sum + (p.spent_budget || 0), 0)
+        } else {
+          // If no programs, use the old calculation as fallback
+          const area = project.luas_total_ha || 0
+          const average_per_ha = 5684603
+          total_investment = Math.round(area * average_per_ha)
+          spent_amount = Math.round(total_investment * 0.6)
+        }
+        
+        const remaining_amount = total_investment - spent_amount
+        const progress_percentage = total_investment > 0 ? Math.round((spent_amount / total_investment) * 100) : 0
+        
+        return {
+          total_investment,
+          spent_amount,
+          remaining_amount,
+          average_per_ha: 5684603,
+          progress_percentage
+        }
+      }
+      
+      // Use data from view
+      const total_investment = financialView.total_budget_all_programs || 0
+      const spent_amount = financialView.total_spent_all_programs || 0
+      const remaining_amount = financialView.total_remaining_all_programs || 0
+      const progress_percentage = financialView.overall_progress_percentage || 0
+      
+      // Calculate average per ha based on actual data
+      const area = project.luas_total_ha || 1
+      const average_per_ha = area > 0 ? Math.round(total_investment / area) : 0
+      
+      return {
+        total_investment,
+        spent_amount,
+        remaining_amount,
+        average_per_ha,
+        progress_percentage
+      }
+    } catch (error) {
+      console.error('Error in getFinancialData:', error)
+      
+      // Ultimate fallback
+      const area = project.luas_total_ha || 0
+      const average_per_ha = 5684603
+      const total_investment = Math.round(area * average_per_ha)
+      const spent_amount = Math.round(total_investment * 0.6)
+      const remaining_amount = total_investment - spent_amount
+      const progress_percentage = total_investment > 0 ? Math.round((spent_amount / total_investment) * 100) : 0
+      
+      return {
+        total_investment,
+        spent_amount,
+        remaining_amount,
+        average_per_ha,
+        progress_percentage
+      }
     }
   }
 
   const financialData = await getFinancialData()
-  const progressPercentage = financialData.total_investment > 0 
-    ? Math.round((financialData.spent_amount / financialData.total_investment) * 100)
-    : 0
+  const progressPercentage = financialData.progress_percentage
 
-  // Get kabupaten name for display
-  const kabupatenName = KABUPATEN_MAPPING[id] || project.kabupaten || "Tidak diketahui"
+  // Get kabupaten name for display - use data from database
+  const kabupatenName = project.kabupaten || "Tidak diketahui"
 
   return (
     <div className="space-y-6">
@@ -148,7 +205,7 @@ export default async function CarbonProjectDetailPage({ params, searchParams }: 
             </Button>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-bold tracking-tight text-gray-900">{project.nama_project}</h1>
+                <h1 className="text-3xl font-bold tracking-tight text-gray-900">{project.project_name || project.nama_project}</h1>
                 <StatusBadge status={project.status} />
               </div>
               <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-600">

@@ -146,14 +146,19 @@ export default function ProgramsPage() {
 
     setDeletingId(programId)
     try {
+      console.log('Attempting to delete program:', programId, 'by user with role:', userRole, 'isAdmin:', isAdmin)
+      
       const response = await fetch(`/api/programs/${programId}`, {
         method: "DELETE",
       })
 
       const result = await response.json()
+      console.log('Delete API response:', response.status, result)
 
       if (!response.ok) {
-        throw new Error(result.error || "Gagal menghapus program")
+        const errorMsg = result.error || "Gagal menghapus program"
+        console.error('Delete failed:', errorMsg, 'Status:', response.status)
+        throw new Error(errorMsg)
       }
 
       // Remove program from state

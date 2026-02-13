@@ -10,7 +10,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
-  const locale = (await params).locale
+  const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'dashboard' })
   
   return {
@@ -24,7 +24,7 @@ export default async function MasterPriceListPage({
 }: {
   params: Promise<{ locale: string }>
 }) {
-  const locale = (await params).locale
+  const { locale } = await params
   const supabase = await createClient()
   
   // Check authentication
@@ -42,13 +42,21 @@ export default async function MasterPriceListPage({
   // Check if user has permission to manage price list
   const canManage = await hasPermission("FINANCIAL_BUDGET_MANAGE", session.user.id)
 
-  // Fetch initial price list data from database
+  // Fetch initial price list data from database with pagination
   let priceListData: any[] = []
+  let totalCount = 0
   let fetchError = null
   
+  // Pagination defaults
+  const page = 1
+  const pageSize = 25
+  const offset = (page - 1) * pageSize
+  
   try {
-    // Use specific column selection to match database structure
-    const { data, error } = await supabase
+    // Use simplified query without problematic joins
+    // Only select columns that actually exist in price_list table
+    // Based on check_price_list.js: id, item_code, item_name, item_description, unit, unit_price, currency, category, is_active, valid_from, valid_until, created_at
+    const { data, error, count } = await supabase
       .from("price_list")
       .select(`
         id,
@@ -62,12 +70,10 @@ export default async function MasterPriceListPage({
         valid_from,
         valid_until,
         is_active,
-        created_at,
-        created_by,
-        profiles:created_by (full_name)
-      `)
+        created_at
+      `, { count: 'exact' })
       .order("item_code", { ascending: true })
-      .limit(50)
+      .range(offset, offset + pageSize - 1)
 
     if (error) {
       console.warn("Error fetching price list data:", error.message)
@@ -78,7 +84,7 @@ export default async function MasterPriceListPage({
         .from("price_list")
         .select("id, item_code, item_name, category, unit, unit_price, currency, is_active")
         .order("item_code", { ascending: true })
-        .limit(50)
+        .range(offset, offset + pageSize - 1)
       
       if (!fallbackError && fallbackData) {
         priceListData = fallbackData.map(item => ({
@@ -87,16 +93,22 @@ export default async function MasterPriceListPage({
           valid_from: null,
           valid_until: null,
           created_at: new Date().toISOString(),
-          created_by: null,
-          profiles: { full_name: "System" }
+          created_by: null
         }))
         console.log(`✅ Fetched ${priceListData.length} items with fallback query`)
+        
+        // Get total count separately for fallback
+        const { count: fallbackCount } = await supabase
+          .from("price_list")
+          .select("*", { count: 'exact', head: true })
+        totalCount = fallbackCount || 0
       } else {
         console.warn("Fallback query also failed:", fallbackError?.message)
       }
     } else {
       priceListData = data || []
-      console.log(`✅ Fetched ${priceListData.length} items from price_list table`)
+      totalCount = count || 0
+      console.log(`✅ Fetched ${priceListData.length} items from price_list table (total: ${totalCount})`)
     }
   } catch (error) {
     console.warn("Exception fetching price list:", error)
@@ -108,10 +120,22 @@ export default async function MasterPriceListPage({
     console.log("ℹ️  No data found in database, returning empty array")
   }
 
+  // Calculate pagination metadata
+  const totalPages = Math.ceil(totalCount / pageSize)
+  const pagination = {
+    page,
+    pageSize,
+    total: totalCount,
+    totalPages,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1
+  }
+
   return (
     <div className="container mx-auto p-4 md:p-6">
       <PriceListPageClient 
         initialData={priceListData}
+        initialPagination={pagination}
         canManage={canManage}
         locale={locale}
       />

@@ -1,4 +1,4 @@
-e#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Check carbon_projects table structure
 """
