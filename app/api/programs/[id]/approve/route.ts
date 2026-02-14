@@ -113,39 +113,94 @@ export async function POST(
       .single();
 
     if (updateError) {
-      console.error("Database error:", updateError);
+      // Type-safe extraction of constraint from error details
+      const errorDetails = updateError.details || '';
+      const constraintMatch = errorDetails.match(/constraint "([^"]+)"/);
+      const constraint = constraintMatch ? constraintMatch[1] : '';
+      
+      console.error("Database error details:", {
+        message: updateError.message,
+        code: updateError.code,
+        details: updateError.details,
+        hint: updateError.hint,
+        constraint: constraint
+      });
+      
+      // Check for foreign key constraint violation
+      let errorMessage = "Gagal memperbarui status program";
+      
+      if (updateError.code === '23503') {
+        // Foreign key constraint violation
+        if (constraint === 'programs_reviewed_by_fkey') {
+          errorMessage = `Foreign key violation: User ID ${session.user.id} tidak valid untuk reviewed_by. Pastikan user terdaftar di auth.users.`;
+        } else if (constraint === 'programs_created_by_fkey') {
+          errorMessage = "Foreign key violation: Program creator tidak valid. Hubungi administrator.";
+        } else if (constraint === 'programs_submitted_by_fkey') {
+          errorMessage = "Foreign key violation: User yang submit program tidak valid.";
+        } else if (constraint.includes('notifications')) {
+          errorMessage = "Pemberitahuan gagal dibuat, tetapi program berhasil diproses. (Constraint: " + constraint + ")";
+        } else {
+          // Generic foreign key error
+          errorMessage = `Foreign key constraint violation: ${constraint}. Hubungi administrator database.`;
+        }
+      } else if (updateError.code === '23505') {
+        // Unique violation
+        errorMessage = "Data duplikat terdeteksi. Program mungkin sudah diproses.";
+      } else if (updateError.code === '23514') {
+        // Check violation
+        errorMessage = "Data tidak memenuhi validasi database.";
+      }
+      
+      // Always include constraint in error message for debugging
+      if (constraint) {
+        errorMessage += ` [Constraint: ${constraint}]`;
+      }
+      
       return NextResponse.json(
-        { error: "Gagal memperbarui status program", details: updateError.message },
+        { 
+          error: errorMessage,
+          details: updateError.message,
+          code: updateError.code,
+          constraint: constraint
+        },
         { status: 500 }
       );
     }
 
-    // Create notification for program creator
-    if (existingProgram.created_by) {
-      const notificationData = {
-        user_id: existingProgram.created_by,
-        type: data.status === 'approved' ? 'program_approved' : 
-              data.status === 'rejected' ? 'program_rejected' : 'revision_requested',
-        title: data.status === 'approved' ? 'Program Disetujui' : 
-               data.status === 'rejected' ? 'Program Ditolak' : 'Revisi Diperlukan',
-        message: data.status === 'approved' 
-          ? `Program "${existingProgram.nama_program}" telah disetujui oleh Finance Team.`
-          : data.status === 'rejected'
-          ? `Program "${existingProgram.nama_program}" ditolak oleh Finance Team.`
-          : `Program "${existingProgram.nama_program}" memerlukan revisi dari tim program.`,
-        data: {
-          program_id: id,
-          program_name: existingProgram.nama_program,
-          reviewer_id: session.user.id,
-          status: newStatus,
-          review_notes: data.review_notes || null,
-          timestamp: new Date().toISOString(),
-        },
-      };
+    // Create notification for program creator if created_by exists
+    // Use submitted_by as fallback if created_by is missing
+    const creatorId = existingProgram.created_by || existingProgram.submitted_by;
+    
+    if (creatorId) {
+      try {
+        const notificationData = {
+          user_id: creatorId,
+          type: data.status === 'approved' ? 'program_approved' : 
+                data.status === 'rejected' ? 'program_rejected' : 'revision_requested',
+          title: data.status === 'approved' ? 'Program Disetujui' : 
+                 data.status === 'rejected' ? 'Program Ditolak' : 'Revisi Diperlukan',
+          message: data.status === 'approved' 
+            ? `Program "${existingProgram.nama_program}" telah disetujui oleh Finance Team.`
+            : data.status === 'rejected'
+            ? `Program "${existingProgram.nama_program}" ditolak oleh Finance Team.`
+            : `Program "${existingProgram.nama_program}" memerlukan revisi dari tim program.`,
+          data: {
+            program_id: id,
+            program_name: existingProgram.nama_program,
+            reviewer_id: session.user.id,
+            status: newStatus,
+            review_notes: data.review_notes || null,
+            timestamp: new Date().toISOString(),
+          },
+        };
 
-      await supabase
-        .from("notifications")
-        .insert(notificationData);
+        await supabase
+          .from("notifications")
+          .insert(notificationData);
+      } catch (notificationError) {
+        console.warn("Failed to create notification:", notificationError);
+        // Continue without notification - this is not critical
+      }
     }
 
     return NextResponse.json(

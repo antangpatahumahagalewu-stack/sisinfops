@@ -101,22 +101,104 @@ export function ProgramApprovalManager() {
   async function fetchPrograms() {
     setLoading(true)
     try {
-      // Use the view created in migration: programs_needing_review
-      // Or we can query programs with specific statuses
+      console.log("Fetching programs for review...")
+      
+      // Always use direct query to avoid view issues
       const { data, error } = await supabase
         .from("programs")
-        .select(`
-          *,
-          carbon_projects(kode_project, nama_project),
-          perhutanan_sosial(pemegang_izin, desa, kecamatan, kabupaten),
-          submitter_profile:submitted_by(full_name, role)
-        `)
+        .select("*")
         .in("status", ["submitted_for_review", "under_review", "needs_revision"])
         .order("submitted_at", { ascending: false })
 
+      if (error) {
+        console.error("Error fetching programs:", error)
+        toast.error("Gagal memuat program yang perlu review")
+        setLoading(false)
+        return
+      }
+
+      console.log(`Found ${data?.length || 0} programs needing review`)
+
       if (error) throw error
 
-      setPrograms(data || [])
+      // Fetch related data separately to avoid join errors
+      const programsWithRelations: ProgramForReview[] = []
+      
+      if (data && data.length > 0) {
+        // Get IDs for related data
+        const carbonProjectIds = data.map(p => p.carbon_project_id).filter(Boolean) as string[]
+        const psIds = data.map(p => p.perhutanan_sosial_id).filter(Boolean) as string[]
+        const submitterIds = data.map(p => p.submitted_by).filter(Boolean) as string[]
+
+        // Fetch carbon projects separately
+        let carbonProjectsMap = new Map()
+        if (carbonProjectIds.length > 0) {
+          try {
+            const { data: carbonProjects } = await supabase
+              .from("carbon_projects")
+              .select("id, kode_project, nama_project")
+              .in("id", carbonProjectIds)
+            
+            if (carbonProjects) {
+              carbonProjects.forEach(cp => {
+                carbonProjectsMap.set(cp.id, cp)
+              })
+            }
+          } catch (cpError) {
+            console.warn("Error fetching carbon projects:", cpError)
+          }
+        }
+
+        // Fetch perhutanan sosial separately
+        let psMap = new Map()
+        if (psIds.length > 0) {
+          try {
+            const { data: psData } = await supabase
+              .from("perhutanan_sosial")
+              .select("id, pemegang_izin, desa, kecamatan, kabupaten")
+              .in("id", psIds)
+            
+            if (psData) {
+              psData.forEach(ps => {
+                psMap.set(ps.id, ps)
+              })
+            }
+          } catch (psError) {
+            console.warn("Error fetching perhutanan sosial:", psError)
+          }
+        }
+
+        // Fetch submitter profiles separately
+        let submitterMap = new Map()
+        if (submitterIds.length > 0) {
+          try {
+            const { data: submitterProfiles } = await supabase
+              .from("profiles")
+              .select("id, full_name, role")
+              .in("id", submitterIds)
+            
+            if (submitterProfiles) {
+              submitterProfiles.forEach(profile => {
+                submitterMap.set(profile.id, profile)
+              })
+            }
+          } catch (profileError) {
+            console.warn("Error fetching submitter profiles:", profileError)
+          }
+        }
+
+        // Combine all data
+        data.forEach(program => {
+          programsWithRelations.push({
+            ...program,
+            carbon_projects: carbonProjectsMap.get(program.carbon_project_id) || null,
+            perhutanan_sosial: psMap.get(program.perhutanan_sosial_id) || null,
+            submitter_profile: submitterMap.get(program.submitted_by) || null
+          } as ProgramForReview)
+        })
+      }
+
+      setPrograms(programsWithRelations)
 
       // Calculate stats
       if (data) {

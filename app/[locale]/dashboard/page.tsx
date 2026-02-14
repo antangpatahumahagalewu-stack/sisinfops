@@ -1,21 +1,58 @@
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowUpRight, Database, Map, CheckCircle, XCircle, FileSpreadsheet, Users, TreePine, Globe } from "lucide-react"
+import { ArrowUpRight, Database, Map, CheckCircle, XCircle, FileSpreadsheet, Users, TreePine, Globe, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { ClimatePartnerComplianceCard } from "@/components/dashboard/climatepartner-compliance-card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
 
   // Get dashboard statistics from new schema
-  const { data: psData } = await supabase
-    .from("perhutanan_sosial")
-    .select("id, kabupaten_id, luas_ha, rkps_status, peta_status, jumlah_kk, skema")
+  let psData = null
+  let kabupatenData = null
+  let fetchError = null
 
-  const { data: kabupatenData } = await supabase
-    .from("kabupaten")
-    .select("id, nama")
+  try {
+    const [psResult, kabupatenResult] = await Promise.allSettled([
+      supabase
+        .from("perhutanan_sosial")
+        .select("id, kabupaten_id, luas_ha, rkps_status, peta_status, jumlah_kk, skema"),
+      supabase
+        .from("kabupaten")
+        .select("id, nama")
+    ])
+
+    if (psResult.status === 'fulfilled') {
+      const { data, error } = psResult.value
+      if (error) {
+        console.error("Error fetching perhutanan_sosial data:", error)
+        fetchError = error.message
+      } else {
+        psData = data
+      }
+    } else {
+      console.error("Promise rejected for perhutanan_sosial:", psResult.reason)
+      fetchError = psResult.reason?.message || "Failed to fetch perhutanan_sosial data"
+    }
+
+    if (kabupatenResult.status === 'fulfilled') {
+      const { data, error } = kabupatenResult.value
+      if (error) {
+        console.error("Error fetching kabupaten data:", error)
+        fetchError = fetchError || error.message
+      } else {
+        kabupatenData = data
+      }
+    } else {
+      console.error("Promise rejected for kabupaten:", kabupatenResult.reason)
+      fetchError = fetchError || kabupatenResult.reason?.message || "Failed to fetch kabupaten data"
+    }
+  } catch (error) {
+    console.error("Unexpected error in DashboardPage:", error)
+    fetchError = error instanceof Error ? error.message : "Unknown error"
+  }
 
   // Calculate statistics from perhutanan_sosial table only
   const totalPS = psData?.length || 0
@@ -57,6 +94,15 @@ export default async function DashboardPage() {
           Ringkasan data Perhutanan Sosial & PKS 5 Kabupaten
         </p>
       </div>
+
+      {fetchError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Gagal memuat data dashboard: {fetchError}. Silakan coba refresh halaman atau hubungi administrator.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

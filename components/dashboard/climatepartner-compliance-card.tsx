@@ -43,11 +43,17 @@ export function ClimatePartnerComplianceCard() {
     setLoading(true)
 
     try {
-      // Fetch all PS projects
-      const { data: psProjects } = await supabase
+      // Fetch all PS projects - use safe column names that exist in perhutanan_sosial table
+      const { data: psProjects, error: psError } = await supabase
         .from("perhutanan_sosial")
-        .select("id, nama_kelompok_tani, updated_at")
+        .select("id, pemegang_izin, updated_at")
         .limit(50)
+        
+      if (psError) {
+        console.error("Error fetching PS projects for compliance:", psError)
+        setLoading(false)
+        return
+      }
 
       if (!psProjects) {
         setLoading(false)
@@ -69,7 +75,7 @@ export function ClimatePartnerComplianceCard() {
         
         projectCompliances.push({
           project_id: project.id,
-          project_name: project.nama_kelompok_tani || `Project ${index + 1}`,
+          project_name: project.pemegang_izin || `Project ${index + 1}`,
           compliance_score: score,
           status,
           last_updated: project.updated_at || new Date().toISOString()

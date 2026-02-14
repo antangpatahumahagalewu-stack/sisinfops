@@ -2,13 +2,134 @@
 > app-db@0.1.0 dev
 > next dev
 
-⚠ Port 3000 is in use by an unknown process, using available port 3002 instead.
 ▲ Next.js 16.1.1 (Turbopack)
-- Local:         http://localhost:3002
-- Network:       http://192.168.1.10:3002
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.7:3000
 - Environments: .env.local
+- Experiments (use with caution):
+  · serverActions
 
 ✓ Starting...
-⨯ Unable to acquire lock at /home/sangumang/Documents/sisinfops/.next/dev/lock, is another instance of next dev running?
-  Suggestion: If you intended to restart next dev, terminate the other process, and then try again.
+✓ Ready in 492ms
+Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server.
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+ GET /id/dashboard/finance/proyek 200 in 1388ms (compile: 420ms, proxy.ts: 99ms, generate-params: 244ms, render: 869ms)
+ GET /id/dashboard 200 in 1213ms (compile: 524ms, proxy.ts: 7ms, generate-params: 394ms, render: 682ms)
+ GET /id/dashboard 200 in 988ms (compile: 23ms, proxy.ts: 4ms, generate-params: 21ms, render: 960ms)
+Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server.
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+ GET /id/dashboard/finance/proyek 200 in 463ms (compile: 28ms, proxy.ts: 10ms, generate-params: 23ms, render: 425ms)
+Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server.
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+ GET /id/dashboard/finance 200 in 603ms (compile: 304ms, proxy.ts: 9ms, generate-params: 241ms, render: 290ms)
+Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server.
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+ GET /id/dashboard/finance/operasional 200 in 1109ms (compile: 811ms, proxy.ts: 9ms, generate-params: 267ms, render: 290ms)
+Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server.
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+ GET /id/dashboard/finance/proyek 200 in 389ms (compile: 39ms, proxy.ts: 6ms, generate-params: 28ms, render: 343ms)
+Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server.
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+ GET /id/dashboard/finance/budgets?ledger_code=LEDGER-PRJ-CARBON 200 in 1069ms (compile: 556ms, proxy.ts: 5ms, generate-params: 257ms, render: 508ms)
+ GET /id/dashboard/finance/grants 404 in 50ms (compile: 30ms, proxy.ts: 7ms, render: 13ms)
+ GET /id/dashboard/finance/grants 404 in 37ms (compile: 4ms, proxy.ts: 4ms, render: 30ms)
+Using the user object as returned from supabase.auth.getSession() or from some supabase.auth.onAuthStateChange() events could be insecure! This value comes directly from the storage medium (usually cookies on the server) and may not be authentic. Use supabase.auth.getUser() instead which authenticates the data by contacting the Supabase Auth server.
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+🔧 Supabase Client Configuration: {
+  url: 'https://saelrsljpneclsbfdxfy.s...',
+  keyPresent: true,
+  keyLength: 208
+}
+✅ Supabase client created successfully
+ GET /id/dashboard/finance/proyek 200 in 997ms (compile: 33ms, proxy.ts: 4ms, generate-params: 30ms, render: 960ms)
+ GET /id/dashboard/finance/proyek/review 200 in 584ms (compile: 556ms, proxy.ts: 8ms, generate-params: 245ms, render: 20ms)
 [?25h
