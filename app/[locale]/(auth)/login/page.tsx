@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, LogIn } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const [email, setEmail] = useState("");
@@ -25,7 +24,6 @@ export default function LoginPage({ params }: { params: Promise<{ locale: string
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { locale } = use(params);
-  const supabase = createClient();
   const t = useTranslations("auth");
   const tCommon = useTranslations("common");
 
@@ -35,21 +33,52 @@ export default function LoginPage({ params }: { params: Promise<{ locale: string
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      console.log('🔧 Attempting login via API for:', email.substring(0, 10) + '...');
+      
+      // Use local API route to avoid CORS issues
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (error) {
-        setError(error.message);
+      console.log('📊 API login response status:', response.status);
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('❌ API login error:', result);
+        
+        // Handle specific error cases from API
+        if (result.error) {
+          setError(result.error);
+        } else if (result.details?.includes('Invalid login credentials')) {
+          setError("Email atau password salah.");
+        } else {
+          setError("Terjadi kesalahan. Silakan coba lagi.");
+        }
         return;
       }
 
+      console.log('✅ API login successful, redirecting to dashboard...');
+      
       // Redirect to dashboard on successful login with locale
       router.push(`/${locale}/dashboard`);
       router.refresh();
-    } catch (err) {
-      setError("Terjadi kesalahan. Silakan coba lagi.");
+    } catch (err: any) {
+      console.error('❌ Unexpected login error:', err);
+      
+      if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
+        setError("Koneksi jaringan bermasalah. Periksa koneksi internet Anda atau coba lagi nanti.");
+      } else if (err.message?.includes('Network request failed')) {
+        setError("Koneksi jaringan gagal. Periksa koneksi internet Anda.");
+      } else if (err.message?.includes('timeout')) {
+        setError("Waktu tunggu habis. Server tidak merespons. Silakan coba lagi.");
+      } else {
+        setError("Terjadi kesalahan yang tidak terduga. Silakan coba lagi.");
+      }
     } finally {
       setLoading(false);
     }

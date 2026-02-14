@@ -14,5 +14,18 @@ export const createClient = () => {
     )
   }
 
-  return createBrowserClient(supabaseUrl, supabaseAnonKey)
+  console.log('🔧 Supabase Client Configuration:', {
+    url: supabaseUrl.substring(0, 30) + '...',
+    keyPresent: !!supabaseAnonKey,
+    keyLength: supabaseAnonKey?.length || 0
+  })
+
+  try {
+    const client = createBrowserClient(supabaseUrl, supabaseAnonKey)
+    console.log('✅ Supabase client created successfully')
+    return client
+  } catch (error: any) {
+    console.error('❌ Failed to create Supabase client:', error)
+    throw new Error(`Failed to initialize Supabase client: ${error.message}`)
+  }
 }

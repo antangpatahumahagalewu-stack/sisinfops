@@ -1,3 +1,4 @@
+
 /**
  * Role-Based Access Control (RBAC) Helper Functions
  * 
@@ -262,6 +263,104 @@ export async function canManageStakeholders(userId?: string): Promise<boolean> {
  */
 export async function canManageEconomicEmpowerment(userId?: string): Promise<boolean> {
   return checkUserRole(['admin', 'program_planner'], userId)
+}
+
+/**
+ * GOD MODE ADMIN FUNCTIONS
+ * These functions provide absolute access control for the sole administrator
+ */
+
+/**
+ * Check if user is the sole admin (god mode)
+ * @param userId - User ID (optional, defaults to current authenticated user)
+ * @returns true if user is the only admin in the system
+ */
+export async function isGodAdmin(userId?: string): Promise<boolean> {
+  try {
+    const supabase = createClient()
+    
+    // Get current user if userId not provided
+    if (!userId) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return false
+      userId = user.id
+    }
+
+    // First check if user is admin
+    const userIsAdmin = await isAdmin(userId)
+    if (!userIsAdmin) return false
+    
+    // Check if this is the only admin in the system
+    const { data: adminProfiles, error } = await supabase
+      .from("profiles")
+      .select("id, role")
+      .eq("role", "admin")
+    
+    if (error || !adminProfiles) {
+      console.warn("Failed to fetch admin profiles:", error)
+      return false
+    }
+    
+    // If there's only one admin and it's this user, return true
+    return adminProfiles.length === 1 && adminProfiles[0].id === userId
+  } catch (error) {
+    console.error("Error in isGodAdmin:", error)
+    return false
+  }
+}
+
+/**
+ * Check if user can bypass all restrictions (god mode)
+ * @param userId - User ID (optional, defaults to current authenticated user)
+ * @returns true if user has god mode privileges
+ */
+export async function hasGodMode(userId?: string): Promise<boolean> {
+  // For now, any admin has god mode due to database policies
+  // In the future, we might want more strict controls
+  return isAdmin(userId)
+}
+
+/**
+ * Bypass permission check for god mode admin
+ * @param permission - Permission to check
+ * @param userId - User ID (optional)
+ * @returns true if user has god mode or the specific permission
+ */
+export async function hasPermissionOrGodMode(
+  permission: keyof typeof Permissions,
+  userId?: string
+): Promise<boolean> {
+  const hasGod = await hasGodMode(userId)
+  if (hasGod) return true
+  
+  return hasPermission(permission, userId)
+}
+
+/**
+ * Get enhanced permissions including god mode flag
+ * @param userId - User ID (optional, defaults to current authenticated user)
+ * @returns Object with all permissions and god mode flag
+ */
+export async function getUserEnhancedPermissions(userId?: string): Promise<Record<string, boolean> & { GOD_MODE: boolean }> {
+  const basicPermissions = await getUserPermissions(userId)
+  const godMode = await hasGodMode(userId)
+  
+  // If god mode is enabled, set ALL permissions to true
+  if (godMode) {
+    const allTruePermissions: Record<string, boolean> = {}
+    for (const key of Object.keys(Permissions)) {
+      allTruePermissions[key] = true
+    }
+    return {
+      ...allTruePermissions,
+      GOD_MODE: true
+    }
+  }
+  
+  return {
+    ...basicPermissions,
+    GOD_MODE: false
+  }
 }
 
   /**

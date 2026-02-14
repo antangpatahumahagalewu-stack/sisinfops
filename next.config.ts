@@ -18,9 +18,9 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },
   
-  // Security headers for Netlify deployment
+  // Combined headers configuration for security and CORS
   async headers() {
-    return [
+    const headers = [
       {
         source: '/:path*',
         headers: [
@@ -47,7 +47,26 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization, apikey',
+          },
+        ],
+      },
     ];
+    
+    return headers;
   },
   
   // Webpack configuration for bundle optimization
@@ -91,6 +110,28 @@ const nextConfig: NextConfig = {
     }
     
     return config;
+  },
+  
+  // Experimental features for better fetch handling
+  experimental: {
+    // Enable modern fetch implementation for better network error handling
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  
+  // Rewrites for API proxying (optional, can help with CORS)
+  async rewrites() {
+    return [
+      {
+        source: '/api/auth/:path*',
+        destination: 'https://saelrsljpneclsbfdxfy.supabase.co/auth/v1/:path*',
+      },
+      {
+        source: '/api/rest/:path*',
+        destination: 'https://saelrsljpneclsbfdxfy.supabase.co/rest/v1/:path*',
+      },
+    ];
   },
 };
 
