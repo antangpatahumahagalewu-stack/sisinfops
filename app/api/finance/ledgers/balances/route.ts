@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const is_active = searchParams.get("is_active");
 
     let ledgersData: any[] = [];
-    let fetchError = null;
+    let fetchError: Error | null = null;
 
     try {
       // First try to fetch from accounting_ledgers table

@@ -5,6 +5,21 @@ import { z } from "zod";
 
 // Schema for price list - based on actual database columns from check_price_list.js
 // Actual columns: id, item_code, item_name, item_description, unit, unit_price, currency, category, is_active, valid_from, valid_until, created_at
+
+interface PriceListItemResponse {
+  id: string;
+  item_code: string;
+  item_name: string;
+  item_description: string | null;
+  category: string;
+  unit: string;
+  unit_price: number;
+  currency: string;
+  valid_from: string | null;
+  valid_until: string | null;
+  is_active: boolean;
+  created_at: string;
+}
 const priceListItemSchema = z.object({
   item_code: z.string().min(1).max(50),
   item_name: z.string().min(1).max(255),
@@ -61,9 +76,9 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : pageSize;
     const offset = searchParams.get("offset") ? parseInt(searchParams.get("offset")!) : (page - 1) * pageSize;
 
-    let priceList = [];
+    let priceList: PriceListItemResponse[] = [];
     let count = 0;
-    let fetchError = null;
+    let fetchError: Error | null = null;
 
     try {
       let query = supabase

@@ -1,4 +1,4 @@
-import { createClient } from './lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 /**
  * Test script untuk memverifikasi semua data berasal dari database, bukan mock data
