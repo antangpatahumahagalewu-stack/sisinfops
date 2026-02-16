@@ -67,7 +67,8 @@ export default function CreateUserModal({
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/admin/users', {
+      // Try the direct API first (which uses SQL function workaround)
+      const response = await fetch('/api/admin/users/create-direct', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,11 +79,43 @@ export default function CreateUserModal({
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create user')
+        // Fallback to original API if direct API fails
+        console.warn('Direct API failed, trying original API...', data)
+        
+        const fallbackResponse = await fetch('/api/admin/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        })
+        
+        const fallbackData = await fallbackResponse.json()
+        
+        if (!fallbackResponse.ok) {
+          throw new Error(fallbackData.error || 'Failed to create user')
+        }
+        
+        toast.success(`Pengguna ${fallbackData.user.full_name} berhasil dibuat (Fallback)`, {
+          description: `Email: ${fallbackData.user.email}, Role: ${fallbackData.user.role}`
+        })
+        
+        // Reset form and close modal
+        setFormData({
+          full_name: "",
+          email: "",
+          password: "",
+          role: "viewer"
+        })
+        setIsOpen(false)
+        
+        // Refresh the page to show new user
+        window.location.reload()
+        return
       }
 
       toast.success(`Pengguna ${data.user.full_name} berhasil dibuat`, {
-        description: `Email: ${data.user.email}, Role: ${data.user.role}`
+        description: `Email: ${data.user.email}, Role: ${data.user.role} (${data.method || 'Direct API'})`
       })
 
       // Reset form and close modal
@@ -97,8 +130,9 @@ export default function CreateUserModal({
       // Refresh the page to show new user
       window.location.reload()
     } catch (error: any) {
+      console.error('Create user error:', error)
       toast.error("Gagal membuat pengguna", {
-        description: error.message || "Terjadi kesalahan"
+        description: error.message || "Database error creating new user. Coba buat user manual di Supabase Dashboard."
       })
     } finally {
       setIsLoading(false)

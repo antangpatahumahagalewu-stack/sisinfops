@@ -95,11 +95,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if transaction_number already exists
+    // Check if transaction_code already exists (use transaction_code not transaction_number)
     const { data: existingTransaction } = await supabase
       .from("financial_transactions")
       .select("id")
-      .eq("transaction_number", data.transaction_number)
+      .eq("transaction_code", data.transaction_number) // Map transaction_number to transaction_code
       .single();
 
     if (existingTransaction) {
@@ -109,27 +109,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate ledger exists if provided
-    if (data.ledger_id) {
-      const { data: ledger } = await supabase
-        .from("accounting_ledgers")
-        .select("id, ledger_name")
-        .eq("id", data.ledger_id)
-        .single();
-      
-      if (!ledger) {
-        return NextResponse.json(
-          { error: "Ledger tidak ditemukan" },
-          { status: 404 }
-        );
-      }
-    }
-
     // Validate project exists if provided
     if (data.project_id) {
       const { data: project } = await supabase
         .from("carbon_projects")
-        .select("id, nama_project")
+        .select("id, project_name")
         .eq("id", data.project_id)
         .single();
       
@@ -157,32 +141,33 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Prepare insert data with SAK compliance
+    // Prepare insert data to match existing database schema
     const insertData: any = {
+      transaction_code: data.transaction_number, // Map to transaction_code
       transaction_date: new Date(data.transaction_date).toISOString(),
-      transaction_number: data.transaction_number,
-      jenis_transaksi: data.jenis_transaksi,
-      jumlah_idr: data.jumlah_idr,
       description: data.description,
-      status: data.status,
-      ledger_id: data.ledger_id || null,
-      supporting_document_url: data.supporting_document_url || null,
+      amount: data.jumlah_idr, // Map jumlah_idr to amount
+      currency: "IDR",
+      transaction_type: data.jenis_transaksi === "PENERIMAAN" ? "income" : 
+                       data.jenis_transaksi === "PENGELUARAN" ? "expense" : "transfer",
+      status: data.status === "DRAFT" ? "pending" : data.status.toLowerCase(),
       project_id: data.project_id || null,
       budget_id: data.budget_id || null,
       created_by: session.user.id,
-      // Double-entry accounting fields
-      debit_account_code: data.debit_account_code,
-      credit_account_code: data.credit_account_code,
     };
 
-    // Insert into database
+    // Add payment_method if not provided
+    if (!insertData.payment_method) {
+      insertData.payment_method = "transfer";
+    }
+
+    // Insert into database with correct table joins
     const { data: newTransaction, error } = await supabase
       .from("financial_transactions")
       .insert(insertData)
       .select(`
         *,
-        accounting_ledgers:ledger_id (ledger_name, ledger_code),
-        carbon_projects:project_id (nama_project),
+        carbon_projects:project_id (project_name, project_code),
         financial_budgets:budget_id (budget_name),
         profiles:created_by (full_name, role)
       `)
@@ -239,8 +224,7 @@ export async function GET(request: NextRequest) {
     // Get query parameters for filtering
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get("status");
-    const jenis_transaksi = searchParams.get("jenis_transaksi");
-    const ledger_id = searchParams.get("ledger_id");
+    const transaction_type = searchParams.get("transaction_type"); // Use transaction_type instead of jenis_transaksi
     const project_id = searchParams.get("project_id");
     const budget_id = searchParams.get("budget_id");
     const start_date = searchParams.get("start_date");
@@ -253,8 +237,7 @@ export async function GET(request: NextRequest) {
       .from("financial_transactions")
       .select(`
         *,
-        accounting_ledgers:ledger_id (ledger_name, ledger_code),
-        carbon_projects:project_id (nama_project),
+        carbon_projects:project_id (project_name, project_code),
         financial_budgets:budget_id (budget_name),
         profiles:created_by (full_name, role)
       `, { count: 'exact' });
@@ -264,12 +247,8 @@ export async function GET(request: NextRequest) {
       query = query.eq("status", status);
     }
     
-    if (jenis_transaksi) {
-      query = query.eq("jenis_transaksi", jenis_transaksi);
-    }
-
-    if (ledger_id) {
-      query = query.eq("ledger_id", ledger_id);
+    if (transaction_type) {
+      query = query.eq("transaction_type", transaction_type);
     }
 
     if (project_id) {
@@ -291,7 +270,7 @@ export async function GET(request: NextRequest) {
 
     // Search filter
     if (search) {
-      query = query.or(`transaction_number.ilike.%${search}%,description.ilike.%${search}%`);
+      query = query.or(`transaction_code.ilike.%${search}%,description.ilike.%${search}%`);
     }
 
     // Apply pagination
@@ -308,22 +287,36 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Calculate totals
-    const totalReceipts = transactions
-      ?.filter(tx => tx.jenis_transaksi === "PENERIMAAN")
+    // Transform data to match frontend expectations
+    const transformedTransactions = (transactions || []).map(tx => ({
+      id: tx.id,
+      transaction_date: tx.transaction_date,
+      transaction_number: tx.transaction_code, // Map transaction_code to transaction_number
+      jenis_transaksi: tx.transaction_type === 'income' ? 'PENERIMAAN' : 
+                       tx.transaction_type === 'expense' ? 'PENGELUARAN' : 'TRANSFER',
+      jumlah_idr: tx.amount, // Map amount to jumlah_idr
+      description: tx.description,
+      status: tx.status?.toUpperCase() || 'PENDING',
+      ledger_name: 'General Ledger', // Default value since ledger_id doesn't exist
+      created_by_name: tx.profiles?.full_name || 'System'
+    }));
+
+    // Calculate totals using transformed data
+    const totalReceipts = transformedTransactions
+      .filter(tx => tx.jenis_transaksi === "PENERIMAAN")
       .reduce((sum, tx) => sum + tx.jumlah_idr, 0) || 0;
 
-    const totalPayments = transactions
-      ?.filter(tx => tx.jenis_transaksi === "PENGELUARAN")
+    const totalPayments = transformedTransactions
+      .filter(tx => tx.jenis_transaksi === "PENGELUARAN")
       .reduce((sum, tx) => sum + tx.jumlah_idr, 0) || 0;
 
-    const totalTransfers = transactions
-      ?.filter(tx => tx.jenis_transaksi === "TRANSFER")
+    const totalTransfers = transformedTransactions
+      .filter(tx => tx.jenis_transaksi === "TRANSFER")
       .reduce((sum, tx) => sum + tx.jumlah_idr, 0) || 0;
 
     return NextResponse.json(
       { 
-        data: transactions || [],
+        data: transformedTransactions,
         summary: {
           total_transactions: count || 0,
           total_receipts: totalReceipts,

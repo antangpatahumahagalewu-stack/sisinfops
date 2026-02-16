@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -47,6 +48,9 @@ export default async function UserManagementPage({
   let users: any[] = []
   let totalCount = 0
   try {
+    // Create admin client for auth.admin operations (requires service role key)
+    const adminClient = await createAdminClient()
+    
     // First, get profiles with pagination (we'll fetch first 100 for now, but table will handle pagination via API)
     const { data: profiles, error, count } = await supabase
       .from('profiles')
@@ -61,7 +65,7 @@ export default async function UserManagementPage({
       users = await Promise.all(
         (profiles || []).map(async (profile) => {
           try {
-            const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(profile.id)
+            const { data: authUser, error: authError } = await adminClient.auth.admin.getUserById(profile.id)
             
             if (authError) {
               console.error(`Error fetching auth user for ${profile.id}:`, authError)

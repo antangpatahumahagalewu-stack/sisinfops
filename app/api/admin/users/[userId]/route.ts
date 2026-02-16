@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { NextRequest, NextResponse } from "next/server"
 
 // GET: Get user by ID
@@ -44,8 +45,11 @@ export async function GET(
       return NextResponse.json({ error: userError.message }, { status: 500 })
     }
     
+    // Create admin client for auth.admin operations
+    const adminClient = await createAdminClient()
+    
     // Get auth user info using admin API
-    const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId)
+    const { data: authUser, error: authError } = await adminClient.auth.admin.getUserById(userId)
     
     if (authError) {
       console.error('Error fetching auth user:', authError)
@@ -129,6 +133,9 @@ export async function PUT(
       }
     }
     
+    // Create admin client for auth.admin operations
+    const adminClient = await createAdminClient()
+    
     // Update auth user if email, password, or is_active provided
     if (email || password || is_active !== undefined) {
       const updateData: any = {}
@@ -138,7 +145,7 @@ export async function PUT(
         updateData.ban_duration = is_active ? null : 'none' // 'none' means permanent ban
       }
       
-      const { error: authUpdateError } = await supabase.auth.admin.updateUserById(
+      const { error: authUpdateError } = await adminClient.auth.admin.updateUserById(
         userId,
         updateData
       )
@@ -178,7 +185,7 @@ export async function PUT(
       return NextResponse.json({ error: fetchError.message }, { status: 500 })
     }
     
-    const { data: authUser } = await supabase.auth.admin.getUserById(userId)
+    const { data: authUser } = await adminClient.auth.admin.getUserById(userId)
     
     return NextResponse.json({ 
       success: true, 
@@ -239,8 +246,11 @@ export async function DELETE(
       }, { status: 400 })
     }
     
+    // Create admin client for auth.admin operations
+    const adminClient = await createAdminClient()
+    
     // Delete user from auth (this will cascade to profile due to foreign key)
-    const { error: deleteError } = await supabase.auth.admin.deleteUser(userId)
+    const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId)
     
     if (deleteError) {
       console.error('Error deleting user:', deleteError)

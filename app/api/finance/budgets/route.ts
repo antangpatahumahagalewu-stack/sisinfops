@@ -72,9 +72,9 @@ export async function POST(request: NextRequest) {
 
     const data = validationResult.data;
 
-    // Check if budget_code already exists
+    // Check if budget_code already exists (use financial_budgets table)
     const { data: existingBudget } = await supabase
-      .from("budgets")
+      .from("financial_budgets")
       .select("id")
       .eq("budget_code", data.budget_code)
       .single();
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Prepare insert data
+    // Prepare insert data - match financial_budgets table structure
     const insertData: any = {
       budget_code: data.budget_code,
       budget_name: data.budget_name,
@@ -112,6 +112,7 @@ export async function POST(request: NextRequest) {
       total_amount: data.total_amount,
       allocated_amount: 0,
       spent_amount: 0,
+      remaining_amount: data.total_amount, // Set initial remaining = total
       status: "draft",
       created_by: session.user.id,
     };
@@ -120,9 +121,9 @@ export async function POST(request: NextRequest) {
     if (data.description) insertData.description = data.description;
     if (data.notes) insertData.notes = data.notes;
 
-    // Insert into database
+    // Insert into database (use financial_budgets table)
     const { data: newBudget, error } = await supabase
-      .from("budgets")
+      .from("financial_budgets")
       .insert(insertData)
       .select(`
         *,
@@ -190,7 +191,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
 
     let query = supabase
-      .from("budgets")
+      .from("financial_budgets")
       .select(`
         *,
         carbon_projects:project_id (project_name, project_code),

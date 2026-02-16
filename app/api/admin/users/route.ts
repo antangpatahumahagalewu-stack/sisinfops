@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { NextRequest, NextResponse } from "next/server"
 
 // GET: List all users with pagination and filters
@@ -61,11 +62,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
     
+    // Create admin client for auth.admin operations
+    const adminClient = await createAdminClient()
+    
     // For each profile, get auth user info using admin API
     const usersWithAuthInfo = await Promise.all(
       (profiles || []).map(async (profile) => {
         try {
-          const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(profile.id)
+          const { data: authUser, error: authError } = await adminClient.auth.admin.getUserById(profile.id)
           
           if (authError) {
             console.error(`Error fetching auth user for ${profile.id}:`, authError)
@@ -191,50 +195,141 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
     
-    // Create user in auth
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true, // Auto-confirm email for admin-created users
-      user_metadata: { full_name }
-    })
+    // WORKAROUND: Use regular signUp since admin.createUser is failing with "Database error"
+    // This approach creates the user through regular auth flow then updates their role
+    console.log('🔄 Using workaround: regular signUp + role update for:', { email, full_name, role })
     
-    if (authError) {
-      console.error('Error creating auth user:', authError)
-      return NextResponse.json({ error: authError.message }, { status: 500 })
-    }
-    
-    const newUser = authData.user
-    
-    // Create profile for the user
-    const { error: profileInsertError } = await supabase
-      .from('profiles')
-      .insert({
-        id: newUser.id,
-        full_name: full_name,
-        role: role
+    try {
+      // First, check if user already exists by trying to sign in
+      console.log('🔍 Checking if user already exists...')
+      const { data: { user: existingUser } } = await supabase.auth.signInWithPassword({
+        email,
+        password: 'temporary_password_for_check' // Will fail if user doesn't exist
+      }).catch(() => ({ data: { user: null }, error: null }))
+      
+      // If signInWithPassword succeeds, user exists
+      if (existingUser) {
+        return NextResponse.json({ 
+          error: 'User already exists',
+          details: `Email ${email} is already registered`
+        }, { status: 400 })
+      }
+      
+      // Create user using regular signUp (requires email confirmation)
+      console.log('🔧 Creating user via signUp...')
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name },
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard`
+        }
       })
-    
-    if (profileInsertError) {
-      console.error('Error creating profile:', profileInsertError)
-      // Rollback: delete the auth user if profile creation fails
-      await supabase.auth.admin.deleteUser(newUser.id)
-      return NextResponse.json({ error: profileInsertError.message }, { status: 500 })
+      
+      if (authError) {
+        console.error('❌ Error in signUp:', authError)
+        
+        // Provide helpful error messages
+        let userFriendlyError = authError.message
+        let suggestions: string[] = []
+        
+        if (authError.message.includes('User already registered')) {
+          userFriendlyError = 'Email already exists in the system'
+          suggestions = ['Use a different email address']
+        } else if (authError.message.includes('Password')) {
+          userFriendlyError = 'Password does not meet requirements'
+          suggestions = ['Use a stronger password (min 6 characters, mix of letters and numbers)']
+        } else if (authError.message.includes('rate limit')) {
+          userFriendlyError = 'Rate limit exceeded. Please try again later.'
+          suggestions = ['Wait a few minutes before trying again']
+        }
+        
+        return NextResponse.json({ 
+          error: userFriendlyError,
+          details: authError.message,
+          suggestions,
+          originalError: {
+            name: authError.name,
+            status: authError.status
+          }
+        }, { status: 500 })
+      }
+      
+      const newUser = authData.user
+      
+      if (!newUser) {
+        console.error('❌ No user returned from signUp:', authData)
+        return NextResponse.json({ 
+          error: 'User creation failed',
+          details: 'No user object returned from authentication service'
+        }, { status: 500 })
+      }
+      
+      console.log('✅ User created via signUp:', newUser.id)
+      
+      // Create profile with the specified role
+      const { error: profileInsertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: newUser.id,
+          full_name: full_name,
+          role: role
+        })
+      
+      if (profileInsertError) {
+        console.error('❌ Error creating profile:', profileInsertError)
+        
+        // Try to delete the auth user (need admin client for this)
+        try {
+          const adminClient = await createAdminClient()
+          await adminClient.auth.admin.deleteUser(newUser.id)
+          console.log('🧹 Rollback: deleted auth user')
+        } catch (deleteError) {
+          console.error('⚠️ Failed to rollback auth user:', deleteError)
+        }
+        
+        return NextResponse.json({ 
+          error: 'Failed to create user profile',
+          details: profileInsertError.message 
+        }, { status: 500 })
+      }
+      
+      console.log('✅ Profile created with role:', role)
+      
+      // Auto-confirm email for admin-created users using admin client
+      try {
+        const adminClient = await createAdminClient()
+        await adminClient.auth.admin.updateUserById(newUser.id, {
+          email_confirm: true
+        })
+        console.log('✅ Email auto-confirmed for admin-created user')
+      } catch (confirmError) {
+        console.warn('⚠️ Could not auto-confirm email (admin client may still have issues):', confirmError)
+        // Continue anyway - user can confirm via email
+      }
+      
+      return NextResponse.json({ 
+        success: true, 
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          full_name,
+          role,
+          needsEmailConfirmation: !newUser.email_confirmed_at
+        },
+        message: newUser.email_confirmed_at 
+          ? 'User created successfully with confirmed email' 
+          : 'User created successfully. Email confirmation may be required.'
+      }, { status: 201 })
+      
+    } catch (error: any) {
+      console.error('❌ Unexpected error in createUser workaround:', error)
+      return NextResponse.json({ 
+        error: 'Unexpected error creating user',
+        details: error.message,
+        stack: error.stack
+      }, { status: 500 })
     }
-    
-    // Log the activity (optional)
-    // We can call the activity log function here
-    
-    return NextResponse.json({ 
-      success: true, 
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        full_name,
-        role
-      },
-      message: 'User created successfully' 
-    }, { status: 201 })
     
   } catch (error) {
     console.error('Unexpected error in user creation API:', error)
